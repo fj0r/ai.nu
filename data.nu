@@ -5,7 +5,7 @@ export def --env init [] {
     $env.OPENAI_DB = $db
     if ($env.OPENAI_DB | path exists) { return }
     {_: '.'} | into sqlite -t _ $env.OPENAI_DB
-    print $"(ansi grey)created database: ($env.OPENAI_DB)(ansi reset)"
+    print $"(ansi grey)created database: $env.OPENAI_DB(ansi reset)"
     for s in [
         "CREATE TABLE IF NOT EXISTS provider (
             name TEXT PRIMARY KEY,
