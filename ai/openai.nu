@@ -45,7 +45,7 @@ export def ai-send [
     }
     let req = {
         model: $model
-        messages: ($sys | $req)
+        messages: [...$sys ...$req]
         temperature: $s.temperature
         stream: true
     }
