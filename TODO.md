@@ -1,0 +1,3 @@
+- [ ] Rename `ai do` to `ai-do` to avoid auto-completion failure after aliasing #71
+    - [x] Adjust completion, with default command names containing no spaces #72
+    - [x] ai-do follows the `system` in the configuration #322

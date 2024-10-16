@@ -140,6 +140,7 @@ export def ai-do [
     | str replace --all '{}' ''
 
     $input | (ai-send -p $placehold
+        --system $role.system?
         --temp prompt-XXX --tag tool --forget
         --edit=$edit --out=$out --debug=$debug
         -m $model $prompt)
