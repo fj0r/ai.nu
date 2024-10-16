@@ -86,26 +86,20 @@ export def ai-chat [
     let system = if ($system | is-empty) { '' } else {
         open $env.OPENAI_DB
         | query db $"select system from prompt where name = '($system)'"
-        | first
+        | get 0.system
     }
     let p = $'😎 '
     let ci = ansi grey
     let cr = ansi reset
     let cm = ansi yellow
     let nl = char newline
-    mut init = $system | is-not-empty
     while true {
         let a = input $"($ci)($p)"
         match $a {
             '\q' | 'exit' | 'quit' => { break }
             _ => {
                 print -n $"✨ ($cm)"
-                if $init {
-                    $init = false
-                    ai-send -m $model --system $system $a
-                } else {
-                    ai-send -m $model $a
-                }
+                ai-send -m $model --system $system $a
                 print $cr
             }
         }
