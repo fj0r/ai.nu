@@ -1,8 +1,9 @@
 use sqlite.nu *
 
 export def --env init [] {
-    let db = [$nu.data-dir 'openai.db'] | path join
-    $env.OPENAI_DB = $db
+    if 'OPENAI_DB' not-in $env {
+        $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
+    }
     if ($env.OPENAI_DB | path exists) { return }
     {_: '.'} | into sqlite -t _ $env.OPENAI_DB
     print $"(ansi grey)created database: $env.OPENAI_DB(ansi reset)"
