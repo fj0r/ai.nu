@@ -38,7 +38,7 @@ export def ai-config-edit [
 }
 
 export def ai-config-update-provider [name: string@cmpl-provider] {
-    ai config edit provider $name
+    ai-config-edit provider $name
 }
 
 export def ai-config-update-prompt [name: string@cmpl-prompt] {
