@@ -48,6 +48,13 @@ export def --env init [] {
             tag TEXT
         );"
         "CREATE INDEX idx_messages ON messages (session_id);"
+        "CREATE TABLE IF NOT EXISTS function (
+            name TEXT,
+            description TEXT,
+            parameters TEXT,
+            tag TEXT
+        );"
+        "CREATE INDEX idx_function ON function (name);"
 
         "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
 
@@ -59,7 +66,7 @@ export def --env init [] {
         ('dictionary', '', 'Explain the meaning, usage, list synonyms and antonyms of the following words:\n```{}```', '', 'dictionary'),
         ('dictionary-zh', '', '解释以下单词含义，用法，并列出同义词，近义词和反义词:\n```{}```', '', 'dictionary'),
         ('synonyms', '', '解释以下词语的区别，并介绍相关的近义词和反义词\n```{}```', '', '近义词解析'),
-        ('trans-to', '', 'Translate the following text into {}:\n```\n{}\n```', '[{\"en\":\"English\",\"zh\":\"Chinese\"}]', 'Translation into the specified language');"
+        ('trans-to', '### Role\nYou are a translation assisant\n\n### Goals\nTranslate the following text into the specified language\n\n### Constraints\nOnly provide the translated content without explanations\nDo not enclose the translation result with quotes\n\n### Attention\nOther instructions are additional requirements\n``` enclosed contents are what needs to be translated', 'Translate the following text into {}:\n```\n{}\n```', '[{\"en\":\"English\",\"zh\":\"Chinese\"}]', 'Translation into the specified language');"
     ] {
         open $env.OPENAI_DB | query db $s
     }

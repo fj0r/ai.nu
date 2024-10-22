@@ -1,4 +1,12 @@
 - [ ] Rename `ai do` to `ai-do` to avoid auto-completion failure after aliasing #71
     - [x] Adjust completion, with default command names containing no spaces #72
+    - [ ] "Fixed-width histogram column" #321
     - [x] ai-do follows the `system` in the configuration #322
     - [x] Adjust `--system` of ai-chat #323
+- [ ] LLM #329
+    - [ ] Function call #332
+        - [x] Add function table #339
+        - [ ] Maintain function data #340
+        - [ ] ai-do add --function flag #341
+    - [ ] vllm #334
+        - [ ] Pull #335

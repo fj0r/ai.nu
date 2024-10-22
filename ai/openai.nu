@@ -111,6 +111,7 @@ export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
     --model(-m): string@cmpl-models
+    --functions(-f): list<string@cmpl-functions>
     --debug
 ] {
     let input = $in

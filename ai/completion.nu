@@ -10,6 +10,9 @@ export def cmpl-models [] {
     | get data.id
 }
 
+export def cmpl-functions [] {
+    [a b]
+}
 
 export def 'cmpl-role' [ctx] {
     let args = $ctx | split row '|' | last | str trim -l | split row ' ' | range 1..
