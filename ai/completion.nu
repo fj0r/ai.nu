@@ -1,3 +1,4 @@
+use sqlite.nu *
 use data.nu
 
 export def cmpl-models [] {
@@ -11,7 +12,7 @@ export def cmpl-models [] {
 }
 
 export def cmpl-function [] {
-    open $env.OPENAI_DB | query db $'select name from function' | get name
+    run $'select name from function' | get name
 }
 
 export def 'cmpl-role' [ctx] {
@@ -19,10 +20,10 @@ export def 'cmpl-role' [ctx] {
     let len = $args | length
     match $len {
         1 => {
-            open $env.OPENAI_DB | query db "select name as value, description from prompt"
+            run "select name as value, description from prompt"
         }
         _ => {
-            let d = open $env.OPENAI_DB | query db $"select * from prompt where name = '($args.0)'"
+            let d = run $"select * from prompt where name = '($args.0)'"
             $d | first | get placeholder | from json | get ($len - 2) | columns
         }
     }
@@ -34,15 +35,14 @@ export def cmpl-config [context] {
     if ($ctx | length) < 2 {
         return [provider, prompt, function]
     } else {
-        open $env.OPENAI_DB | query db $'select name from ($ctx.0)' | get name
+        run $'select name from ($ctx.0)' | get name
     }
 }
 
 export def cmpl-provider [] {
-    let current = open $env.OPENAI_DB
-    | query db $"select provider from sessions where created = '($env.OPENAI_SESSION)'"
+    let current = run $"select provider from sessions where created = '($env.OPENAI_SESSION)'"
     | get provider
-    open $env.OPENAI_DB | query db $'select name, active from provider'
+    run $'select name, active from provider'
     | each {|x|
         let a = if $x.active > 0 {'*'} else {''}
         let c = if $x.name in $current {'+'} else {''}
@@ -51,14 +51,12 @@ export def cmpl-provider [] {
 }
 
 export def cmpl-prompt [] {
-    open $env.OPENAI_DB
-    | query db $"select name from prompt"
+    run $"select name from prompt"
     | get name
 }
 
 export def cmpl-system [] {
-    open $env.OPENAI_DB
-    | query db $"select name from prompt where system != ''"
+    run $"select name from prompt where system != ''"
     | get name
 }
 

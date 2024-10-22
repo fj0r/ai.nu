@@ -1,3 +1,4 @@
+use sqlite.nu *
 use common.nu *
 use completion.nu *
 use data.nu
@@ -13,6 +14,7 @@ export def ai-send [
     message: string
     --model(-m): string@cmpl-models
     --system: string
+    --function(-f): list<string@cmpl-function>
     --image(-i): path
     --forget(-f)
     --placehold(-p): string = '{}'
@@ -42,6 +44,9 @@ export def ai-send [
         [{ role: "user", content: $content, ...$img }]
     } else {
         data messages
+    }
+    let function = if ($function | is-not-empty) {
+        
     }
     let req = {
         model: $model
@@ -84,8 +89,7 @@ export def ai-chat [
     let s = data session
     let model = if ($model | is-empty) { $s.model } else { $model }
     let system = if ($system | is-empty) { '' } else {
-        open $env.OPENAI_DB
-        | query db $"select system from prompt where name = '($system)'"
+        run $"select system from prompt where name = '($system)'"
         | get 0.system
     }
     let p = $'😎 '
@@ -117,7 +121,7 @@ export def ai-do [
     let input = $in
     let edit = $input | is-empty
     let s = data session
-    let role = open $env.OPENAI_DB | query db $"select * from prompt where name = '($args.0)'" | first
+    let role = run $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
     let prompt = $role | get template | lines | each {|x|
         if ($x | str replace -ar "['\"`]+" '' | $in == '{}') {
@@ -135,7 +139,7 @@ export def ai-do [
     | str replace --all '{}' ''
 
     $input | (ai-send -p $placehold
-        --system $role.system?
+        --system $role.system? --function=$function
         --temp prompt-XXX --tag tool --forget
         --edit=$edit --out=$out --debug=$debug
         -m $model $prompt)

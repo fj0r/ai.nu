@@ -68,7 +68,7 @@ export def --env init [] {
         ('synonyms', '', '解释以下词语的区别，并介绍相关的近义词和反义词\n```{}```', '', '近义词解析'),
         ('trans-to', '### Role\nYou are a translation assisant\n\n### Goals\nTranslate the following text into the specified language\n\n### Constraints\nOnly provide the translated content without explanations\nDo not enclose the translation result with quotes\n\n### Attention\nOther instructions are additional requirements\n``` enclosed contents are what needs to be translated', 'Translate the following text into {}:\n```\n{}\n```', '[{\"en\":\"English\",\"zh\":\"Chinese\"}]', 'Translation into the specified language');"
     ] {
-        open $env.OPENAI_DB | query db $s
+        run $s
     }
 }
 
@@ -78,43 +78,32 @@ export def make-session [created] {
         SELECT (Q $created), name, model_default, temp_default
         FROM provider where active = 1 limit 1;"
     ] {
-        open $env.OPENAI_DB | query db $s
+        run $s
     }
 }
 
 export def edit [table pk] {
-    open $env.OPENAI_DB
-    | query db $"select * from ($table) where name = (Q $pk)"
+    run $"select * from ($table) where name = (Q $pk)"
     | first
     | to yaml
     | $"### config ($table)#($pk) \n($in)"
     | block-edit $"config-($table).XXX.yml"
     | from yaml
-    | db-upsert $env.OPENAI_DB $table name
-}
-
-export def query [s] {
-    #print $s
-    let r = open $env.OPENAI_DB | query db $s
-    if ($r | length) > 0 {
-        $r | first
-    } else {
-        {}
-    }
+    | db-upsert $table name
 }
 
 export def session [] {
-    query $"select * from provider as p join sessions as s
+    run $"select * from provider as p join sessions as s
         on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);"
+    | first
 }
 
 export def record [session, provider, model, role, content, token, tag] {
     let n = date now | format date '%FT%H:%M:%S.%f'
-    query $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
+    run $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
         VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $token), (Q $n), (Q $tag)\);"
 }
 
 export def messages [num = 10] {
-    open $env.OPENAI_DB
-    | query db $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' limit ($num)"
+    run $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' limit ($num)"
 }
