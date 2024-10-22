@@ -46,13 +46,16 @@ export def ai-send [
         data messages
     }
     let function = if ($function | is-not-empty) {
-        
-    }
+        let f = run $"select name, description, parameters from function
+            where name in \(($function | each { Q $in } | str join ', ' )\)"
+        {function: $f}
+    } else { {} }
     let req = {
         model: $model
         messages: [...$sys ...$req]
         temperature: $s.temperature
         stream: true
+        ...$function
     }
     if $debug {
         let xxx = [
