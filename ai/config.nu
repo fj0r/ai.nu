@@ -30,6 +30,14 @@ export def ai-config-add-prompt [o] {
     | db-upsert --do-nothing $env.OPENAI_DB 'prompt' 'name'
 }
 
+export def ai-config-add-function [o] {
+    {name: '', description: '', parameters: ''}
+    | merge $o
+    | update parameters {|x| $x.parameters | to json -r}
+    | select name description parameters
+    | db-upsert --do-nothing $env.OPENAI_DB 'function' 'name'
+}
+
 export def ai-config-edit [
     table: string@cmpl-config
     pk: string@cmpl-config
@@ -52,6 +60,19 @@ export def ai-config-update-prompt [name: string@cmpl-prompt] {
     | update placeholder {|x| $x.placeholder | to json -r}
     | select name system template placeholder description
     | db-upsert $env.OPENAI_DB 'prompt' 'name'
+}
+
+export def ai-config-update-function [name: string@cmpl-function] {
+    open $env.OPENAI_DB
+    | query db $"select * from function where name = (Q $name)"
+    | first
+    | update parameters {|x| $x.parameters | from json}
+    | to yaml
+    | block-edit $"update-function-($name).XXX.yml"
+    | from yaml
+    | update parameters {|x| $x.parameters | to json -r}
+    | select name description parameters
+    | db-upsert $env.OPENAI_DB 'function' 'name'
 }
 
 export def ai-config-del-provider [

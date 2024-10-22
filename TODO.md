@@ -6,7 +6,7 @@
 - [ ] LLM #329
     - [ ] Function call #332
         - [x] Add function table #339
-        - [ ] Maintain function data #340
+        - [x] Maintain function data #340
         - [ ] ai-do add --function flag #341
     - [ ] vllm #334
         - [ ] Pull #335

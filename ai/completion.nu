@@ -10,8 +10,8 @@ export def cmpl-models [] {
     | get data.id
 }
 
-export def cmpl-functions [] {
-    [a b]
+export def cmpl-function [] {
+    open $env.OPENAI_DB | query db $'select name from function' | get name
 }
 
 export def 'cmpl-role' [ctx] {
@@ -32,7 +32,7 @@ export def 'cmpl-role' [ctx] {
 export def cmpl-config [context] {
     let ctx = $context | split row -r '\s+' | range 1..
     if ($ctx | length) < 2 {
-        return [provider, prompt]
+        return [provider, prompt, function]
     } else {
         open $env.OPENAI_DB | query db $'select name from ($ctx.0)' | get name
     }

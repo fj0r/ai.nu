@@ -49,7 +49,7 @@ export def --env init [] {
         );"
         "CREATE INDEX idx_messages ON messages (session_id);"
         "CREATE TABLE IF NOT EXISTS function (
-            name TEXT,
+            name TEXT PRIMARY KEY,
             description TEXT,
             parameters TEXT,
             tag TEXT
