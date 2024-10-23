@@ -15,6 +15,11 @@ export def cmpl-function [] {
     run $'select name from function' | get name
 }
 
+export def cmpl-previous [] {
+    run $"select id as value, updated || '│' || type || '|' || args || '│' ||  model as description
+        from scratch order by updated desc limit 10;"
+}
+
 export def 'cmpl-role' [ctx] {
     let args = $ctx | split row '|' | last | str trim -l | split row ' ' | range 1..
     let len = $args | length

@@ -112,12 +112,19 @@ export def ai-do [
     --out(-o)
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-function>
-    --previous(-p)
+    --previous(-p): int@cmpl-previous
     --debug
 ] {
     let input = $in
     let input = if ($input | is-empty) {
-        '' | block-edit $"($args | str join '_').XXX.temp"
+        if ($previous | is-not-empty) {
+            run $"select content from scratch where id = ($previous)" | get 0.content
+        } else {
+            ''
+        }
+        | block-edit $"($args | str join '_').XXX.temp" | tee {
+            run $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
+        }
     } else {
         $input
     }

@@ -1,5 +1,5 @@
-export def Q [...t] {
-    let s = $t | str join '' | str replace -a "'" "''"
+export def Q [...t --sep:string=''] {
+    let s = $t | str join $sep | str replace -a "'" "''"
     $"'($s)'"
 }
 

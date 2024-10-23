@@ -56,6 +56,17 @@ export def --env init [] {
         );"
         "CREATE INDEX idx_function ON function (name);"
 
+        "CREATE TABLE IF NOT EXISTS scratch (
+            id INTEGER PRIMARY KEY,
+            type TEXT DEFAULT '',
+            args TEXT DEFAULT '',
+            content TEXT DEFAULT '',
+            created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
+            updated TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
+            function TEXT '',
+            model TEXT ''
+        );"
+
         "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
 
         "INSERT INTO prompt (name, system, template, placeholder, description) VALUES
