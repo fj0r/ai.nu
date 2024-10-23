@@ -88,10 +88,10 @@ export def ai-change-temperature [
     --global(-g)
 ] {
     if $global {
-        data query $"update provider set temp_default = '($o)'
+        run $"update provider set temp_default = '($o)'
             where name = \(select provider from sessions where created = '($env.OPENAI_SESSION)'\)"
     }
-    data query $"update sessions set temperature = '($o)'
+    run $"update sessions set temperature = '($o)'
         where created = '($env.OPENAI_SESSION)'"
 }
 
@@ -104,10 +104,10 @@ export def ai-change-provider [
             update provider set active = 0;
             update provider set active = 1 where name = '($o)';
             COMMIT;"
-        data query $"update provider set active = 0;"
-        data query $"update provider set active = 1 where name = (Q $o);"
+        run $"update provider set active = 0;"
+        run $"update provider set active = 1 where name = (Q $o);"
     }
-    data query $"update sessions set provider = (Q $o),
+    run $"update sessions set provider = (Q $o),
         model = \(select model_default from provider where name = (Q $o)\)
         where created = (Q $env.OPENAI_SESSION)"
 }
@@ -117,10 +117,10 @@ export def ai-change-model [
     --global(-g)
 ] {
     if $global {
-        data query $"update provider set model_default = (Q $model)
+        run $"update provider set model_default = (Q $model)
             where name = \(select provider from sessions where created = (Q $env.OPENAI_SESSION)\)"
     }
-    data query $"update sessions set model = (Q $model)
+    run $"update sessions set model = (Q $model)
         where created = (Q $env.OPENAI_SESSION)"
 }
 
