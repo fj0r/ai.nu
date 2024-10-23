@@ -11,7 +11,7 @@ export-env {
 }
 
 export def ai-send [
-    message: string
+    message: string = '{}'
     --model(-m): string@cmpl-models
     --system: string
     --function(-f): list<string@cmpl-function>
@@ -19,17 +19,10 @@ export def ai-send [
     --forget(-f)
     --placehold(-p): string = '{}'
     --out(-o)
-    --edit(-e)
-    --temp(-t): string = 'send-message.XXX'
     --tag: string = ''
     --debug
 ] {
     let content = $in | default ""
-    let content = if $edit {
-        $content | block-edit $temp
-    } else {
-        $content
-    }
     let content = $message | str replace -m $placehold $content
     let img = if ($image | is-empty) {
         {}
@@ -119,10 +112,15 @@ export def ai-do [
     --out(-o)
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-function>
+    --previous(-p)
     --debug
 ] {
     let input = $in
-    let edit = $input | is-empty
+    let input = if ($input | is-empty) {
+        '' | block-edit $"($args | str join '_').XXX.temp"
+    } else {
+        $input
+    }
     let s = data session
     let role = run $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
@@ -143,8 +141,8 @@ export def ai-do [
 
     $input | (ai-send -p $placehold
         --system $role.system? --function=$function
-        --temp prompt-XXX --tag tool --forget
-        --edit=$edit --out=$out --debug=$debug
+        --tag tool --forget
+        --out=$out --debug=$debug
         -m $model $prompt)
 }
 
