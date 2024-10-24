@@ -4,6 +4,21 @@ export def --env init [] {
     if 'OPENAI_DB' not-in $env {
         $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
     }
+    if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
+        $env.OPENAI_PROMPT_TEMPLATE = "
+            # Role:
+            ## Background:
+            ## Attention:
+            ## Profile:
+            ## Constraints:
+            ## Goals:
+            ## Skills:
+            ## Workflow:
+            ## OutputFormat:
+            ## Suggestions:
+            ## Initialization:
+            " | lines | range 1..-1 | str substring 12.. | str join (char newline)
+    }
     if ($env.OPENAI_DB | path exists) { return }
     {_: '.'} | into sqlite -t _ $env.OPENAI_DB
     print $"(ansi grey)created database: $env.OPENAI_DB(ansi reset)"

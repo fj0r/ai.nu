@@ -21,7 +21,12 @@ export def ai-config-add-provider [o] {
 }
 
 export def ai-config-add-prompt [o] {
-    {system: '', placeholder: '', description: ''}
+    {
+        system: $env.OPENAI_PROMPT_TEMPLATE
+        template: '{}'
+        placeholder: ''
+        description: ''
+    }
     | merge $o
     | update placeholder {|x| $x.placeholder | to json -r}
     | select name system template placeholder description
@@ -71,13 +76,13 @@ export def ai-config-update-function [name: string@cmpl-function] {
     | db-upsert 'function' 'name'
 }
 
-export def ai-config-del-provider [
+export def ai-config-delete-provider [
     name: string@cmpl-provider
 ] {
     run $'delete from provider where name = (Q $name)'
 }
 
-export def ai-config-del-prompt [
+export def ai-config-delete-prompt [
     name: string@cmpl-prompt
 ] {
     run $'delete from prompt where name = (Q $name)'
