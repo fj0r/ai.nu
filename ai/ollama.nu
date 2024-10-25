@@ -188,3 +188,15 @@ export def ollama-import [dir] {
     let model = cat source.txt
     ollama create $model
 }
+
+export def gguf-to-ollama [file --name(-n):string] {
+    let name = if ($name | is-empty) {
+        $file  | path basename | split row '-' | range 0..<-1 | str join '-'
+    } else {
+        $name
+    }
+    let f = mktemp -t Modelfile.XXX.txt
+    $"FROM ($file | path expand)" | save -f $f
+    ollama create $name -f $f
+    rm -f $f
+}
