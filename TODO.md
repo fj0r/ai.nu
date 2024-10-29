@@ -3,7 +3,7 @@
     - [x] ai-do follows the `system` in the configuration #322
     - [x] Adjust `--system` of ai-chat #323
     - [x] Use Scratch to record ai-do input #349
-- [ ] LLM #329
+- LLM #329
     - [ ] Function call #332
         - [x] Add function table #339
         - [x] Maintain function data #340
