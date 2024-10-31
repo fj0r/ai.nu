@@ -20,10 +20,11 @@ export def ai-config-add-provider [o] {
     | db-upsert --do-nothing 'provider' 'name'
 }
 
-export def ai-config-add-prompt [o] {
+export def ai-config-add-prompt [name o] {
     {
+        name: $name
         system: $env.OPENAI_PROMPT_TEMPLATE
-        template: '{}'
+        template: "```\n{}\n```"
         placeholder: ''
         description: ''
     }
