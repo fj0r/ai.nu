@@ -132,11 +132,11 @@ export def ai-do [
     let role = run $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
 
-    let plc = $role.placeholder? | from json
-    let val = $args | range 1..
-    | zip ($plc | columns)
+    let pls = $role.placeholder | from json
+    let val = $pls | columns
+    | zip ($args | range 1..)
     | reduce -f {} {|i,a|
-        $a | insert ($i.1 | into string) ($plc | get $i.1 | get $i.0)
+        $a | insert ($i.0 | into string) ($pls | get $i.0 | get $i.1)
     }
 
     let prompt = $role.template | render {_: $placehold, ...$val}

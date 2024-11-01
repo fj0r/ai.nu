@@ -8,7 +8,7 @@ export def add-prompt [] {
             name: ''
             system: $env.OPENAI_PROMPT_TEMPLATE
             template: "```\n{}\n```"
-            placeholder: ''
+            placeholder: '{}'
             description: ''
         }
         filter: {
@@ -65,7 +65,7 @@ export def --env init [] {
             name TEXT PRIMARY KEY,
             system TEXT,
             template TEXT,
-            placeholder TEXT,
+            placeholder TEXT NOT NULL DEFAULT '{}',
             description TEXT
         );"
         "CREATE INDEX idx_prompt ON prompt (name);"
@@ -152,7 +152,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder: null
+      placeholder: '{}'
       description: Summarize from git differences
     - name: api-doc
       system: ''
@@ -194,7 +194,7 @@ export def --env init [] {
       template: |-
         解释以下词语的区别，并介绍相关的近义词和反义词
         ```{}```
-      placeholder: null
+      placeholder: '{}'
       description: 近义词解析
     - name: trans-to
       system: |-
@@ -236,7 +236,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder: ''
+      placeholder: '{}'
       description: 生成git提交信息
     - name: bilingual-translation
       system: You are a translation expert. If the user sends you Chinese, you will translate it into English. If the user sends you English, you will translate it into Chinese. You are only responsible for translation and should not answer any questions.
@@ -245,21 +245,21 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder: ''
+      placeholder: '{}'
       description: ''
     - name: dictionary
       system: ''
       template: |-
         Explain the meaning, usage, list synonyms and antonyms of the following words:
         ```{}```
-      placeholder: ''
+      placeholder: '{}'
       description: dictionary
     - name: dictionary-zh
       system: ''
       template: |-
         解释以下单词含义，用法，并列出同义词，近义词和反义词:
         ```{}```
-      placeholder: ''
+      placeholder: '{}'
       description: dictionary
     - name: journal
       system: |
@@ -275,7 +275,7 @@ export def --env init [] {
         - ☐ 是未完成的
         - 🗹 是已完成的
       template: '{}'
-      placeholder: ''
+      placeholder: '{}'
       description: ''
     - name: name-helper
       system: |
@@ -290,13 +290,59 @@ export def --env init [] {
         output only the name
         use lowercase letters and underscores to separate words
       template: '{}'
-      placeholder: ''
+      placeholder: '{}'
       description: Naming suggestions
+    - name: analyze-sql-statement
+      system: |-
+        # Role: You are a database expert
+        ## Goals:
+        - Receive query statements
+        - Statistically relevant tables, and
+            - Extract fields that appear in the results
+            - Extract fields related to filtering conditions
+            - Analyze dependencies
+                - Which fields, when changed, will cause the results to change
+                - Which filtering conditions, when changed, will cause the results to change
+
+        ## Example:
+        Input:
+        ```
+        select a.x, b.y, c.z
+        from a
+        join b on a.id = b.a_id
+        join c on b.c_id = c.id
+        where a.h > 1
+          and b.i = 2
+        ```
+        Output:
+        ```
+        Tables involved include:
+        - name: a
+          select:
+          - x
+          where:
+          - h
+        - name: b
+          select:
+          - y
+          where:
+          - i
+        - name: c
+          select:
+          - z
+        ```
+      template: |-
+        ```
+        {}
+        ```
+      placeholder: '{}'
     - name: sql-pre-aggregation
-      system: |
+      system: |-
         # Role: 你是一名数据库优化专家
-        ## Background:
+        ## Goals:
         - 接受维度、指标和sql查询
+        - 根据查询创建物化视图
+        - 给出在物化视图上查询的示例
         ## Attention:
         - 按维度分组
           - 如果维度是日期时间类型，先使用time_bucket截断
@@ -306,15 +352,12 @@ export def --env init [] {
         ## Constraints:
         - 输出合法的 PostgreSQL 语句
         - 不要考虑刷新策略相关问题
-        ## Goals:
-        - 根据查询创建物化视图
-        - 给出在物化视图上查询的示例
         ## OutputFormat:
       template: |-
         ```
         {}
         ```
-      placeholder: ''
+      placeholder: '{}'
       description: matrialized view
     "
     | from yaml | each { $in | add-prompt }
