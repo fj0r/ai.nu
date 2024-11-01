@@ -5,6 +5,9 @@
         - [x] Adjust `--system` of ai-chat #323
         - [x] Use Scratch to record ai-do input #349
     - [x] easy add prompt #442
+    - [x] Template #466
+        - [x] Named placeholders are allowed in prompt #467
+        - [x] System roles allow the use of placeholders #468
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

@@ -131,23 +131,21 @@ export def ai-do [
     let s = data session
     let role = run $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
-    let prompt = $role | get template | lines | each {|x|
-        if ($x | str replace -ar "['\"`]+" '' | $in == '{}') {
-            $x | str replace '{}' $placehold
-        } else {
-            $x
-        }
-    } | str join (char newline)
+
     let plc = $role.placeholder? | from json
-    let prompt = $args | range 1.. | enumerate
-    | reduce -f $prompt {|i,a|
-        let x = ($plc | get $i.index) | get $i.item
-        $a | str replace '{}' $x
+    let val = $args | range 1..
+    | zip ($plc | columns)
+    | reduce -f {} {|i,a|
+        $a | insert ($i.1 | into string) ($plc | get $i.1 | get $i.0)
     }
-    | str replace --all '{}' ''
+
+    let prompt = $role.template | render {_: $placehold, ...$val}
+    let system = if ($role.system | is-not-empty) {
+        $role.system | render $val
+    }
 
     $input | (ai-send -p $placehold
-        --system $role.system? --function=$function
+        --system $system --function=$function
         --tag tool --forget
         --out=$out --debug=$debug
         -m $model $prompt)

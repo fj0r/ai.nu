@@ -29,7 +29,9 @@ export def 'cmpl-role' [ctx] {
         }
         _ => {
             let d = run $"select * from prompt where name = '($args.0)'"
-            $d | first | get placeholder | from json | get ($len - 2) | columns
+            let d = $d | first | get placeholder | from json
+            let pos = $len - 2
+            $d | get ($d | columns | get $pos) | columns
         }
     }
 }

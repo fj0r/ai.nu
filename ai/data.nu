@@ -105,42 +105,46 @@ export def --env init [] {
     }
     "
     - name: json-to
-      system: ''
+      system: |-
+        ## Goals
+        - Analyze the following JSON data to convert it into a {lang} {object}.
+        ## Constraints
+        - Do not explain.
       template: |-
-        Analyze the following JSON data to convert it into a {} {}.
-        Do not explain.
         ```
         {}
         ```
       placeholder:
-      - jsonschema: JsonSchema
-        rs: Rust
-        hs: Haskell
-        ts: TypeScript
-        py: Python pydantic
-        nu: Nushell
-        psql: PostgreSQL
-        mysql: MySQL
-        slite: Sqlite
-      - type: Type
-        struct: Struct
-        class: Class
-        trait: Trait
-        interface: Interface
-        table: Table
+        lang:
+          jsonschema: JsonSchema
+          rs: Rust
+          hs: Haskell
+          ts: TypeScript
+          py: Python pydantic
+          nu: Nushell
+          psql: PostgreSQL
+          mysql: MySQL
+          slite: Sqlite
+        object:
+          type: Type
+          struct: Struct
+          class: Class
+          trait: Trait
+          interface: Interface
+          table: Table
       description: Analyze JSON content, converting it into
     - name: git-diff-summary
       system: |-
-        ### Role
+        ## Role
         You are a git diff summary assistant.
 
-        ### Goals
+        ## Goals
         Extract commit messages from the `git diff` output
 
         ## Constraints
         summarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.
 
-        ### Attention
+        ## Attention
         - Lines starting with `+` indicate new lines added.
         - Lines starting with `-` indicate deleted lines.
         - Other lines are context and are not part of the current change being described.
@@ -153,33 +157,37 @@ export def --env init [] {
     - name: api-doc
       system: ''
       template: |-
-        {} Inquire about the usage of the API and provide an example.
+        {lang} Inquire about the usage of the API and provide an example.
         ```
         {}
         ```
       placeholder:
-      - rust: You are a Rust language expert.
-        javascript: You are a Javascript language expert.
-        python: You are a Python language expert.
-        nushell: You are a Nushell language expert.
-        bash: You are a Bash expert.
-        sql: You are a Database expert.
-        programming: You are Programming expert.
+        lang:
+          rust: You are a Rust language expert.
+          javascript: You are a Javascript language expert.
+          python: You are a Python language expert.
+          nushell: You are a Nushell language expert.
+          bash: You are a Bash expert.
+          sql: You are a Database expert.
+          programming: You are Programming expert.
       description: api documents
     - name: debug
       system: |-
-        ### Constraints
+        # Role: {lang}
+        ## Goals
+        Analyze the causes of the error and provide suggestions for correction.
+        ## Constraints
         使用中文回答
       template: |-
-        {} Analyze the causes of the error and provide suggestions for correction.
         ```
         {}
         ```
       placeholder:
-      - rust: You are a Rust language expert.
-        javascript: You are a Javascript language expert.
-        python: You are a Python language expert.
-        nushell: You are a Nushell language expert.
+        lang:
+          rust: You are a Rust language expert.
+          javascript: You are a Javascript language expert.
+          python: You are a Python language expert.
+          nushell: You are a Nushell language expert.
       description: Programming language experts help you debug.
     - name: synonyms
       system: ''
@@ -190,27 +198,27 @@ export def --env init [] {
       description: 近义词解析
     - name: trans-to
       system: |-
-        ### Role
+        ## Role
         You are a translation assisant
 
-        ### Goals
-        Translate the following text into the specified language
+        ## Goals
+        Translate the following text into {lang}
 
-        ### Constraints
+        ## Constraints
         Only provide the translated content without explanations
         Do not enclose the translation result with quotes
 
-        ### Attention
+        ## Attention
         Other instructions are additional requirements
         ``` enclosed contents are what needs to be translated
       template: |-
-        Translate the following text into {}:
         ```
         {}
         ```
       placeholder:
-      - en: English
-        zh: Chinese
+        lang:
+          en: English
+          zh: Chinese
       description: Translation into the specified language
     - name: git-diff-summary-zh
       system: |-
@@ -237,10 +245,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder:
-      - en: English
-      - zh: Chinese
-        jp: Japanese
+      placeholder: ''
       description: ''
     - name: dictionary
       system: ''
