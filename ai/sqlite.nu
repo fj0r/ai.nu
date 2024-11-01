@@ -21,12 +21,13 @@ export def db-upsert [table pk --do-nothing] {
 export def table-upsert [config] {
     let d = $in
     let d = $config.default | merge $d
+    let f = $config.filter? | default {}
     $config.default
     | columns
     | reduce -f {} {|i,a|
         let x = $d | get $i
-        let x = if ($i in $config.filter) {
-            $x | do ($config.filter | get $i) $x
+        let x = if ($i in $f) {
+            $x | do ($f | get $i) $x
         } else {
             $x
         }
