@@ -23,15 +23,9 @@ export def ai-config-add-provider [o] {
 export def ai-config-add-prompt [name o] {
     {
         name: $name
-        system: $env.OPENAI_PROMPT_TEMPLATE
-        template: "```\n{}\n```"
-        placeholder: ''
-        description: ''
+        ...$o
     }
-    | merge $o
-    | update placeholder {|x| $x.placeholder | to json -r}
-    | select name system template placeholder description
-    | db-upsert --do-nothing 'prompt' 'name'
+    | add-prompt
 }
 
 export def ai-config-add-function [o] {

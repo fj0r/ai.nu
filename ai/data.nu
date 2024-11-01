@@ -1,5 +1,19 @@
 use sqlite.nu *
 
+export def add-prompt [] {
+    let p = $in
+    {
+        system: $env.OPENAI_PROMPT_TEMPLATE
+        template: "```\n{}\n```"
+        placeholder: ''
+        description: ''
+    }
+    | merge $p
+    | update placeholder {|x| $x.placeholder | to json -r}
+    | select name system template placeholder description
+    | db-upsert --do-nothing 'prompt' 'name'
+}
+
 export def --env init [] {
     if 'OPENAI_DB' not-in $env {
         $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
@@ -83,20 +97,219 @@ export def --env init [] {
         );"
 
         "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
-
-        "INSERT INTO prompt (name, system, template, placeholder, description) VALUES
-        ('json-to', '', 'Analyze the following JSON data to convert it into a {} {}.\nDo not explain.\n```\n{}\n```', '[{\"jsonschema\":\"JsonSchema\",\"rs\":\"Rust\",\"hs\":\"Haskell\",\"ts\":\"TypeScript\",\"py\":\"Python pydantic\",\"nu\":\"Nushell\",\"psql\":\"PostgreSQL\",\"mysql\":\"MySQL\",\"slite\":\"Sqlite\"},{\"type\":\"Type\",\"struct\":\"Struct\",\"class\":\"Class\",\"trait\":\"Trait\",\"interface\":\"Interface\",\"table\":\"Table\"}]', 'Analyze JSON content, converting it into'),
-        ('git-diff-summary', '### Role\nYou are a git diff summary assistant.\n\n### Goals\nExtract commit messages from the `git diff` output\n\n## Constraints\nsummarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.\n\n### Attention\n- Lines starting with `+` indicate new lines added.\n- Lines starting with `-` indicate deleted lines.\n- Other lines are context and are not part of the current change being described.', '```\n{}\n```', '', 'Summarize from git differences'),
-        ('name-helper', '# Role: name helper\n## Attention:\ninclude elements in description as much as possible\n## Constraints:\nkeep names short clear and unambiguous\n## Goals:\nprovide a suitable name based on user description\n## OutputFormat:\noutput only the name\nuse lowercase letters and underscores to separate words', '```\n{}\n```', '', 'Naming suggestions'),
-        ('api-doc', '', '{} Inquire about the usage of the API and provide an example.\n```\n{}\n```', '[{\"rust\":\"You are a Rust language expert.\",\"javascript\":\"You are a Javascript language expert.\",\"python\":\"You are a Python language expert.\",\"nushell\":\"You are a Nushell language expert.\",\"sql\":\"You are a Database expert.\"}]', ''),
-        ('debug', '', '{} Analyze the causes of the error and provide suggestions for correction.\n```\n{}\n```', '[{\"rust\":\"You are a Rust language expert.\",\"javascript\":\"You are a Javascript language expert.\",\"python\":\"You are a Python language expert.\",\"nushell\":\"You are a Nushell language expert.\"}]', 'Programming language experts help you debug.'),
-        ('dictionary', '', 'Explain the meaning, usage, list synonyms and antonyms of the following words:\n```{}```', '', 'dictionary'),
-        ('dictionary-zh', '', '解释以下单词含义，用法，并列出同义词，近义词和反义词:\n```{}```', '', 'dictionary'),
-        ('synonyms', '', '解释以下词语的区别，并介绍相关的近义词和反义词\n```{}```', '', '近义词解析'),
-        ('trans-to', '### Role\nYou are a translation assisant\n\n### Goals\nTranslate the following text into the specified language\n\n### Constraints\nOnly provide the translated content without explanations\nDo not enclose the translation result with quotes\n\n### Attention\nOther instructions are additional requirements\n``` enclosed contents are what needs to be translated', 'Translate the following text into {}:\n```\n{}\n```', '[{\"en\":\"English\",\"zh\":\"Chinese\"}]', 'Translation into the specified language');"
     ] {
         run $s
     }
+    "
+    - name: json-to
+      system: ''
+      template: |-
+        Analyze the following JSON data to convert it into a {} {}.
+        Do not explain.
+        ```
+        {}
+        ```
+      placeholder:
+      - jsonschema: JsonSchema
+        rs: Rust
+        hs: Haskell
+        ts: TypeScript
+        py: Python pydantic
+        nu: Nushell
+        psql: PostgreSQL
+        mysql: MySQL
+        slite: Sqlite
+      - type: Type
+        struct: Struct
+        class: Class
+        trait: Trait
+        interface: Interface
+        table: Table
+      description: Analyze JSON content, converting it into
+    - name: git-diff-summary
+      system: |-
+        ### Role
+        You are a git diff summary assistant.
+
+        ### Goals
+        Extract commit messages from the `git diff` output
+
+        ## Constraints
+        summarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.
+
+        ### Attention
+        - Lines starting with `+` indicate new lines added.
+        - Lines starting with `-` indicate deleted lines.
+        - Other lines are context and are not part of the current change being described.
+      template: |-
+        ```
+        {}
+        ```
+      placeholder: null
+      description: Summarize from git differences
+    - name: api-doc
+      system: ''
+      template: |-
+        {} Inquire about the usage of the API and provide an example.
+        ```
+        {}
+        ```
+      placeholder:
+      - rust: You are a Rust language expert.
+        javascript: You are a Javascript language expert.
+        python: You are a Python language expert.
+        nushell: You are a Nushell language expert.
+        bash: You are a Bash expert.
+        sql: You are a Database expert.
+        programming: You are Programming expert.
+      description: api documents
+    - name: debug
+      system: |-
+        ### Constraints
+        使用中文回答
+      template: |-
+        {} Analyze the causes of the error and provide suggestions for correction.
+        ```
+        {}
+        ```
+      placeholder:
+      - rust: You are a Rust language expert.
+        javascript: You are a Javascript language expert.
+        python: You are a Python language expert.
+        nushell: You are a Nushell language expert.
+      description: Programming language experts help you debug.
+    - name: synonyms
+      system: ''
+      template: |-
+        解释以下词语的区别，并介绍相关的近义词和反义词
+        ```{}```
+      placeholder: null
+      description: 近义词解析
+    - name: trans-to
+      system: |-
+        ### Role
+        You are a translation assisant
+
+        ### Goals
+        Translate the following text into the specified language
+
+        ### Constraints
+        Only provide the translated content without explanations
+        Do not enclose the translation result with quotes
+
+        ### Attention
+        Other instructions are additional requirements
+        ``` enclosed contents are what needs to be translated
+      template: |-
+        Translate the following text into {}:
+        ```
+        {}
+        ```
+      placeholder:
+      - en: English
+        zh: Chinese
+      description: Translation into the specified language
+    - name: git-diff-summary-zh
+      system: |-
+        ## Role
+        你是git变更总结小助手
+        ## Goals
+        从git diff 中提取提交日志
+        ## Constraints
+        仅总结文件内容的变化，忽略哈希值的变化，并生成一个标题
+        ## Attention
+        以`+`开头的行是新增的行
+        以 `-` 开头的行是删除的行
+        其它行是上下文，不是本次变更内容
+      template: |-
+        ```
+        {}
+        ```
+      placeholder: ''
+      description: 生成git提交信息
+    - name: bilingual-translation
+      system: You are a translation expert. If the user sends you Chinese, you will translate it into English. If the user sends you English, you will translate it into Chinese. You are only responsible for translation and should not answer any questions.
+      template: |-
+        translate below:
+        ```
+        {}
+        ```
+      placeholder:
+      - en: English
+      - zh: Chinese
+        jp: Japanese
+      description: ''
+    - name: dictionary
+      system: ''
+      template: |-
+        Explain the meaning, usage, list synonyms and antonyms of the following words:
+        ```{}```
+      placeholder: ''
+      description: dictionary
+    - name: dictionary-zh
+      system: ''
+      template: |-
+        解释以下单词含义，用法，并列出同义词，近义词和反义词:
+        ```{}```
+      placeholder: ''
+      description: dictionary
+    - name: journal
+      system: |
+        ## Role: 工作助手
+
+        ## Goals
+        将下面的内容整理为工作日志
+
+        ## Constraints
+        要有感悟
+
+        ## Attention
+        - ☐ 是未完成的
+        - 🗹 是已完成的
+      template: '{}'
+      placeholder: ''
+      description: ''
+    - name: name-helper
+      system: |
+        # Role: name helper
+        ## Attention:
+        include elements in description as much as possible
+        ## Constraints:
+        keep names short clear and unambiguous
+        ## Goals:
+        provide a suitable name based on user description
+        ## OutputFormat:
+        output only the name
+        use lowercase letters and underscores to separate words
+      template: '{}'
+      placeholder: ''
+      description: Naming suggestions
+    - name: sql-pre-aggregation
+      system: |
+        # Role: 你是一名数据库优化专家
+        ## Background:
+        - 接受维度、指标和sql查询
+        ## Attention:
+        - 按维度分组
+          - 如果维度是日期时间类型，先使用time_bucket截断
+        - 按指标聚合
+          - 默认使用 sum 聚合函数
+        - 如果过滤条件出现在维度中，在物化视图中去除
+        ## Constraints:
+        - 输出合法的 PostgreSQL 语句
+        - 不要考虑刷新策略相关问题
+        ## Goals:
+        - 根据查询创建物化视图
+        - 给出在物化视图上查询的示例
+        ## OutputFormat:
+      template: |-
+        ```
+        {}
+        ```
+      placeholder: ''
+      description: matrialized view
+    "
+    | from yaml | each { $in | add-prompt }
 }
 
 export def make-session [created] {
