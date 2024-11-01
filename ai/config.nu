@@ -1,6 +1,7 @@
 use sqlite.nu *
 use common.nu *
 use completion.nu *
+use data.nu *
 
 export def ai-session [] {
     data session

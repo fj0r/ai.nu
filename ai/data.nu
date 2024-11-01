@@ -1,17 +1,20 @@
 use sqlite.nu *
 
 export def add-prompt [] {
-    let p = $in
-    {
-        system: $env.OPENAI_PROMPT_TEMPLATE
-        template: "```\n{}\n```"
-        placeholder: ''
-        description: ''
+    $in | table-upsert {
+        table: prompt
+        pk: name
+        default: {
+            name: ''
+            system: $env.OPENAI_PROMPT_TEMPLATE
+            template: "```\n{}\n```"
+            placeholder: ''
+            description: ''
+        }
+        filter: {
+            placeholder: { $in | to json -r }
+        }
     }
-    | merge $p
-    | update placeholder {|x| $x.placeholder | to json -r}
-    | select name system template placeholder description
-    | db-upsert --do-nothing 'prompt' 'name'
 }
 
 export def --env init [] {
