@@ -22,7 +22,7 @@ export def --env init [] {
         $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
     }
     if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
-        $env.OPENAI_PROMPT_TEMPLATE = "
+        $env.OPENAI_PROMPT_TEMPLATE = "_: |-
             # Role:
             ## Background:
             ## Attention:
@@ -34,7 +34,7 @@ export def --env init [] {
             ## OutputFormat:
             ## Suggestions:
             ## Initialization:
-            " | lines | range 1..-1 | str substring 12.. | str join (char newline)
+            " | from yaml | get _
     }
     if ($env.OPENAI_DB | path exists) { return }
     {_: '.'} | into sqlite -t _ $env.OPENAI_DB
