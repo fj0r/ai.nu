@@ -3,7 +3,7 @@ use sqlite.nu *
 export def add-prompt [] {
     $in | table-upsert {
         table: prompt
-        pk: name
+        pk: [name]
         default: {
             name: ''
             system: $env.OPENAI_PROMPT_TEMPLATE
@@ -12,7 +12,7 @@ export def add-prompt [] {
             description: ''
         }
         filter: {
-            placeholder: { $in | to json -r }
+            placeholder: { $in | to yaml }
         }
     }
 }

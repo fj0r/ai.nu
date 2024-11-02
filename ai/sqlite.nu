@@ -15,7 +15,7 @@ export def db-upsert [table pk --do-nothing] {
     run $"
         INSERT INTO ($table)\(($r | columns | str join ',')\)
         VALUES\(($r | values | each {Q $in} | str join ',')\)
-        ON CONFLICT\(($pk)\) DO ($d);"
+        ON CONFLICT\(($pk | str join ', ')\) DO ($d);"
 }
 
 export def table-upsert [config] {

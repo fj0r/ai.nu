@@ -9,6 +9,8 @@
         - [x] Named placeholders are allowed in prompt #467
         - [x] System roles allow the use of placeholders #468
     - [x] Set reasonable default values for placeholders #469
+    - [ ] table-upsert multiple pk #500
+    - [x] placeholder uses yaml instead of json #501
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

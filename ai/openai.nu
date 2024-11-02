@@ -132,7 +132,7 @@ export def ai-do [
     let role = run $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
 
-    let pls = $role.placeholder | from json
+    let pls = $role.placeholder | from yaml
     let val = $pls | columns
     | zip ($args | range 1..)
     | reduce -f {} {|i,a|

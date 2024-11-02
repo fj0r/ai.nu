@@ -32,7 +32,7 @@ export def ai-config-add-prompt [name o] {
 export def ai-config-add-function [o] {
     {name: '', description: '', parameters: ''}
     | merge $o
-    | update parameters {|x| $x.parameters | to json -r}
+    | update parameters {|x| $x.parameters | to yaml }
     | select name description parameters
     | db-upsert --do-nothing 'function' 'name'
 }
@@ -51,11 +51,11 @@ export def ai-config-update-provider [name: string@cmpl-provider] {
 export def ai-config-update-prompt [name: string@cmpl-prompt] {
     run $"select * from prompt where name = (Q $name)"
     | first
-    | update placeholder {|x| $x.placeholder | from json}
+    | update placeholder {|x| $x.placeholder | from yaml }
     | to yaml
     | block-edit $"update-prompt-($name).XXX.yml"
     | from yaml
-    | update placeholder {|x| $x.placeholder | to json -r}
+    | update placeholder {|x| $x.placeholder | to yaml }
     | select name system template placeholder description
     | db-upsert 'prompt' 'name'
 }
@@ -63,11 +63,11 @@ export def ai-config-update-prompt [name: string@cmpl-prompt] {
 export def ai-config-update-function [name: string@cmpl-function] {
     run $"select * from function where name = (Q $name)"
     | first
-    | update parameters {|x| $x.parameters | from json}
+    | update parameters {|x| $x.parameters | from yaml }
     | to yaml
     | block-edit $"update-function-($name).XXX.yml"
     | from yaml
-    | update parameters {|x| $x.parameters | to json -r}
+    | update parameters {|x| $x.parameters | to yaml }
     | select name description parameters
     | db-upsert 'function' 'name'
 }
