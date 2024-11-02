@@ -29,12 +29,12 @@ export def ai-config-add-prompt [name o] {
     | add-prompt
 }
 
-export def ai-config-add-function [o] {
-    {name: '', description: '', parameters: ''}
-    | merge $o
-    | update parameters {|x| $x.parameters | to yaml }
-    | select name description parameters
-    | db-upsert --do-nothing 'function' 'name'
+export def ai-config-add-function [name o] {
+    {
+        name: $name
+        ...$o
+    }
+    | add-function
 }
 
 export def ai-config-edit [

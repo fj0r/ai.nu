@@ -41,7 +41,7 @@ export def ai-send [
     let function = if ($function | is-not-empty) {
         let f = run $"select name, description, parameters from function
             where name in \(($function | each { Q $in } | str join ', ' )\)"
-        {function: $f}
+        {function: ($f | update parameters {|x| $x.parameters | from yaml | to json })}
     } else { {} }
     let req = {
         model: $model

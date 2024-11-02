@@ -17,6 +17,21 @@ export def add-prompt [] {
     }
 }
 
+export def add-function [] {
+    $in | table-upsert {
+        table: function
+        pk: [name]
+        default: {
+            name: ''
+            description: ''
+            parameters: {}
+        }
+        filter: {
+            parameters: { $in | to yaml }
+        }
+    }
+}
+
 export def --env init [] {
     if 'OPENAI_DB' not-in $env {
         $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
@@ -361,6 +376,24 @@ export def --env init [] {
       description: matrialized view
     "
     | from yaml | each { $in | add-prompt }
+    "
+    - name: get_current_weather
+      description: 'Get the current weather in a given location'
+      parameters:
+        type: object
+        properties:
+          location:
+            type: string
+            description: The city and state, e.g. San Francisco, CA
+          unit:
+            type: string
+            enum:
+            - celsius
+            - fahrenheit
+        required:
+        - location
+    "
+    | from yaml | each { $in | add-function }
 }
 
 export def make-session [created] {
