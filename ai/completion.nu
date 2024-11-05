@@ -16,7 +16,16 @@ export def cmpl-function [] {
 }
 
 export def cmpl-previous [] {
-    run $"select id as value, updated || '│' || type || '|' || args || '│' ||  model as description
+    let rw = (term size).columns - 22
+    run $"select id as value,
+            substr\(
+                updated || '│' ||
+                type || '|' ||
+                printf\('%-20s', args\) || '│' ||
+                model || '|' ||
+                content,
+                0, ($rw)
+            \) as description
         from scratch order by updated desc limit 10;"
 }
 
