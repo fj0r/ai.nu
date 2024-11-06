@@ -19,20 +19,53 @@ export def db-upsert [table pk --do-nothing] {
         ON CONFLICT\(($pk | str join ', ')\) DO ($d);"
 }
 
-export def table-upsert [config] {
+export def table-merge [
+    config
+    --action: closure
+] {
     let d = $in
     let d = $config.default | merge $d
-    let f = $config.filter? | default {}
+    let fi = $config.filter?.in?
+    let d = if ($fi | is-empty) {
+        $d
+    } else {
+        $config.default
+        | columns
+        | reduce -f {} {|i,a|
+            let x = $d | get $i
+            let x = if ($i in $fi) {
+                $x | do ($fi | get $i) $x
+            } else {
+                $x
+            }
+            $a | insert $i $x
+        }
+    }
+    let d = if ($action | is-not-empty) {
+        $d | do $action $config
+    } else {
+        $d
+    }
+    let fo = $config.filter?.out? | default {}
     $config.default
     | columns
     | reduce -f {} {|i,a|
         let x = $d | get $i
-        let x = if ($i in $f) {
-            $x | do ($f | get $i) $x
+        let x = if ($i in $fo) {
+            $x | do ($fo | get $i) $x
         } else {
             $x
         }
         $a | insert $i $x
     }
-    | db-upsert --do-nothing $config.table $config.pk
 }
+
+export def table-upsert [
+    config
+    --action: closure
+] {
+    $in
+    | table-merge $config --action $action
+    | db-upsert $config.table $config.pk
+}
+

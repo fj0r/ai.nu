@@ -16,72 +16,49 @@ export def ai-history-do [num=10] {
     | reverse
 }
 
-export def ai-config-add-provider [o] {
-    $o | select name baseurl api_key model_default org_id project_id temp_max
-    | db-upsert --do-nothing 'provider' 'name'
-}
-
-export def ai-config-add-prompt [name o] {
-    {
-        name: $name
-        ...$o
+export def ai-config-upsert-provider [name?: string@cmpl-provider] {
+    let x = if ($name | is-empty) {
+        {}
+    } else {
+        run $"select * from provider where name = (Q $name)" | get -i 0
     }
-    | add-prompt
-}
-
-export def ai-config-add-function [name o] {
-    {
-        name: $name
-        ...$o
+    $x | upsert-provider --action {|config|
+        $in
+        | to yaml
+        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+        | block-edit $"upsert-provider-XXXXXX.yaml"
+        | from yaml
     }
-    | add-function
 }
 
-export def ai-config-edit [
-    table: string@cmpl-config
-    pk: string@cmpl-config
-] {
-    data edit $table $pk
+export def ai-config-upsert-prompt [name?: string@cmpl-prompt] {
+    let x = if ($name | is-empty) {
+        {}
+    } else {
+        run $"select * from prompt where name = (Q $name)" | get -i 0
+    }
+    $x | upsert-prompt --action {|config|
+        $in
+        | to yaml
+        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+        | block-edit $"upsert-config-XXXXXX.yaml"
+        | from yaml
+    }
 }
 
-export def ai-config-update-provider [name: string@cmpl-provider] {
-    ai-config-edit provider $name
-}
-
-export def ai-config-update-prompt [name: string@cmpl-prompt] {
-    run $"select * from prompt where name = (Q $name)"
-    | first
-    | update placeholder {|x| $x.placeholder | from yaml }
-    | to yaml
-    | block-edit $"update-prompt-($name).XXX.yml"
-    | from yaml
-    | update placeholder {|x| $x.placeholder | to yaml }
-    | select name system template placeholder description
-    | db-upsert 'prompt' 'name'
-}
-
-export def ai-config-update-function [name: string@cmpl-function] {
-    run $"select * from function where name = (Q $name)"
-    | first
-    | update parameters {|x| $x.parameters | from yaml }
-    | to yaml
-    | block-edit $"update-function-($name).XXX.yml"
-    | from yaml
-    | update parameters {|x| $x.parameters | to yaml }
-    | select name description parameters
-    | db-upsert 'function' 'name'
-}
-
-export def ai-config-delete-provider [
-    name: string@cmpl-provider
-] {
-    run $'delete from provider where name = (Q $name)'
-}
-
-export def ai-config-delete-prompt [
-    name: string@cmpl-prompt
-] {
-    run $'delete from prompt where name = (Q $name)'
+export def ai-config-upsert-function [name?: string@cmpl-function] {
+    let x = if ($name | is-empty) {
+        {}
+    } else {
+        run $"select * from prompt where name = (Q $name)" | get -i 0
+    }
+    $x | upsert-function --action {|config|
+        $in
+        | to yaml
+        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+        | block-edit $"upsert-config-XXXXXX.yaml"
+        | from yaml
+    }
 }
 
 export def ai-change-temperature [

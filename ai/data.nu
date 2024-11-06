@@ -1,7 +1,26 @@
 use sqlite.nu *
 
-export def add-prompt [] {
-    $in | table-upsert {
+export def upsert-provider [--action: closure] {
+    $in | table-upsert --action $action {
+        table: provider
+        pk: [name]
+        default: {
+            name: ''
+            baseurl: 'https://'
+            api_key: ''
+            model_default: ''
+            temp_default: 0.5
+            temp_min: 0.0
+            temp_max: 1.0
+            org_id: ''
+            project_id: ''
+            active: 0
+        }
+    }
+}
+
+export def upsert-prompt [--action: closure] {
+    $in | table-upsert --action $action {
         table: prompt
         pk: [name]
         default: {
@@ -12,13 +31,18 @@ export def add-prompt [] {
             description: ''
         }
         filter: {
-            placeholder: { $in | to yaml }
+            out: {
+                placeholder: { $in | to yaml }
+            }
+            in: {
+                placeholder: { $in | from yaml }
+            }
         }
     }
 }
 
-export def add-function [] {
-    $in | table-upsert {
+export def upsert-function [--action: closure] {
+    $in | table-upsert --action $action {
         table: function
         pk: [name]
         default: {
@@ -27,7 +51,12 @@ export def add-function [] {
             parameters: {}
         }
         filter: {
-            parameters: { $in | to yaml }
+            out: {
+                parameters: { $in | to yaml }
+            }
+            in: {
+                parameters: { $in | from yaml }
+            }
         }
     }
 }
@@ -129,7 +158,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder:
+      placeholder: |-
         lang:
           jsonschema: JsonSchema
           rs: Rust
@@ -176,7 +205,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder:
+      placeholder: |-
         lang:
           rust: You are a Rust language expert.
           javascript: You are a Javascript language expert.
@@ -197,7 +226,7 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder:
+      placeholder: |-
         lang:
           rust: You are a Rust language expert.
           javascript: You are a Javascript language expert.
@@ -230,10 +259,15 @@ export def --env init [] {
         ```
         {}
         ```
-      placeholder:
+      placeholder: |-
         lang:
           en: English
+          fr: French
+          es: Spanish
+          de: German
           zh: Chinese
+          jp: Janpanese
+          Ko: Korean
       description: Translation into the specified language
     - name: git-diff-summary-zh
       system: |-
@@ -375,11 +409,11 @@ export def --env init [] {
       placeholder: '{}'
       description: matrialized view
     "
-    | from yaml | each { $in | add-prompt }
+    | from yaml | each { $in | upsert-prompt }
     "
     - name: get_current_weather
       description: 'Get the current weather in a given location'
-      parameters:
+      parameters: |-
         type: object
         properties:
           location:
@@ -393,7 +427,7 @@ export def --env init [] {
         required:
         - location
     "
-    | from yaml | each { $in | add-function }
+    | from yaml | each { $in | upsert-function }
 }
 
 export def make-session [created] {
@@ -404,16 +438,6 @@ export def make-session [created] {
     ] {
         run $s
     }
-}
-
-export def edit [table pk] {
-    run $"select * from ($table) where name = (Q $pk)"
-    | first
-    | to yaml
-    | $"### config ($table)#($pk) \n($in)"
-    | block-edit $"config-($table).XXX.yml"
-    | from yaml
-    | db-upsert $table name
 }
 
 export def session [] {
