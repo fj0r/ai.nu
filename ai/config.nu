@@ -16,13 +16,13 @@ export def ai-history-do [num=10] {
     | reverse
 }
 
-export def ai-config-upsert-provider [name?: string@cmpl-provider] {
+export def ai-config-upsert-provider [name?: string@cmpl-provider --delete] {
     let x = if ($name | is-empty) {
         {}
     } else {
         run $"select * from provider where name = (Q $name)" | get -i 0
     }
-    $x | upsert-provider --action {|config|
+    $x | upsert-provider --delete=$delete --action {|config|
         $in
         | to yaml
         | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
@@ -31,13 +31,13 @@ export def ai-config-upsert-provider [name?: string@cmpl-provider] {
     }
 }
 
-export def ai-config-upsert-prompt [name?: string@cmpl-prompt] {
+export def ai-config-upsert-prompt [name?: string@cmpl-prompt --delete] {
     let x = if ($name | is-empty) {
         {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
-    $x | upsert-prompt --action {|config|
+    $x | upsert-prompt --delete=$delete --action {|config|
         $in
         | to yaml
         | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
@@ -46,13 +46,13 @@ export def ai-config-upsert-prompt [name?: string@cmpl-prompt] {
     }
 }
 
-export def ai-config-upsert-function [name?: string@cmpl-function] {
+export def ai-config-upsert-function [name?: string@cmpl-function --delete] {
     let x = if ($name | is-empty) {
         {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
-    $x | upsert-function --action {|config|
+    $x | upsert-function --delete=$delete --action {|config|
         $in
         | to yaml
         | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"

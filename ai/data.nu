@@ -1,7 +1,7 @@
 use sqlite.nu *
 
-export def upsert-provider [--action: closure] {
-    $in | table-upsert --action $action {
+export def upsert-provider [--delete --action: closure] {
+    $in | table-upsert --delete=$delete --action $action {
         table: provider
         pk: [name]
         default: {
@@ -19,8 +19,8 @@ export def upsert-provider [--action: closure] {
     }
 }
 
-export def upsert-prompt [--action: closure] {
-    $in | table-upsert --action $action {
+export def upsert-prompt [--delete --action: closure] {
+    $in | table-upsert --action $action --delete=$delete {
         table: prompt
         pk: [name]
         default: {
@@ -41,8 +41,8 @@ export def upsert-prompt [--action: closure] {
     }
 }
 
-export def upsert-function [--action: closure] {
-    $in | table-upsert --action $action {
+export def upsert-function [--delete --action: closure] {
+    $in | table-upsert --action $action --delete=$delete {
         table: function
         pk: [name]
         default: {

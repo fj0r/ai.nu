@@ -62,10 +62,28 @@ export def table-merge [
 
 export def table-upsert [
     config
+    --delete
     --action: closure
 ] {
-    $in
+    let r = $in
     | table-merge $config --action $action
-    | db-upsert $config.table $config.pk
+    if $delete {
+        let pks = $config.default
+        | columns
+        | reduce -f {} {|i,a|
+            if $i in $config.pk {
+                $a | insert $i ($r | get $i)
+            } else {
+                $a
+            }
+        }
+        | items {|k,v|
+            $"($k) = (Q $v)"
+        }
+        | str join ' and '
+        run $"delete from ($config.table) where ($pks)"
+    } else {
+        $r | db-upsert $config.table $config.pk
+    }
 }
 
