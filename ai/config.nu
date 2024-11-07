@@ -18,7 +18,7 @@ export def ai-history-do [num=10] {
 
 export def ai-config-upsert-provider [name?: string@cmpl-provider --delete] {
     let x = if ($name | is-empty) {
-        {}
+        $in | default {}
     } else {
         run $"select * from provider where name = (Q $name)" | get -i 0
     }
@@ -33,7 +33,7 @@ export def ai-config-upsert-provider [name?: string@cmpl-provider --delete] {
 
 export def ai-config-upsert-prompt [name?: string@cmpl-prompt --delete] {
     let x = if ($name | is-empty) {
-        {}
+        $in | default {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
@@ -48,7 +48,7 @@ export def ai-config-upsert-prompt [name?: string@cmpl-prompt --delete] {
 
 export def ai-config-upsert-function [name?: string@cmpl-function --delete] {
     let x = if ($name | is-empty) {
-        {}
+        $in | default {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
