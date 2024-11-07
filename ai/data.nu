@@ -263,9 +263,11 @@ export def --env init [] {
           fr: French
           es: Spanish
           de: German
+          ru: Russian
+          ar: Arabic
           zh: Chinese
-          jp: Janpanese
-          Ko: Korean
+          ja: Janpanese
+          ko: Korean
       description: Translation into the specified language
     - name: git-diff-summary-zh
       system: |-
@@ -451,5 +453,6 @@ export def record [session, provider, model, role, content, token, tag] {
 }
 
 export def messages [num = 10] {
-    run $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' limit ($num)"
+    run $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' order by created desc limit ($num)"
+    | reverse
 }
