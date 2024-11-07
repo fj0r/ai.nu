@@ -254,11 +254,9 @@ export def --env init [] {
 
         ## Attention
         Other instructions are additional requirements
-        ``` enclosed contents are what needs to be translated
+        If it is in markdown format, do not translate code blocks
       template: |-
-        ```
         {}
-        ```
       placeholder: |-
         lang:
           en: English
