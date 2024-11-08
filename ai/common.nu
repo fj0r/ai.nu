@@ -32,6 +32,6 @@ export def render [scope: record] {
     | transpose k v
     | reduce -f $tmpl {|i,a|
         let k = if $i.k == '_' { '' } else { $i.k }
-        $a | str replace --all $"{($k)}" ($i.v | into string)
+        $a | str replace --all $"{($k)}" ($i.v | to text)
     }
 }
