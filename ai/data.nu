@@ -62,9 +62,6 @@ export def upsert-function [--delete --action: closure] {
 }
 
 export def --env init [] {
-    if 'OPENAI_DB' not-in $env {
-        $env.OPENAI_DB = [$nu.data-dir 'openai.db'] | path join
-    }
     if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
         $env.OPENAI_PROMPT_TEMPLATE = "_: |-
             # Role:
@@ -80,9 +77,7 @@ export def --env init [] {
             ## Initialization:
             " | from yaml | get _
     }
-    if ($env.OPENAI_DB | path exists) { return }
-    {_: '.'} | into sqlite -t _ $env.OPENAI_DB
-    print $"(ansi grey)created database: $env.OPENAI_DB(ansi reset)"
+    init-db OPENAI_DB ([$nu.data-dir 'openai.db'] | path join) {|run, Q|
     for s in [
         "CREATE TABLE IF NOT EXISTS provider (
             name TEXT PRIMARY KEY,
@@ -145,7 +140,7 @@ export def --env init [] {
 
         "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
     ] {
-        run $s
+        do $run $s
     }
     "
     - name: generating-prompts
@@ -492,6 +487,7 @@ export def --env init [] {
         - location
     "
     | from yaml | each { $in | upsert-function }
+    }
 }
 
 export def make-session [created] {
