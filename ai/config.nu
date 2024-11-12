@@ -16,48 +16,75 @@ export def ai-history-do [num=10] {
     | reverse
 }
 
-export def ai-config-upsert-provider [name?: string@cmpl-provider --delete] {
+export def ai-config-upsert-provider [
+    name?: string@cmpl-provider
+    --delete
+    --batch
+] {
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
         run $"select * from provider where name = (Q $name)" | get -i 0
     }
     $x | upsert-provider --delete=$delete --action {|config|
-        $in
-        | to yaml
-        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
-        | block-edit $"upsert-provider-XXXXXX.yaml"
-        | from yaml
+        let o = $in
+        if $batch {
+            $o
+        } else {
+            $o
+            | to yaml
+            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+            | block-edit $"upsert-provider-XXXXXX.yaml"
+            | from yaml
+        }
     }
 }
 
-export def ai-config-upsert-prompt [name?: string@cmpl-prompt --delete] {
+export def ai-config-upsert-prompt [
+    name?: string@cmpl-prompt
+    --delete
+    --batch
+] {
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
     $x | upsert-prompt --delete=$delete --action {|config|
-        $in
-        | to yaml
-        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
-        | block-edit $"upsert-config-XXXXXX.yaml"
-        | from yaml
+        let o = $in
+        if $batch {
+            $o
+        } else {
+            $o
+            | to yaml
+            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+            | block-edit $"upsert-config-XXXXXX.yaml"
+            | from yaml
+        }
     }
 }
 
-export def ai-config-upsert-function [name?: string@cmpl-function --delete] {
+export def ai-config-upsert-function [
+    name?: string@cmpl-function
+    --delete
+    --batch
+] {
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
         run $"select * from prompt where name = (Q $name)" | get -i 0
     }
     $x | upsert-function --delete=$delete --action {|config|
-        $in
-        | to yaml
-        | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
-        | block-edit $"upsert-config-XXXXXX.yaml"
-        | from yaml
+        let o = $in
+        if $batch {
+            $o
+        } else {
+            $o
+            | to yaml
+            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+            | block-edit $"upsert-config-XXXXXX.yaml"
+            | from yaml
+        }
     }
 }
 
