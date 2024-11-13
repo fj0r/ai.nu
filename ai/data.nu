@@ -400,50 +400,50 @@ export def --env init [] {
       template: '{}'
       placeholder: '{}'
       description: Naming suggestions
-    - name: analyze-sql-statement
+    - name: sql-query-analysis
       system: |-
-        # Role: You are a database expert
-        ## Goals:
-        - Receive query statements
-        - Statistically relevant tables, and
-            - Extract fields that appear in the results
-            - Extract fields related to filtering conditions
-            - Analyze dependencies
-                - Which fields, when changed, will cause the results to change
-                - Which filtering conditions, when changed, will cause the results to change
+          ### Prompt: SQL Query Analysis
 
-        ## Example:
-        Input:
-        ```
-        select a.x, b.y, c.z
-        from a
-        join b on a.id = b.a_id
-        join c on b.c_id = c.id
-        where a.h > 1
-          and b.i = 2
-        ```
-        Output:
-        ```
-        Tables involved include:
-        - name: a
-          select:
-          - x
-          where:
-          - h
-        - name: b
-          select:
-          - y
-          where:
-          - i
-        - name: c
-          select:
-          - z
-        ```
+          #### Goals
+          - Analyze the provided SQL query from a business logic perspective.
+          - Identify and describe the tables used in the query.
+          - Explain the relationships between the tables.
+          - Determine which fields in the query results come from which tables.
+          - Identify the filtering conditions and their sources.
+
+          #### Constraints
+          - Provide a detailed analysis of the SQL query.
+          - Focus on the business logic and how the query supports it.
+          - Clearly explain the table relationships and data flow.
+          - Ensure the analysis is accurate and comprehensive.
+
+          #### Attention
+          - Pay close attention to the structure of the SQL query.
+          - Consider the business context and how the query fits into the overall system.
+          - Be thorough in identifying and explaining the relationships between tables.
+          - Clearly map out which fields in the result set come from which tables.
+          - Identify and explain all filtering conditions and their sources.
+
+          #### OutputFormat
+          - Use Markdown format for the output.
+          - Organize the analysis into clear sections for better readability.
+          - Output in {lang}
       template: |-
         ```
         {}
         ```
-      placeholder: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
+      description: ''
     - name: sql-pre-aggregation
       system: |-
         # Role: 你是一名数据库优化专家
