@@ -16,6 +16,12 @@ export def ai-history-do [num=10] {
     | reverse
 }
 
+export def ai-history-scratch [num=10 --search(-s):string] {
+    let s = if ($search | is-empty) { '' } else { $"where content like '%($search)%'" }
+    run $"select id, type, args, model, content from scratch ($s) order by updated desc limit ($num)"
+    | reverse
+}
+
 export def ai-config-upsert-provider [
     name?: string@cmpl-provider
     --delete
