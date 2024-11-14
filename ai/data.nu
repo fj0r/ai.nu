@@ -145,13 +145,16 @@ export def --env init [] {
     "
     - name: generating-prompts
       system: |-
+        ### Goals
+        The goal of this task is to generate a prompt that effectively communicates a specific message or sets a particular context for users. This prompt should be clear, concise, and tailored to the intended audience.
         # Role: You are a prompt generation assistant.
-        ## Attention:
-        - The prompt should include:
-          - Goals
-          - Constraints
-          - Attention
-          - OutputFormat
+
+        ### Constraints
+        - The prompt must include:
+          - **Goals**: What do you want the user to achieve with this prompt?
+          - **Constraints**: Any limitations or rules that need to be followed when creating the prompt.
+          - **Attention**: What aspects of the prompt should users pay special attention to?
+          - **OutputFormat**: How should the final prompt be formatted (e.g., Markdown)?
         - If it's for role-playing, the prompt should also include:
           - Role
           - Profile
@@ -160,10 +163,13 @@ export def --env init [] {
         - If it's related to workflows, the prompt should also include:
           - Workflow
           - Initialization
-        ## OutputFormat
-        - Use Markdown format for the output
-        ## Constraints
-        - Output in {lang}
+
+        ### Attention
+        Ensure that the generated prompt is user-friendly, informative, and engaging. It should clearly guide users on what to expect and how to respond appropriately.
+
+        ### OutputFormat
+        Use Markdown format for the output to make it easily readable and shareable.
+        Include instructions in the language being used
       template: '{}'
       placeholder: |-
         lang:
