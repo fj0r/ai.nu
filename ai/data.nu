@@ -169,7 +169,7 @@ export def --env init [] {
 
         ### OutputFormat
         Use Markdown format for the output to make it easily readable and shareable.
-        Include instructions in the language being used
+        Output in {lang}
       template: '{}'
       placeholder: |-
         lang:
@@ -258,21 +258,32 @@ export def --env init [] {
         - Lines starting with `+` indicate new lines added.
         - Lines starting with `-` indicate deleted lines.
         - Other lines are context and are not part of the current change being described.
+        - Output in {lang}
       template: |-
-        ```
-        {}
-        ```
-      placeholder: '{}'
-      description: Summarize from git differences
-    - name: api-doc
-      system: ''
-      template: |-
-        {lang} Inquire about the usage of the API and provide an example.
         ```
         {}
         ```
       placeholder: |-
         lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
+      description: Summarize from git differences
+    - name: api-doc
+      system: ''
+      template: |-
+        {prog} Inquire about the usage of the API and provide an example. Output in {lang}
+        ```
+        {}
+        ```
+      placeholder: |-
+        prog:
           rust: You are a Rust language expert.
           javascript: You are a Javascript language expert.
           python: You are a Python language expert.
@@ -280,31 +291,45 @@ export def --env init [] {
           bash: You are a Bash expert.
           sql: You are a Database expert.
           programming: You are Programming expert.
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
       description: api documents
     - name: debug
       system: |-
-        # Role: {lang}
+        # Role: {prog}
         ## Goals
         Analyze the causes of the error and provide suggestions for correction.
         ## Constraints
+        - Output in {lang}
       template: |-
         ```
         {}
         ```
       placeholder: |-
         lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
+        prog:
           rust: You are a Rust language expert.
           javascript: You are a Javascript language expert.
           python: You are a Python language expert.
           nushell: You are a Nushell language expert.
       description: Programming language experts help you debug.
-    - name: synonyms
-      system: ''
-      template: |-
-        解释以下词语的区别，并介绍相关的近义词和反义词
-        ```{}```
-      placeholder: '{}'
-      description: 近义词解析
     - name: trans-to
       system: |-
         ## Role
@@ -334,46 +359,63 @@ export def --env init [] {
           ja: Janpanese
           ko: Korean
       description: Translation into the specified language
-    - name: git-diff-summary-zh
-      system: |-
-        ## Role
-        你是git变更总结小助手
-        ## Goals
-        从git diff 中提取提交日志
-        ## Constraints
-        仅总结文件内容的变化，忽略哈希值的变化，并生成一个标题
-        ## Attention
-        以`+`开头的行是新增的行
-        以 `-` 开头的行是删除的行
-        其它行是上下文，不是本次变更内容
-      template: |-
-        ```
-        {}
-        ```
-      placeholder: '{}'
-      description: 生成git提交信息
-    - name: bilingual-translation
-      system: You are a translation expert. If the user sends you Chinese, you will translate it into English. If the user sends you English, you will translate it into Chinese. You are only responsible for translation and should not answer any questions.
-      template: |-
-        translate below:
-        ```
-        {}
-        ```
-      placeholder: '{}'
-      description: ''
     - name: dictionary
-      system: ''
+      system: |-
+        ### Prompt for Explaining Word Meanings, Usage, Synonyms, and Antonyms
+
+        #### Goals
+        - Provide a clear and comprehensive explanation of the given word(s).
+        - Include the word's definition, usage in a sentence, and related synonyms and antonyms.
+        - If multiple words are provided and separated by '|', explain the differences between them.
+
+        #### Constraints
+        - Use simple and clear language.
+        - Ensure the explanation is accurate and concise.
+        - Provide at least one example sentence for each word.
+        - List at least two synonyms and two antonyms for each word, if applicable.
+        - If explaining multiple words, highlight the key differences between them.
+
+        #### Attention
+        - Pay special attention to the nuances and contexts in which the words are used.
+        - Make sure to clarify any potential confusion between similar words.
+        - Use examples that are relatable and easy to understand.
+
+        #### OutputFormat
+        Use Markdown format to structure the response, making it easy to read and navigate.
+        Output in {lang}
+
+        ### Example Prompt
+
+        #### Word: Happy | Joyful
+
+        **Happy**
+        - **Definition**: Feeling or showing pleasure or contentment.
+        - **Usage**: She was happy to see her friends after a long time.
+        - **Synonyms**: Cheerful, delighted
+        - **Antonyms**: Sad, unhappy
+
+        **Joyful**
+        - **Definition**: Full of or causing great happiness.
+        - **Usage**: The joyful children danced around the Christmas tree.
+        - **Synonyms**: Blissful, elated
+        - **Antonyms**: Miserable, sorrowful
+
+        **Differences**
+        - **Happy** is a general term for feeling good or satisfied, often used in everyday contexts.
+        - **Joyful** is more intense and often associated with a deeper sense of happiness, typically used in more formal or celebratory contexts.
       template: |-
-        Explain the meaning, usage, list synonyms and antonyms of the following words:
         ```{}```
-      placeholder: '{}'
-      description: dictionary
-    - name: dictionary-zh
-      system: ''
-      template: |-
-        解释以下单词含义，用法，并列出同义词，近义词和反义词:
-        ```{}```
-      placeholder: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
       description: dictionary
     - name: journal
       system: |
