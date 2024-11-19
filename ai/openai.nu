@@ -148,7 +148,7 @@ export def ai-do [
 
     $input | (ai-send -p $placehold
         --system $system --function=$function
-        --tag tool --forget
+        --tag ($args | str join ',') --forget
         --out=$out --debug=$debug
         -m $model $prompt)
 }

@@ -11,12 +11,17 @@ export def ai-history-chat [] {
     run $"select session_id, role, content, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
 }
 
-export def ai-history-do [num=10] {
-    run $"select session_id, role, content, created from messages where tag = 'tool' order by created desc limit (Q $num)"
+export def ai-history-do [tag?: string@cmpl-prompt --num(-n)=10] {
+    let tag = if ($tag | is-empty) {
+        " where tag != '' "
+    } else {
+        $" where tag like (Q $tag '%') "
+    }
+    run $"select session_id, role, content, tag, created from messages ($tag) order by created desc limit (Q $num)"
     | reverse
 }
 
-export def ai-history-scratch [num=10 --search(-s):string] {
+export def ai-history-scratch [search?:string --num(-n)=10] {
     let s = if ($search | is-empty) { '' } else { $"where content like '%($search)%'" }
     run $"select id, type, args, model, content from scratch ($s) order by updated desc limit ($num)"
     | reverse
@@ -39,7 +44,7 @@ export def ai-config-upsert-provider [
         } else {
             $o
             | to yaml
-            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+            | $"# ($config.pk | str join ', ') is the primary key, do not modify it\n($in)"
             | block-edit $"upsert-provider-XXXXXX.yaml"
             | from yaml
         }
