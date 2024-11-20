@@ -77,7 +77,7 @@ export def --env init [] {
             ## Initialization:
             " | from yaml | get _
     }
-    init-db OPENAI_DB ([$nu.data-dir 'openai.db'] | path join) {|run, Q|
+    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|run, Q|
     for s in [
         "CREATE TABLE IF NOT EXISTS provider (
             name TEXT PRIMARY KEY,
