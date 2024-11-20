@@ -77,7 +77,7 @@ export def --env init [] {
             ## Initialization:
             " | from yaml | get _
     }
-    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|run, Q|
+    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
     for s in [
         "CREATE TABLE IF NOT EXISTS provider (
             name TEXT PRIMARY KEY,
@@ -140,7 +140,7 @@ export def --env init [] {
 
         "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
     ] {
-        do $run $s
+        do $sqlx $s
     }
     "
     - name: generating-prompts
@@ -544,23 +544,23 @@ export def make-session [created] {
         SELECT (Q $created), name, model_default, temp_default
         FROM provider where active = 1 limit 1;"
     ] {
-        run $s
+        sqlx $s
     }
 }
 
 export def session [] {
-    run $"select * from provider as p join sessions as s
+    sqlx $"select * from provider as p join sessions as s
         on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);"
     | first
 }
 
 export def record [session, provider, model, role, content, token, tag] {
     let n = date now | format date '%FT%H:%M:%S.%f'
-    run $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
+    sqlx $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
         VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $token), (Q $n), (Q $tag)\);"
 }
 
 export def messages [num = 10] {
-    run $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' order by created desc limit ($num)"
+    sqlx $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' order by created desc limit ($num)"
     | reverse
 }

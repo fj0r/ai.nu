@@ -12,12 +12,12 @@ export def cmpl-models [] {
 }
 
 export def cmpl-function [] {
-    run $'select name from function' | get name
+    sqlx $'select name from function' | get name
 }
 
 export def cmpl-previous [] {
     let rw = (term size).columns - 22
-    run $"select id as value,
+    sqlx $"select id as value,
             substr\(
                 updated || '│' ||
                 type || '|' ||
@@ -34,10 +34,10 @@ export def 'cmpl-role' [ctx] {
     let len = $args | length
     match $len {
         1 => {
-            run "select name as value, description from prompt"
+            sqlx "select name as value, description from prompt"
         }
         _ => {
-            let d = run $"select * from prompt where name = '($args.0)'"
+            let d = sqlx $"select * from prompt where name = '($args.0)'"
             let d = $d | first | get placeholder | from yaml
             let pos = $len - 2
             $d | get ($d | columns | get $pos) | columns
@@ -51,14 +51,14 @@ export def cmpl-config [context] {
     if ($ctx | length) < 2 {
         return [provider, prompt, function]
     } else {
-        run $'select name from ($ctx.0)' | get name
+        sqlx $'select name from ($ctx.0)' | get name
     }
 }
 
 export def cmpl-provider [] {
-    let current = run $"select provider from sessions where created = '($env.OPENAI_SESSION)'"
+    let current = sqlx $"select provider from sessions where created = '($env.OPENAI_SESSION)'"
     | get provider
-    run $'select name, active from provider'
+    sqlx $'select name, active from provider'
     | each {|x|
         let a = if $x.active > 0 {'*'} else {''}
         let c = if $x.name in $current {'+'} else {''}
@@ -67,12 +67,12 @@ export def cmpl-provider [] {
 }
 
 export def cmpl-prompt [] {
-    run $"select name from prompt"
+    sqlx $"select name from prompt"
     | get name
 }
 
 export def cmpl-system [] {
-    run $"select name from prompt where system != ''"
+    sqlx $"select name from prompt where system != ''"
     | get name
 }
 

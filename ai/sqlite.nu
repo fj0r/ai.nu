@@ -3,7 +3,7 @@ export def Q [...t --sep:string=''] {
     $"'($s)'"
 }
 
-export def run [s] {
+export def sqlx [s] {
     open $env.OPENAI_STATE | query db $s
 }
 
@@ -25,7 +25,7 @@ export def db-upsert [table pk --do-nothing] {
         let u = $r | columns | each {|x| $"($x) = EXCLUDED.($x)" } | str join ', '
         $"UPDATE SET ($u)"
     }
-    run $"
+    sqlx $"
         INSERT INTO ($table)\(($r | columns | str join ',')\)
         VALUES\(($r | values | each {Q $in} | str join ',')\)
         ON CONFLICT\(($pk | str join ', ')\) DO ($d);"
@@ -93,7 +93,7 @@ export def table-upsert [
             $"($k) = (Q $v)"
         }
         | str join ' and '
-        run $"delete from ($config.table) where ($pks)"
+        sqlx $"delete from ($config.table) where ($pks)"
     } else {
         $r | db-upsert $config.table $config.pk
     }

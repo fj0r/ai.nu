@@ -39,7 +39,7 @@ export def ai-send [
         data messages
     }
     let function = if ($function | is-not-empty) {
-        let f = run $"select name, description, parameters from function
+        let f = sqlx $"select name, description, parameters from function
             where name in \(($function | each { Q $in } | str join ', ' )\)"
         {function: ($f | update parameters {|x| $x.parameters | from yaml | to json })}
     } else { {} }
@@ -87,7 +87,7 @@ export def ai-chat [
     let s = data session
     let model = if ($model | is-empty) { $s.model } else { $model }
     let system = if ($system | is-empty) { '' } else {
-        run $"select system from prompt where name = '($system)'"
+        sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
     }
     let p = $'😎 '
@@ -120,18 +120,18 @@ export def ai-do [
     let input = $in
     let input = if ($input | is-empty) {
         if ($previous | is-not-empty) {
-            run $"select content from scratch where id = ($previous)" | get 0.content
+            sqlx $"select content from scratch where id = ($previous)" | get 0.content
         } else {
             ''
         }
         | block-edit $"($args | str join '_').XXX.temp" | tee {
-            run $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
+            sqlx $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
         }
     } else {
         $input
     }
     let s = data session
-    let role = run $"select * from prompt where name = '($args.0)'" | first
+    let role = sqlx $"select * from prompt where name = '($args.0)'" | first
     let placehold = $"<(random chars -l 6)>"
 
     let pls = $role.placeholder | from yaml

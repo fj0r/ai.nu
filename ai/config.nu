@@ -8,7 +8,7 @@ export def ai-session [] {
 }
 
 export def ai-history-chat [] {
-    run $"select session_id, role, content, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
+    sqlx $"select session_id, role, content, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
 }
 
 export def ai-history-do [tag?: string@cmpl-prompt --num(-n)=10] {
@@ -17,13 +17,13 @@ export def ai-history-do [tag?: string@cmpl-prompt --num(-n)=10] {
     } else {
         $" where tag like (Q $tag '%') "
     }
-    run $"select session_id, role, content, tag, created from messages ($tag) order by created desc limit (Q $num)"
+    sqlx $"select session_id, role, content, tag, created from messages ($tag) order by created desc limit (Q $num)"
     | reverse
 }
 
 export def ai-history-scratch [search?:string --num(-n)=10] {
     let s = if ($search | is-empty) { '' } else { $"where content like '%($search)%'" }
-    run $"select id, type, args, model, content from scratch ($s) order by updated desc limit ($num)"
+    sqlx $"select id, type, args, model, content from scratch ($s) order by updated desc limit ($num)"
     | reverse
 }
 
@@ -35,7 +35,7 @@ export def ai-config-upsert-provider [
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
-        run $"select * from provider where name = (Q $name)" | get -i 0
+        sqlx $"select * from provider where name = (Q $name)" | get -i 0
     }
     $x | upsert-provider --delete=$delete --action {|config|
         let o = $in
@@ -59,7 +59,7 @@ export def ai-config-upsert-prompt [
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
-        run $"select * from prompt where name = (Q $name)" | get -i 0
+        sqlx $"select * from prompt where name = (Q $name)" | get -i 0
     }
     $x | upsert-prompt --delete=$delete --action {|config|
         let o = $in
@@ -83,7 +83,7 @@ export def ai-config-upsert-function [
     let x = if ($name | is-empty) {
         $in | default {}
     } else {
-        run $"select * from prompt where name = (Q $name)" | get -i 0
+        sqlx $"select * from prompt where name = (Q $name)" | get -i 0
     }
     $x | upsert-function --delete=$delete --action {|config|
         let o = $in
@@ -104,10 +104,10 @@ export def ai-change-temperature [
     --global(-g)
 ] {
     if $global {
-        run $"update provider set temp_default = '($o)'
+        sqlx $"update provider set temp_default = '($o)'
             where name = \(select provider from sessions where created = '($env.OPENAI_SESSION)'\)"
     }
-    run $"update sessions set temperature = '($o)'
+    sqlx $"update sessions set temperature = '($o)'
         where created = '($env.OPENAI_SESSION)'"
 }
 
@@ -120,10 +120,10 @@ export def ai-change-provider [
             update provider set active = 0;
             update provider set active = 1 where name = '($o)';
             COMMIT;"
-        run $"update provider set active = 0;"
-        run $"update provider set active = 1 where name = (Q $o);"
+        sqlx $"update provider set active = 0;"
+        sqlx $"update provider set active = 1 where name = (Q $o);"
     }
-    run $"update sessions set provider = (Q $o),
+    sqlx $"update sessions set provider = (Q $o),
         model = \(select model_default from provider where name = (Q $o)\)
         where created = (Q $env.OPENAI_SESSION)"
 }
@@ -133,10 +133,10 @@ export def ai-change-model [
     --global(-g)
 ] {
     if $global {
-        run $"update provider set model_default = (Q $model)
+        sqlx $"update provider set model_default = (Q $model)
             where name = \(select provider from sessions where created = (Q $env.OPENAI_SESSION)\)"
     }
-    run $"update sessions set model = (Q $model)
+    sqlx $"update sessions set model = (Q $model)
         where created = (Q $env.OPENAI_SESSION)"
 }
 
