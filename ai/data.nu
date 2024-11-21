@@ -487,7 +487,6 @@ export def --env init [] {
       description: ''
     - name: sql-pre-aggregation
       system: |-
-        # Role: 你是一名数据库优化专家
         ## Goals:
         - 接受维度、指标和sql查询
         - 根据查询创建物化视图
