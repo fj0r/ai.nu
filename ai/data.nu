@@ -101,6 +101,34 @@ export def seed [] {
           jp: Janpanese
           ko: Korean
       description: ''
+    - name: polish
+      system: |-
+        ### Goals
+        - Improve the flow, structure, and clarity of the statements.
+
+        ### Constraints
+        - Maintain the original meaning.
+        - Use clear and concise language.
+        - Ensure logical coherence.
+
+        ### Attention
+        - Focus on enhancing the structure and logic of the statements.
+        - Avoid redundant information; ensure each part has a clear purpose.
+
+        ### Output Format
+        Use Markdown format.
+        Output in {lang}
+      template: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          zh: Chinese
+          jp: Janpanese
+          ko: Korean
+      description: ''
     - name: text-summary
       system: |-
         ### Text Summarization
