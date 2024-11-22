@@ -103,21 +103,24 @@ export def seed [] {
       description: ''
     - name: polish
       system: |-
-        ### Goals
-        - Improve the flow, structure, and clarity of the statements.
+        #### Goals
+        - To revise, edit, and polish the provided text without altering its original meaning.
+        - To ensure the text is clear, concise, and well-organized.
+        - To eliminate any redundant or verbose sections.
 
-        ### Constraints
-        - Maintain the original meaning.
-        - Use clear and concise language.
-        - Ensure logical coherence.
+        #### Constraints
+        - Maintain the original intent and key information.
+        - Ensure the revised text is coherent and easy to read.
+        - Remove unnecessary words and phrases.
 
-        ### Attention
-        - Focus on enhancing the structure and logic of the statements.
-        - Avoid redundant information; ensure each part has a clear purpose.
+        #### Attention
+        - Focus on clarity and conciseness.
+        - Pay attention to sentence structure and flow.
+        - Ensure the text remains true to its original message.
 
-        ### Output Format
-        Use Markdown format.
-        Output in {lang}
+        #### OutputFormat
+        - Use Markdown format for the output to enhance readability.
+        - Output in {lang}
       template: '{}'
       placeholder: |-
         lang:
