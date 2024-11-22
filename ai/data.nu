@@ -61,87 +61,7 @@ export def upsert-function [--delete --action: closure] {
     }
 }
 
-export def --env init [] {
-    if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
-        $env.OPENAI_PROMPT_TEMPLATE = "_: |-
-            # Role:
-            ## Background:
-            ## Attention:
-            ## Profile:
-            ## Constraints:
-            ## Goals:
-            ## Skills:
-            ## Workflow:
-            ## OutputFormat:
-            ## Suggestions:
-            ## Initialization:
-            " | from yaml | get _
-    }
-    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
-    for s in [
-        "CREATE TABLE IF NOT EXISTS provider (
-            name TEXT PRIMARY KEY,
-            baseurl TEXT NOT NULL,
-            api_key TEXT DEFAULT '',
-            model_default TEXT DEFAULT 'qwen2:1.5b',
-            temp_default REAL DEFAULT 0.5,
-            temp_min REAL DEFAULT 0,
-            temp_max REAL NOT NULL,
-            org_id TEXT DEFAULT '',
-            project_id TEXT DEFAULT '',
-            active BOOLEAN DEFAULT 0
-        );"
-        "CREATE INDEX idx_provider ON provider (name);"
-        "CREATE INDEX idx_active ON provider (active);"
-        "CREATE TABLE IF NOT EXISTS sessions (
-            created TEXT,
-            provider TEXT NOT NULL,
-            model TEXT NOT NULL,
-            temperature REAL NOT NULL
-        );"
-        "CREATE INDEX idx_sessions ON sessions (created);"
-        "CREATE TABLE IF NOT EXISTS prompt (
-            name TEXT PRIMARY KEY,
-            system TEXT,
-            template TEXT,
-            placeholder TEXT NOT NULL DEFAULT '{}',
-            description TEXT
-        );"
-        "CREATE INDEX idx_prompt ON prompt (name);"
-        "CREATE TABLE IF NOT EXISTS messages (
-            session_id TEXT,
-            provider TEXT,
-            model TEXT,
-            role TEXT,
-            content TEXT,
-            token INTEGER,
-            created TEXT,
-            tag TEXT
-        );"
-        "CREATE INDEX idx_messages ON messages (session_id);"
-        "CREATE TABLE IF NOT EXISTS function (
-            name TEXT PRIMARY KEY,
-            description TEXT,
-            parameters TEXT,
-            tag TEXT
-        );"
-        "CREATE INDEX idx_function ON function (name);"
-
-        "CREATE TABLE IF NOT EXISTS scratch (
-            id INTEGER PRIMARY KEY,
-            type TEXT DEFAULT '',
-            args TEXT DEFAULT '',
-            content TEXT DEFAULT '',
-            created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
-            updated TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
-            function TEXT '',
-            model TEXT ''
-        );"
-
-        "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
-    ] {
-        do $sqlx $s
-    }
+export def seed [] {
     "
     - name: generating-prompts
       system: |-
@@ -527,6 +447,90 @@ export def --env init [] {
         - location
     "
     | from yaml | each { $in | upsert-function }
+}
+
+export def --env init [] {
+    if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
+        $env.OPENAI_PROMPT_TEMPLATE = "_: |-
+            # Role:
+            ## Background:
+            ## Attention:
+            ## Profile:
+            ## Constraints:
+            ## Goals:
+            ## Skills:
+            ## Workflow:
+            ## OutputFormat:
+            ## Suggestions:
+            ## Initialization:
+            " | from yaml | get _
+    }
+    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
+        for s in [
+            "CREATE TABLE IF NOT EXISTS provider (
+                name TEXT PRIMARY KEY,
+                baseurl TEXT NOT NULL,
+                api_key TEXT DEFAULT '',
+                model_default TEXT DEFAULT 'qwen2:1.5b',
+                temp_default REAL DEFAULT 0.5,
+                temp_min REAL DEFAULT 0,
+                temp_max REAL NOT NULL,
+                org_id TEXT DEFAULT '',
+                project_id TEXT DEFAULT '',
+                active BOOLEAN DEFAULT 0
+            );"
+            "CREATE INDEX idx_provider ON provider (name);"
+            "CREATE INDEX idx_active ON provider (active);"
+            "CREATE TABLE IF NOT EXISTS sessions (
+                created TEXT,
+                provider TEXT NOT NULL,
+                model TEXT NOT NULL,
+                temperature REAL NOT NULL
+            );"
+            "CREATE INDEX idx_sessions ON sessions (created);"
+            "CREATE TABLE IF NOT EXISTS prompt (
+                name TEXT PRIMARY KEY,
+                system TEXT,
+                template TEXT,
+                placeholder TEXT NOT NULL DEFAULT '{}',
+                description TEXT
+            );"
+            "CREATE INDEX idx_prompt ON prompt (name);"
+            "CREATE TABLE IF NOT EXISTS messages (
+                session_id TEXT,
+                provider TEXT,
+                model TEXT,
+                role TEXT,
+                content TEXT,
+                token INTEGER,
+                created TEXT,
+                tag TEXT
+            );"
+            "CREATE INDEX idx_messages ON messages (session_id);"
+            "CREATE TABLE IF NOT EXISTS function (
+                name TEXT PRIMARY KEY,
+                description TEXT,
+                parameters TEXT,
+                tag TEXT
+            );"
+            "CREATE INDEX idx_function ON function (name);"
+
+            "CREATE TABLE IF NOT EXISTS scratch (
+                id INTEGER PRIMARY KEY,
+                type TEXT DEFAULT '',
+                args TEXT DEFAULT '',
+                content TEXT DEFAULT '',
+                created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
+                updated TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now')),
+                function TEXT '',
+                model TEXT ''
+            );"
+
+            "INSERT INTO provider (name, baseurl, model_default, temp_max, active) VALUES ('ollama', 'http://localhost:11434/v1', 'llama3.2:latest', 1, 1);"
+        ] {
+            do $sqlx $s
+        }
+        seed
     }
 }
 
