@@ -138,7 +138,9 @@ export def ai-do [
     let val = $pls | columns
     | zip ($args | range 1..)
     | reduce -f {} {|i,a|
-        $a | insert ($i.0 | into string) ($pls | get $i.0 | get $i.1)
+        $a
+        | insert $"($i.0):" $i.1
+        | insert ($i.0 | into string) ($pls | get $i.0 | get $i.1)
     }
 
     let prompt = $role.template | render {_: $placehold, ...$val}
