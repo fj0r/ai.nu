@@ -104,7 +104,9 @@ export def --env ollama-chat [
         if ($x | is-empty) { return $a }
         let x = $x | get 0.data | from json
         let m = $x.message.content
-        print -n $m
+        if not $out {
+            print -n $m
+        }
         $a
         | update msg {|x| $x.msg + $m }
         | update token {|x| $x.token + 1 }
