@@ -417,6 +417,7 @@ export def seed [] {
         - Use `- [ ]` or `☐` to indicate uncompleted tasks.
         - Use `- [x]` or `🗹` to indicate completed tasks.
         - Ensure the report is clear and easy to follow.
+        - Output in {lang}.
 
         ### Attention
         - Pay attention to the logical structure of your report.
@@ -460,7 +461,17 @@ export def seed [] {
         - Review your log entries to ensure accuracy.
         - Regularly update your report to track progress over time.
       template: '{}'
-      placeholder: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
       description: ''
     - name: generating-names
       system: |
