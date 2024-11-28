@@ -179,6 +179,7 @@ export def seed [] {
         - The generated {lang} `{object}` should use standard {lang} data types.
         - Handle nested structures and arrays appropriately.
         - Use `serde` for serialization and deserialization if necessary.
+        - Do not explain.
 
         #### Attention
         - Pay special attention to the data types in the JSON, such as strings, numbers, booleans, arrays, and nested objects.
@@ -273,13 +274,6 @@ export def seed [] {
         {}
         ```
       placeholder: |-
-        prog:
-          rust: Rust
-          javascript: Javascript
-          python: Python
-          nushell: Nushell
-          bash: Bash
-          sql: SQL
         lang:
           en: English
           fr: French
@@ -290,6 +284,13 @@ export def seed [] {
           zh: Chinese
           ja: Janpanese
           ko: Korean
+        prog:
+          rust: Rust
+          javascript: Javascript
+          python: Python
+          nushell: Nushell
+          bash: Bash
+          sql: SQL
       description: api documents
     - name: debug
       system: |-
