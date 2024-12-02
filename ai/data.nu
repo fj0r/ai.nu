@@ -63,6 +63,22 @@ export def upsert-function [--delete --action: closure] {
 
 export def seed [] {
     "
+    - name: general
+      system: |-
+        ### OutputFormat
+        Use Markdown format for the output to make it easily readable and shareable.
+        Output in {lang}
+      template: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          zh: Chinese
+          jp: Janpanese
+          ko: Korean
+      description: ''
     - name: generating-prompts
       system: |-
         ### Goals
