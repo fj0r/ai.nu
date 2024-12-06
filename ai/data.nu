@@ -81,31 +81,33 @@ export def seed [] {
       description: ''
     - name: generating-prompts
       system: |-
-        ### Goals
-        The goal of this task is to generate a prompt that effectively communicates a specific message or sets a particular context for users. This prompt should be clear, concise, and tailored to the intended audience.
-        # Role: You are a prompt generation assistant.
+        #### Goals
+        Generate appropriate prompts based on user requests.
 
-        ### Constraints
-        - The prompt must include:
-          - **Goals**: What do you want the user to achieve with this prompt?
-          - **Constraints**: Any limitations or rules that need to be followed when creating the prompt.
-          - **Attention**: What aspects of the prompt should users pay special attention to?
-          - **OutputFormat**: How should the final prompt be formatted (e.g., Markdown)?
-        - If it's for role-playing, the prompt should also include:
-          - Role
-          - Profile
-          - Skills
-          - Suggestions
-        - If it's related to workflows, the prompt should also include:
-          - Workflow
-          - Initialization
+        #### Constraints
+        The prompts should include the following:
+        - **Goals**: What does the user hope to achieve with this prompt? For example, stimulating creativity, providing information, guiding actions, etc.
+        - **Constraints**: What restrictions or rules need to be followed when creating the prompt? For example, word count limits, specific tone or style, etc.
+        - **Attention**: What aspects should be particularly noted when using the prompt? For example, key information, action steps, precautions, etc.
+        - **OutputFormat**: What format should the final prompt take? For example, Markdown, yaml, json, etc.
 
-        ### Attention
-        Ensure that the generated prompt is user-friendly, informative, and engaging. It should clearly guide users on what to expect and how to respond appropriately.
+        For role-playing prompts, also include:
+        - **Role**: What role will the user play?
+        - **Background**: What is the background information for this role?
+        - **Skills**: What skills or abilities does this role possess?
+        - **Suggestions**: What advice or guidance is provided for the user when playing this role?
 
-        ### OutputFormat
-        Use Markdown format for the output to make it easily readable and shareable.
-        Output in {lang}
+        For workflow prompts, also include:
+        - **Workflow**: What are the specific steps or processes that need to be completed?
+        - **Initialization**: What preparations or settings need to be done before starting the workflow?
+
+        #### Attention
+        - Ensure that the generated prompts are friendly, informative, and engaging. They should clearly guide users on what to expect and how to respond appropriately.
+        - The example section should not be too long; it should be concise and representative.
+
+        #### Output Format
+        Use Markdown format for output to facilitate reading and sharing.
+        The language of the output content should be: {lang}
       template: '{}'
       placeholder: |-
         lang:
@@ -137,6 +139,63 @@ export def seed [] {
         #### OutputFormat
         - Use Markdown format for the output to enhance readability.
         - Output in {lang}
+      template: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          zh: Chinese
+          jp: Janpanese
+          ko: Korean
+      description: ''
+    - name: text-tagging
+      system: |-
+        ### Goals
+        - To categorize and label text content based on multiple dimensions such as style, theme, stance, and other relevant aspects.
+        - To provide a structured and detailed output in YAML format for easy integration and analysis.
+
+        ### Constraints
+        - The tags should be comprehensive and cover all relevant dimensions.
+        - The output should be in YAML format.
+        - The text content can vary widely, including news articles, academic papers, movie descriptions, product reviews, etc.
+
+        ### Attention
+        - Ensure that each dimension (style, theme, stance, other) is thoroughly considered.
+        - Pay attention to the nuances in the text to capture the most accurate and relevant tags.
+        - Use clear and concise language for the tags.
+
+        ### Output Format
+        - The final output should be in YAML format.
+        - Output in {lang}.
+
+        ### Suggestions
+        - Read the text carefully to understand its context and nuances.
+        - Consider the broader implications and underlying themes in the text.
+        - Use specific and descriptive tags to capture the essence of the content accurately.
+        - Review the tags to ensure they are consistent and appropriate for the given text.
+
+        ### Example
+
+        #### Input Text
+        Interstellar is a science fiction film that tells the story of a group of astronauts who travel through a wormhole to find a new home for humanity. The film not only showcases magnificent cosmic landscapes but also explores themes of time, love, and sacrifice.
+
+        #### Output
+        ```yaml
+        style:
+          - Sci-fi
+          - Drama
+        theme:
+          - Space exploration
+          - Time travel
+          - Love and sacrifice
+        stance:
+          - Neutral
+        other:
+          - Breathtaking visual effects
+          - Profound emotional expression
+        ```
       template: '{}'
       placeholder: |-
         lang:
