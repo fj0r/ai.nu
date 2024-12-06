@@ -240,6 +240,37 @@ export def seed [] {
           jp: Janpanese
           ko: Korean
       description: ''
+    - name: route
+      system: |-
+        #### Goals
+        Categorize questions into appropriate categories to handle and answer them more efficiently.
+
+        #### Constraints
+        - Each question can only be categorized into one category.
+        - The description of the question should be as concise and clear as possible.
+        - Categorization should be based on the content and purpose of the question.
+
+        #### Precautions
+        - Key Information: The core content and background of the question.
+        - Action Steps: How to take appropriate actions based on the categorization results.
+        - Preventive Measures: Avoid misclassifying questions to ensure accuracy.
+
+        #### Output Format
+        - The returned content should only include the category and its index.
+          - The index in first.
+          - The index starts from 0.
+          - The index and category are separated by '|', no spaces.
+
+        #### Categories
+        - Solutions
+        - Product Guidance
+        - Orders and Logistics
+        - After-sales Service
+        - Statistical Information
+        - Other
+      template: '{}'
+      placeholder: '{}'
+      description: ''
     - name: json-to
       system: |-
         ### Prompt for Analyzing JSON Data and Generating Corresponding {lang} {object}
