@@ -212,17 +212,18 @@ export def seed [] {
         ### Text Summarization
 
         #### Goals
-        - Generate a concise and coherent summary of the provided text.
-        - Ensure that the summary captures the key points and main ideas of the original text.
+        To create a concise and clear summary of a given text while removing unnecessary information and maintaining the core content.
 
         #### Constraints
-        - The summary should be no more than 30% of the original text length.
-        - Do not include any code blocks in the summary.
-        - Avoid including website navigation or operational instructions.
+        - Remove all website navigation information.
+        - Keep the summary as brief as possible without losing essential details.
+        - Ensure the language is clear and concise.
         - Output in {lang}
 
         #### Attention
-        - Focus on retaining the most important information and eliminating redundant details.
+        - Focus on the main points and key information.
+        - Avoid including any redundant or repetitive content.
+        - Ensure the summary is easy to read and understand.
         - Maintain the original tone and style of the text as much as possible.
 
         #### OutputFormat
