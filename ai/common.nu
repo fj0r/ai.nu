@@ -16,10 +16,14 @@ export def 'json-to-string' [json] {
     $json | to json -r | str replace '"' '\"' -a
 }
 
-export def block-edit [temp] {
+export def block-edit [
+    temp
+    --context: record
+] {
     let content = $in
     let tf = mktemp -t $temp
     $content | save -f $tf
+    $env.AI_EDITOR_CONTEXT = $context | upsert file $tf | to nuon
     ^$env.EDITOR $tf
     let c = open $tf --raw
     rm -f $tf

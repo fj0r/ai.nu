@@ -108,6 +108,17 @@ export def ai-chat [
     }
 }
 
+export def ai-editor-run [] {
+    let ctx = $env.AI_EDITOR_CONTEXT | from nuon
+    if $ctx.action == 'ai-do' {
+        let c = open -r $ctx.file
+        if ($c | is-empty) {
+            print $"(ansi grey)no content, ignore(ansi reset)"
+        } else {
+            $c | ai-do ...$ctx.args
+        }
+    }
+}
 
 export def ai-do [
     ...args: string@cmpl-role
@@ -124,7 +135,11 @@ export def ai-do [
         } else {
             ''
         }
-        | block-edit $"($args | str join '_').XXX.temp" | tee {
+        | block-edit $"($args | str join '_').XXX.temp" --context {
+            action: ai-do
+            args: $args
+        }
+        | tee {
             sqlx $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
         }
     } else {
