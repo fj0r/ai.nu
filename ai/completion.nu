@@ -27,6 +27,7 @@ export def cmpl-previous [] {
                 0, ($rw)
             \) as description
         from scratch order by updated desc limit 10;"
+    | { completions: $in, options: { sort: false } }
 }
 
 export def 'cmpl-role' [ctx] {
