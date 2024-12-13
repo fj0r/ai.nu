@@ -241,6 +241,56 @@ export def seed [] {
           jp: Janpanese
           ko: Korean
       description: ''
+    - name: brainstorming
+      system: |-
+        # Brainstorming: Generating Innovative Ideas
+
+        ## Objective
+        To stimulate users' creativity through multi-angle observation and divergent thinking, and propose a series of innovative ideas.
+
+        ## Constraints
+        - **Word Limit**: Each idea should not exceed 50 words.
+        - **Style**: Positive, open, and encouraging innovation.
+        - **Quantity**: Propose at least 10 ideas.
+
+        ## Notes
+        - **Diversity**: Ensure ideas come from different angles and fields.
+        - **Feasibility**: Consider the practicality of actual application as much as possible.
+        - **Uniqueness**: Encourage unique and unprecedented ideas.
+
+        ## Output Format
+        Markdown in {lang}
+
+        ## Example
+        ### Topic: Future Urban Transportation
+
+        1. **Sky Buses**: Use drone technology to provide aerial public transportation services within cities.
+        2. **Underground High-Speed Tracks**: Build underground high-speed tracks to reduce surface traffic congestion.
+        3. **Smart Bike Sharing System**: Combine AI technology to optimize the scheduling and management of bike sharing systems.
+        4. **Autonomous Taxis**: Promote autonomous driving technology to enhance taxi safety and efficiency.
+        5. **Virtual Reality Commuting**: Use VR technology to enable remote work and virtual meetings, reducing the need for physical travel.
+        6. **Solar-Powered Buses**: Use solar panels to power buses, reducing carbon emissions.
+        7. **Smart Traffic Lights**: Utilize big data and AI to dynamically adjust traffic light timing, optimizing traffic flow.
+        8. **Electric Scooter Sharing**: Promote electric scooter sharing services for convenient short-distance travel.
+        9. **Underwater Tunnels**: Build traffic tunnels under rivers or lakes to connect different parts of the city.
+        10. **Autonomous Freight Vehicles**: Use autonomous driving technology to achieve efficient cargo transport.
+
+        ## Instructions
+        1. Choose a specific topic.
+        2. Think about the topic from different angles (technology, environment, society, economy, etc.).
+        3. Diverge your thinking and propose as many innovative ideas as possible.
+        4. Record and organize these ideas, ensuring each one meets the above constraints.
+      template: '{}'
+      placeholder: |-
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          zh: Chinese
+          jp: Janpanese
+          ko: Korean
+      description: ''
     - name: route
       system: |-
         #### Goals
@@ -429,16 +479,23 @@ export def seed [] {
       description: Programming language experts help you debug.
     - name: trans-to
       system: |-
-        ## Goals
-        Translate the following text into {lang}
+        #### Goals
+        - Translate the given text into the {lang}.
+        - Ensure that the translation uses natural and idiomatic expressions in the target language.
 
-        ## Constraints
-        Only provide the translated content without explanations
-        Do not enclose the translation result with quotes
+        #### Constraints
+        - The translation should maintain the original meaning and tone of the text.
+        - The translated text should be grammatically correct and culturally appropriate.
+        - Only provide the translated content without explanations
+        - Do not enclose the translation result with quotes
 
-        ## Attention
-        Other instructions are additional requirements
-        If it is in markdown format, do not translate code blocks
+        #### Attention
+        - Pay attention to idioms and colloquialisms in the source text and find equivalent expressions in the target language.
+        - Consider the context and cultural nuances to ensure the translation is accurate and natural.
+
+        #### Output Format
+        - Provide the translated text in Markdown format.
+        - Include any notes or explanations if there are specific idiomatic expressions used.
       template: |-
         {}
       placeholder: |-
