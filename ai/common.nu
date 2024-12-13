@@ -23,7 +23,9 @@ export def block-edit [
     let content = $in
     let tf = mktemp -t $temp
     $content | save -f $tf
-    $env.AI_EDITOR_CONTEXT = $context | upsert file $tf | to nuon
+    if ($context | is-not-empty) {
+        $env.AI_EDITOR_CONTEXT = $context | upsert file $tf | to nuon
+    }
     ^$env.EDITOR $tf
     let c = open $tf --raw
     rm -f $tf
