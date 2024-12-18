@@ -47,7 +47,7 @@ export def 'cmpl-role' [ctx] {
 }
 
 
-export def cmpl-config [context] {
+def cmpl-config [context] {
     let ctx = $context | split row -r '\s+' | range 1..
     if ($ctx | length) < 2 {
         return [provider, prompt, function]
