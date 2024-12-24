@@ -99,7 +99,7 @@ export def ai-config-upsert-function [
     }
 }
 
-export def ai-change-temperature [
+export def ai-switch-temperature [
     o: string@cmpl-temperature
     --global(-g)
 ] {
@@ -111,7 +111,7 @@ export def ai-change-temperature [
         where created = '($env.OPENAI_SESSION)'"
 }
 
-export def ai-change-provider [
+export def ai-switch-provider [
     o: string@cmpl-provider
     --global(-g)
 ] {
@@ -128,7 +128,7 @@ export def ai-change-provider [
         where created = (Q $env.OPENAI_SESSION)"
 }
 
-export def ai-change-model [
+export def ai-switch-model [
     model: string@cmpl-models
     --global(-g)
 ] {

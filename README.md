@@ -10,9 +10,9 @@ OpenAI and Ollama Clients
 
 `ai-embed`
 
-`ai-change-model`
-`ai-change-provider`
-`ai-change-temperature`
+`ai-switch-model`
+`ai-switch-provider`
+`ai-switch-temperature`
 
 Configure with the `ai config`.
 ```
