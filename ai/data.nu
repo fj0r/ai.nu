@@ -26,7 +26,7 @@ export def upsert-prompt [--delete --action: closure] {
         default: {
             name: ''
             system: $env.OPENAI_PROMPT_TEMPLATE
-            template: "```\n{}\n```"
+            template: "```\n{{}}\n```"
             placeholder: '{}'
             description: ''
         }
@@ -67,8 +67,8 @@ export def seed [] {
       system: |-
         ### OutputFormat
         Use Markdown format for the output to make it easily readable and shareable.
-        Output in {lang}
-      template: '{}'
+        Output in {{lang}}
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -107,8 +107,8 @@ export def seed [] {
 
         #### Output Format
         Use Markdown format for output to facilitate reading and sharing.
-        The language of the output content should be: {lang}
-      template: '{}'
+        The language of the output content should be: {{lang}}
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -138,8 +138,8 @@ export def seed [] {
 
         #### OutputFormat
         - Use Markdown format for the output to enhance readability.
-        - Output in {lang}
-      template: '{}'
+        - Output in {{lang}}
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -168,7 +168,7 @@ export def seed [] {
 
         ### Output Format
         - The final output should be in YAML format.
-        - Output in {lang}.
+        - Output in {{lang}}.
 
         ### Suggestions
         - Read the text carefully to understand its context and nuances.
@@ -196,7 +196,7 @@ export def seed [] {
           - Breathtaking visual effects
           - Profound emotional expression
         ```
-      template: '{}'
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -218,7 +218,7 @@ export def seed [] {
         - Remove all website navigation information.
         - Keep the summary as brief as possible without losing essential details.
         - Ensure the language is clear and concise.
-        - Output in {lang}
+        - Output in {{lang}}
 
         #### Attention
         - Focus on the main points and key information.
@@ -230,7 +230,7 @@ export def seed [] {
         - Use Markdown format for the output.
         - Ensure that the summary is well-structured and easy to read.
 
-      template: '{}'
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -259,7 +259,7 @@ export def seed [] {
         - **Uniqueness**: Encourage unique and unprecedented ideas.
 
         ## Output Format
-        Markdown in {lang}
+        Markdown in {{lang}}
 
         ## Example
         ### Topic: Future Urban Transportation
@@ -280,7 +280,7 @@ export def seed [] {
         2. Think about the topic from different angles (technology, environment, society, economy, etc.).
         3. Diverge your thinking and propose as many innovative ideas as possible.
         4. Record and organize these ideas, ensuring each one meets the above constraints.
-      template: '{}'
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -319,21 +319,21 @@ export def seed [] {
         - After-sales Service
         - Statistical Information
         - Other
-      template: '{}'
+      template: '{{}}'
       placeholder: '{}'
       description: ''
     - name: json-to
       system: |-
-        ### Prompt for Analyzing JSON Data and Generating Corresponding {lang} {object}
+        ### Prompt for Analyzing JSON Data and Generating Corresponding {{lang}} {{object}}
 
         #### Goals
         - Analyze the provided JSON data.
-        - Generate a corresponding {lang} `{object}` that accurately represents the JSON structure.
-        - Ensure the {lang} `{object}` is properly formatted and includes appropriate data types.
+        - Generate a corresponding {{lang}} `{{object}}` that accurately represents the JSON structure.
+        - Ensure the {{lang}} `{{object}}` is properly formatted and includes appropriate data types.
 
         #### Constraints
         - The JSON data will be provided as a string.
-        - The generated {lang} `{object}` should use standard {lang} data types.
+        - The generated {{lang}} `{{object}}` should use standard {{lang}} data types.
         - Handle nested structures and arrays appropriately.
         - Use `serde` for serialization and deserialization if necessary.
         - Do not explain.
@@ -348,11 +348,11 @@ export def seed [] {
         ### Instructions
         1. Analyze the provided JSON data.
         2. Identify the data types and structure.
-        3. Generate the corresponding {lang} `{object}`.
+        3. Generate the corresponding {{lang}} `{{object}}`.
         4. Ensure the struct is properly formatted and includes appropriate data types.
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: |-
         lang:
@@ -385,10 +385,10 @@ export def seed [] {
         - Lines starting with `+` indicate new lines added.
         - Lines starting with `-` indicate deleted lines.
         - Other lines are context and are not part of the current change being described.
-        - Output in {lang}
+        - Output in {{lang}}
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: |-
         lang:
@@ -405,7 +405,7 @@ export def seed [] {
     - name: programming-expert
       system: |-
         #### Goals
-        - To provide accurate and helpful answers to user questions about {prog}
+        - To provide accurate and helpful answers to user questions about {{prog}}
         - To offer concise examples where necessary to illustrate concepts or solutions.
 
         #### Constraints
@@ -415,7 +415,7 @@ export def seed [] {
 
         #### Attention
         - Pay special attention to the user's level of expertise (beginner, intermediate, advanced) and tailor your responses accordingly.
-        - Ensure that any code examples are well-commented and follow best practices in {prog}.
+        - Ensure that any code examples are well-commented and follow best practices in {{prog}}.
 
         #### Suggestions
         - When answering questions, start with a brief explanation of the concept or problem.
@@ -424,11 +424,11 @@ export def seed [] {
 
         #### OutputFormat
         - Use Markdown format for the output to make it easily readable and shareable.
-        - Output in {lang}
+        - Output in {{lang}}
 
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: |-
         lang:
@@ -451,14 +451,14 @@ export def seed [] {
       description: api documents
     - name: debug
       system: |-
-        # Role: {prog}
+        # Role: {{prog}}
         ## Goals
         Analyze the causes of the error and provide suggestions for correction.
         ## Constraints
-        - Output in {lang}
+        - Output in {{lang}}
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: |-
         lang:
@@ -480,7 +480,7 @@ export def seed [] {
     - name: trans-to
       system: |-
         #### Goals
-        - Translate the given text into the {lang}.
+        - Translate the given text into the {{lang}}.
         - Ensure that the translation uses natural and idiomatic expressions in the target language.
 
         #### Constraints
@@ -497,7 +497,7 @@ export def seed [] {
         - Provide the translated text in Markdown format.
         - Include any notes or explanations if there are specific idiomatic expressions used.
       template: |-
-        {}
+        {{}}
       placeholder: |-
         lang:
           en: English
@@ -533,7 +533,7 @@ export def seed [] {
 
         #### OutputFormat
         Use Markdown format to structure the response, making it easy to read and navigate.
-        Output in {lang}
+        Output in {{lang}}
 
         ### Example Prompt
 
@@ -555,7 +555,7 @@ export def seed [] {
         - **Happy** is a general term for feeling good or satisfied, often used in everyday contexts.
         - **Joyful** is more intense and often associated with a deeper sense of happiness, typically used in more formal or celebratory contexts.
       template: |-
-        ```{}```
+        ```{{}}```
       placeholder: |-
         lang:
           en: English
@@ -581,7 +581,7 @@ export def seed [] {
         - Use `- [ ]` or `☐` to indicate uncompleted tasks.
         - Use `- [x]` or `🗹` to indicate completed tasks.
         - Ensure the report is clear and easy to follow.
-        - Output in {lang}.
+        - Output in {{lang}}.
 
         ### Attention
         - Pay attention to the logical structure of your report.
@@ -624,7 +624,7 @@ export def seed [] {
         - Keep your report concise and to the point.
         - Review your log entries to ensure accuracy.
         - Regularly update your report to track progress over time.
-      template: '{}'
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -645,14 +645,14 @@ export def seed [] {
         #### Constraints
         - Only output names.
         - Each name should be on a separate line.
-        - Use {format:} format.
-        - Provide names in both English and {lang}.
+        - Use {{format:}} format.
+        - Provide names in both English and {{lang}}.
         - Output multiple candidates if possible.
 
         #### Attention
         - Ensure the names are relevant to the input text.
         - Avoid any ambiguous or misleading names.
-        - Use proper {format:} formatting ({format}).
+        - Use proper {{format:}} formatting ({{format}}).
 
         #### OutputFormat
         Lines
@@ -660,14 +660,14 @@ export def seed [] {
         ---
 
         ### Example Input
-        Input Text: "快速发展的科技公司"
+        Input Text: \"快速发展的科技公司\"
 
         ### Example Output
         fast growing tech company
         rapidly developing technology firm
         快速发展科技公司
         快速成长科技企业
-      template: '{}'
+      template: '{{}}'
       placeholder: |-
         lang:
           en: English
@@ -715,10 +715,10 @@ export def seed [] {
           #### OutputFormat
           - Use Markdown format for the output.
           - Organize the analysis into clear sections for better readability.
-          - Output in {lang}
+          - Output in {{lang}}
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: |-
         lang:
@@ -790,7 +790,7 @@ export def seed [] {
         - Provide a sample query to demonstrate how to use the materialized view.
       template: |-
         ```
-        {}
+        {{}}
         ```
       placeholder: '{}'
       description: matrialized view
