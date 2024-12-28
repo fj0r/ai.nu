@@ -1,22 +1,42 @@
 OpenAI and Ollama Clients
 
-`ai-session`
+Check current process information
+ai-session
+```
+Modify current process context
+```
+ai-switch-model
+ai-switch-provider
+ai-switch-temperature
+```
 
-`ai-chat`
-`ai-history-chat`
+Configuration
+```
+ai-config-upsert-prompt [prompt]
+ai-config-upsert-provider [provider]
+ai-config-upsert-function [function]
+```
 
-`ai-do <prompt> ...<placeholder>`
-`ai-history-do`
+Interactive conversation
+```
+ai-chat
+ai-history-chat
+```
 
-`ai-embed`
+One-shot conversation based on prompt
+```
+[msg] | ai-do <prompt> ...<placeholder>
+ai-history-do
+```
 
-`ai-switch-model`
-`ai-switch-provider`
-`ai-switch-temperature`
+Embedding
+```
+ai-embed
+```
 
 Configure with the `ai config`.
 ```
-ai-config-add-provider {
+{
     name: deepseek
     baseurl: 'https://api.deepseek.com/v1'
     model_default: 'deepseek-coder'
@@ -24,27 +44,36 @@ ai-config-add-provider {
     org_id: ''
     project_id: ''
     temp_max: 1.5
-}
+} | ai-config-upsert-provider
 
-ai-config-add-prompt {
-    name: 'git-diff-summary'
-    template: "Extract commit logs from git differences, summarizing only the content changes in files while ignoring hash changes, and generate a title:\n```\n{}\n```"
-    placeholder: ''
+{
+    name: git-diff-summary-xxx
+    system: ('_: |-
+        ## Goals
+        Extract commit messages from the `git diff` output
+
+        ## Constraints
+        summarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.
+
+        ## Attention
+        - Lines starting with `+` indicate new lines added.
+        - Lines starting with `-` indicate deleted lines.
+        - Other lines are context and are not part of the current change being described.
+        - Output in {{lang}}
+        ' | from yaml | get _)
+    template: "```\n{{}}\n```"
+    placeholder: '
+        lang:
+          en: English
+          fr: French
+          es: Spanish
+          de: German
+          ru: Russian
+          ar: Arabic
+          zh: Chinese
+          ja: Janpanese
+          ko: Korean
+        '
     description: 'Summarize from git differences'
-}
-
-ai-config-add-prompt {
-    name: 'bilingual-translation'
-    template: "The following content may be in {} or {}, identify which language it belongs to and translate it into the another.\nDo not explain what language it is, just provide the translation.\n```\n{}\n```"
-    placeholder: [
-        {
-            en: English
-        }
-        {
-            zh: Chinese
-            jp: Japanese
-        }
-    ]
-    description: ''
-}
+} | ai-config-upsert-prompt
 ```
