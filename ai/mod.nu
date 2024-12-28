@@ -5,4 +5,3 @@ export-env {
 
 export use ollama.nu *
 export use openai.nu *
-export use common.nu *
