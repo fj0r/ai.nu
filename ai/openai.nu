@@ -170,6 +170,22 @@ export def ai-do [
         -m $model $prompt)
 }
 
+export def ai-loop [
+    ...args: string@cmpl-role
+    --model(-m): string@cmpl-models
+    --function(-f): list<string@cmpl-function>
+] {
+    loop {
+        let tf = mktemp -t ai-loop-XXXX
+        ^$env.EDITOR $tf
+        let c = open $tf --raw
+        rm -f $tf
+        $c | ai-do ...$args -m $model -f $function
+        print $"\n(ansi grey)------(ansi reset)"
+        input
+    }
+}
+
 export def ai-embed [
     input: string
     --model(-m): string@cmpl-models
