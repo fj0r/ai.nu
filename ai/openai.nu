@@ -95,10 +95,15 @@ export def ai-chat [
     let cr = ansi reset
     let cm = ansi yellow
     let nl = char newline
+    mut model = $model
+    mut system = $system
     while true {
         let a = input $"($ci)($p)"
-        match $a {
+        let l = $a | split row -r '\s+'
+        match ($l | first) {
             '\q' | 'exit' | 'quit' => { break }
+            '\model' => { $model = $l | last }
+            '\system' => { $system = $l | last }
             _ => {
                 print -n $"✨ ($cm)"
                 ai-send -m $model --system $system $a
