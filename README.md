@@ -1,4 +1,4 @@
-OpenAI and Ollama Clients
+# OpenAI and Ollama Clients
 
 Check current process information
 ai-session
