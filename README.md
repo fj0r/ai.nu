@@ -77,3 +77,6 @@ Configure with the `ai config`.
     description: 'Summarize from git differences'
 } | ai-config-upsert-prompt
 ```
+
+---
+[Others](https://github.com/fj0r/nushell/blob/main/README.md)
