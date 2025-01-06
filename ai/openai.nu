@@ -24,17 +24,34 @@ export def ai-send [
 ] {
     let content = $in | default ""
     let content = $message | str replace -m $placehold $content
-    let img = if ($image | is-empty) {
-        {}
-    } else {
-        {images: [(open $image | encode base64)]}
-    }
     let s = data session
     let model = if ($model | is-empty) { $s.model } else { $model }
     data record $s.created $s.provider $model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
     let req = if $forget {
-        [{ role: "user", content: $content, ...$img }]
+        if ($image | is-empty) {
+            [{ role: "user", content: $content }]
+        } else {
+            let b = open $image | encode base64
+            let t = $image | path parse | get extension | str downcase
+            let t = match $t {
+                'jpg' | 'jpeg' => 'jpeg'
+                _ => $t
+            }
+            [{
+                role: "user"
+                content: [
+                    {
+                        type: text
+                        text: $content
+                    }
+                    {
+                        type: image_url
+                        image_url: {url: $"data:image/($t);base64,($b)"}
+                    }
+                ]
+            }]
+        }
     } else {
         data messages
     }
