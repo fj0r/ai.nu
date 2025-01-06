@@ -3,8 +3,9 @@ use common.nu *
 use completion.nu *
 use data.nu *
 
-export def ai-session [] {
+export def ai-session [--all(-a)] {
     data session
+    | if $all { $in } else { $in | reject api_key }
 }
 
 export def ai-history-chat [] {
@@ -109,6 +110,7 @@ export def ai-switch-temperature [
     }
     sqlx $"update sessions set temperature = '($o)'
         where created = '($env.OPENAI_SESSION)'"
+    ai-session
 }
 
 export def ai-switch-provider [
@@ -126,6 +128,7 @@ export def ai-switch-provider [
     sqlx $"update sessions set provider = (Q $o),
         model = \(select model_default from provider where name = (Q $o)\)
         where created = (Q $env.OPENAI_SESSION)"
+    ai-session
 }
 
 export def ai-switch-model [
@@ -138,6 +141,7 @@ export def ai-switch-model [
     }
     sqlx $"update sessions set model = (Q $model)
         where created = (Q $env.OPENAI_SESSION)"
+    ai-session
 }
 
 
