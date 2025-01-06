@@ -32,11 +32,16 @@ export def ai-send [
         if ($image | is-empty) {
             [{ role: "user", content: $content }]
         } else {
-            let b = open $image | encode base64
-            let t = $image | path parse | get extension | str downcase
-            let t = match $t {
-                'jpg' | 'jpeg' => 'jpeg'
-                _ => $t
+            let img = if ($image | path exists) {
+                let b =  open $image | encode base64
+                let t = $image | path parse | get extension | str downcase
+                let t = match $t {
+                    'jpg' | 'jpeg' => 'jpeg'
+                    _ => $t
+                }
+                {url: $"data:image/($t);base64,($b)"}
+            } else {
+                $image
             }
             [{
                 role: "user"
@@ -47,7 +52,7 @@ export def ai-send [
                     }
                     {
                         type: image_url
-                        image_url: {url: $"data:image/($t);base64,($b)"}
+                        image_url: $img
                     }
                 ]
             }]
