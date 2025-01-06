@@ -16,7 +16,7 @@ export def ai-send [
     --system: string
     --function(-f): list<string@cmpl-function>
     --image(-i): path
-    --forget(-f)
+    --oneshot
     --placehold(-p): string = '{}'
     --out(-o)
     --tag: string = ''
@@ -28,7 +28,7 @@ export def ai-send [
     let model = if ($model | is-empty) { $s.model } else { $model }
     data record $s.created $s.provider $model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
-    let req = if $forget {
+    let req = if $oneshot {
         if ($image | is-empty) {
             [{ role: "user", content: $content }]
         } else {
@@ -215,7 +215,7 @@ export def ai-do [
         --function $function
         --image $image
         --tag ($args | str join ',')
-        --forget
+        --oneshot
         --out=$out
         --debug=$debug
         -m $model

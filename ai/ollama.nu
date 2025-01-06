@@ -60,7 +60,7 @@ export def --env ollama-chat [
     --model(-m): string@cmpl-models
     --image(-i): path
     --reset(-r)
-    --forget(-f)
+    --oneshot
     --placehold(-p): string = '{}'
     --out(-o)
     --debug
@@ -79,7 +79,7 @@ export def --env ollama-chat [
     if $debug {
         print $"(ansi grey)($msg.content)(ansi reset)"
     }
-    if not $forget {
+    if not $oneshot {
         if ($env.OLLAMA_CHAT | is-empty) or ($model not-in $env.OLLAMA_CHAT) {
             $env.OLLAMA_CHAT = ($env.OLLAMA_CHAT | insert $model [])
         }
@@ -93,7 +93,7 @@ export def --env ollama-chat [
     let r = http post -t application/json $"($env.OLLAMA_BASEURL)/api/chat" {
         model: $model
         messages: [
-            ...(if $forget { [] } else { $env.OLLAMA_CHAT | get $model })
+            ...(if $oneshot { [] } else { $env.OLLAMA_CHAT | get $model })
             $msg
         ]
         stream: true
@@ -111,7 +111,7 @@ export def --env ollama-chat [
         | update msg {|x| $x.msg + $m }
         | update token {|x| $x.token + 1 }
     }
-    if not $forget {
+    if not $oneshot {
         let r = {role: 'assistant', content: $r.msg, token: $r.token}
         $env.OLLAMA_CHAT = ($env.OLLAMA_CHAT | update $model {|x| $x | get $model | append $r })
     }
