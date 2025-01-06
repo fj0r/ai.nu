@@ -39,7 +39,7 @@ export def ollama-gen [
     let img = if ($image | is-empty) {
         {}
     } else {
-        {images: [(open $image | encode new-base64)]}
+        {images: [(open $image | encode base64)]}
     }
     let r = http post -t application/json $"($env.OLLAMA_BASEURL)/api/generate" {
         model: $model
@@ -69,7 +69,7 @@ export def --env ollama-chat [
     let img = if ($image | is-empty) {
         {}
     } else {
-        {images: [(open $image | encode new-base64)]}
+        {images: [(open $image | encode base64)]}
     }
     let msg = {
         role: "user"

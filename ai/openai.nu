@@ -27,7 +27,7 @@ export def ai-send [
     let img = if ($image | is-empty) {
         {}
     } else {
-        {images: [(open $image | encode new-base64)]}
+        {images: [(open $image | encode base64)]}
     }
     let s = data session
     let model = if ($model | is-empty) { $s.model } else { $model }
@@ -148,6 +148,7 @@ export def ai-do [
     --out(-o)
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-function>
+    --image(-i): path
     --previous(-p): int@cmpl-previous
     --debug
 ] {
@@ -186,11 +187,18 @@ export def ai-do [
         $role.system | render $val
     }
 
-    $input | (ai-send -p $placehold
-        --system $system --function=$function
-        --tag ($args | str join ',') --forget
-        --out=$out --debug=$debug
-        -m $model $prompt)
+    $input | (
+        ai-send -p $placehold
+        --system $system
+        --function $function
+        --image $image
+        --tag ($args | str join ',')
+        --forget
+        --out=$out
+        --debug=$debug
+        -m $model
+        $prompt
+    )
 }
 
 export def ai-loop [
