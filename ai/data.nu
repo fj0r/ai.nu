@@ -487,6 +487,8 @@ export def seed [] {
         - The translation should maintain the original meaning and tone of the text.
         - The translated text should be grammatically correct and culturally appropriate.
         - Only provide the translated content without explanations
+        - Content within markdown code blocks remains unchanged
+        - If there are special symbols, keep them as they are
         - Do not enclose the translation result with quotes
 
         #### Attention
