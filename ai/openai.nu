@@ -38,17 +38,26 @@ export def ai-send [
     } else {
         data messages
     }
-    let function = if ($function | is-not-empty) {
+    let tools = if ($function | is-not-empty) {
         let f = sqlx $"select name, description, parameters from function
             where name in \(($function | each { Q $in } | str join ', ' )\)"
-        {function: ($f | update parameters {|x| $x.parameters | from yaml | to json })}
-    } else { {} }
+        let f = $f | each {|i|
+            let i = $i | update parameters {|x| $x.parameters | from yaml }
+            {
+                type: function
+                function: $i
+            }
+        }
+        { tools: $f }
+    } else {
+        {}
+    }
     let req = {
         model: $model
         messages: [...$sys ...$req]
         temperature: $s.temperature
         stream: true
-        ...$function
+        ...$tools
     }
     if $debug {
         let xxx = [
@@ -68,6 +77,12 @@ export def ai-send [
         let x = $i | parse -r '.*?(?<data>\{.*)'
         if ($x | is-empty) { return $a }
         let x = $x | get 0.data | from json
+        if 'tool_calls' in $x.choices.0.delta {
+            let c = $a
+            | insert tool_calls $x.choices.0.delta.tool_calls
+            | update token {|x| $x.token + 1 }
+            return $c
+        }
         let m = $x.choices | each { $in.delta.content } | str join
         if not $out {
             print -n $m
@@ -77,6 +92,9 @@ export def ai-send [
         | update token {|x| $x.token + 1 }
     }
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
+    if ($function | is-not-empty) {
+        return $r.tool_calls
+    }
     if $out { $r.msg }
 }
 
