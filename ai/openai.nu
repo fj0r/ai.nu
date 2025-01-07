@@ -91,7 +91,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = http post -t application/json --headers [
+    let r = http post -e -t application/json --headers [
         Authorization $"Bearer ($s.api_key)"
     ] $"($s.baseurl)/chat/completions" $req
     | lines
