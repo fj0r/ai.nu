@@ -1,41 +1,67 @@
 # OpenAI and Ollama Clients
 
 Check current process information
+```nushell
 ai-session
 ```
 Modify current process context
-```
+```nushell
 ai-switch-model
 ai-switch-provider
 ai-switch-temperature
 ```
 
 Configuration
-```
+```nushell
 ai-config-upsert-prompt [prompt]
 ai-config-upsert-provider [provider]
 ai-config-upsert-function [function]
 ```
 
 Interactive conversation
-```
+```nushell
 ai-chat
 ai-history-chat
 ```
 
 One-shot conversation based on prompt
-```
+```nushell
 [msg] | ai-do <prompt> ...<placeholder>
 ai-history-do
 ```
 
 Embedding
-```
+```nushell
 ai-embed
 ```
 
-Configure with the `ai config`.
+## Function call
+
+```nushell
+"Choose a function call: Will it rain tomorrow? I'm in San Francisco."
+| ai-do general en -f [get_current_weather] -m <model support fuction call>
+| to yaml
 ```
+
+Results:
+```yaml
+- id: call_20250108110159e36662a911f84245_0
+  index: 0
+  type: function
+  function:
+    name: get_current_weather
+    arguments: '{"location": "San Francisco, CA", "unit": "fahrenheit"}'
+```
+
+- If you're unsure what prompt to use, you can use `general`.
+- In edit mode, you can execute `ai-editor-run` incrementally in the editor (For example, execute `:terminal` in Vim).
+- The `-f` parameter is a list of callable functions. Based on your message, the LLM will choose one to call and provide the appropriate parameters.
+- In this example, even without the `Choose a function call: ` prompt, it might still successfully call the function and output both the message and `tool_calls` (in most cases, only `tool_calls` are needed).
+- Use `ai-config-upsert-function` to add your own functions.
+
+## Configure with the `ai config`.
+
+```nushell
 {
     name: deepseek
     baseurl: 'https://api.deepseek.com/v1'
