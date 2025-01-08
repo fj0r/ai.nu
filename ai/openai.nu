@@ -153,14 +153,14 @@ export def ai-chat [
     }
 }
 
-export def ai-editor-run [] {
+export def ai-editor-run [--debug] {
     let ctx = $env.AI_EDITOR_CONTEXT | from nuon
     if $ctx.action == 'ai-do' {
         let c = open -r $ctx.file
         if ($c | is-empty) {
             print $"(ansi grey)no content, ignore(ansi reset)"
         } else {
-            $c | ai-do ...$ctx.args
+            $c | ai-do ...$ctx.args --model $ctx.model --function $ctx.function --image $ctx.image --debug=$debug
         }
     }
 }
@@ -184,6 +184,9 @@ export def ai-do [
         | block-edit $"($args | str join '_').XXX.temp" --context {
             action: ai-do
             args: $args
+            model: $model
+            function: $function
+            image: $image
         }
         | tee {
             sqlx $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
@@ -221,22 +224,6 @@ export def ai-do [
         -m $model
         $prompt
     )
-}
-
-export def ai-loop [
-    ...args: string@cmpl-role
-    --model(-m): string@cmpl-models
-    --function(-f): list<string@cmpl-function>
-] {
-    loop {
-        let tf = mktemp -t ai-loop-XXXX
-        ^$env.EDITOR $tf
-        let c = open $tf --raw
-        rm -f $tf
-        $c | ai-do ...$args -m $model -f $function
-        print $"\n(ansi grey)------(ansi reset)"
-        input
-    }
 }
 
 export def ai-embed [
