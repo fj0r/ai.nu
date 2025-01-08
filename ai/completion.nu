@@ -15,6 +15,10 @@ export def cmpl-function [] {
     sqlx $'select name from function' | get name
 }
 
+export def cmpl-nu-function [] {
+    scope commands | get name
+}
+
 export def cmpl-previous [] {
     let rw = (term size).columns - 22
     sqlx $"select id as value,

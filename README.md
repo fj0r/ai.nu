@@ -59,6 +59,25 @@ Results:
 - In this example, even without the `Choose a function call: ` prompt, it might still successfully call the function and output both the message and `tool_calls` (in most cases, only `tool_calls` are needed).
 - Use `ai-config-upsert-function` to add your own functions.
 
+### Call nu function
+```nushell
+'get all svc' | ai-do general en -t [kube-get ssh kube-log kube-edit]
+# kube-get  svc --all
+
+'get all deployment in app' | ai-do general en -t [kube-get ssh kube-log kube-edit]
+# kube-get  deployment --namespace app
+
+'edit pod app in xxx' | ai-do general en -t [kube-get ssh kube-log kube-edit]
+# kube-edit  pod --namespace xxx  app
+```
+
+- Nushell does not yet support dynamic function calls. Using `nu -c` might cause some modules not to load, so for now, it only prints commands.
+
+- Calling a complete function to generate an enum will also fail:
+  - Module loading issues
+  - Many complete functions are hidden by default
+  - There may be significant overhead involved, which requires consideration of caching
+
 ## Configure with the `ai config`.
 
 ```nushell

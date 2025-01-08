@@ -1,5 +1,6 @@
 use sqlite.nu *
 use common.nu *
+use function.nu *
 use completion.nu *
 use data.nu
 export use config.nu *
@@ -17,6 +18,7 @@ export def ai-send [
     --model(-m): string@cmpl-models
     --system: string
     --function(-f): list<string@cmpl-function>
+    --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
     --placehold(-p): string = '{}'
@@ -62,7 +64,9 @@ export def ai-send [
     } else {
         data messages
     }
-    let tools = if ($function | is-not-empty) {
+    let fns = if ($tools | is-not-empty) {
+        { tools: (func-list ...$tools) }
+    } else if ($function | is-not-empty) {
         let f = sqlx $"select name, description, parameters from function
             where name in \(($function | each { Q $in } | str join ', ' )\)"
         let f = $f | each {|i|
@@ -81,7 +85,7 @@ export def ai-send [
         messages: [...$sys ...$req]
         temperature: $s.temperature
         stream: true
-        ...$tools
+        ...$fns
     }
     if $debug {
         let xxx = [
@@ -116,8 +120,12 @@ export def ai-send [
         | update token {|x| $x.token + 1 }
     }
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
-    if ($function | is-not-empty) {
-        return $r.tool_calls
+    if ($fns | is-not-empty) {
+        if ($tools | is-empty) {
+            return $r.tool_calls
+        } else {
+            return (json-to-func $r.tool_calls $fns.tools)
+        }
     }
     if $out { $r.msg }
 }
@@ -172,6 +180,7 @@ export def ai-do [
     --out(-o)
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-function>
+    --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
     --debug
@@ -218,6 +227,7 @@ export def ai-do [
         ai-send -p $placehold
         --system $system
         --function $function
+        --tools $tools
         --image $image
         --tag ($args | str join ',')
         --oneshot
