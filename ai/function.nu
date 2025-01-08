@@ -4,7 +4,7 @@ export def func-list [...fns:string@cmpl-nu-function] {
     scope commands
     | where name in $fns
     | each { func-to-json $in }
-    | each {|x| {type: function, function: $x} }
+    | each {|x| {type: function, function: ($x | update parameters {|y| $y.parameters.value}), flags: $x.parameters.flags} }
 }
 
 export def func-to-json [fn] {
@@ -13,6 +13,7 @@ export def func-to-json [fn] {
         let x = $x.signatures | transpose k v | get 0.v
         mut p = {}
         mut r = []
+        mut flags = []
         for i in $x {
             if ($i.parameter_name | is-empty) { continue }
 
@@ -32,25 +33,25 @@ export def func-to-json [fn] {
             }
             let e = if ($e | is-empty) { {} } else { {enum: $e} }
 
-            let name = if $i.parameter_type == positional {
-                ''
-            } else {
-                $"--($i.parameter_name)"
+            if $i.parameter_type != positional {
+                $flags ++= [$i.parameter_name]
             }
 
             if not $i.is_optional { $r ++= [$i.parameter_name] }
 
             $p = $p | insert $i.parameter_name {
                 type: $type
-                name: $name
                 description: $i.description
                 ...$e
             }
         }
         {
-            type: object
-            properties: $p
-            required: $r
+            value: {
+                type: object
+                properties: $p
+                required: $r
+            }
+            flags: $flags
         }
     }
     | select name description parameters
@@ -60,15 +61,16 @@ export def json-to-func [o tools] {
     $o
     | each {|x|
         let f = $x.function
-        let c = $tools | where function.name == $f.name | get -i 0.function.parameters.properties
+        let c = $tools | where function.name == $f.name | get -i 0.flags
         mut cmd = [$f.name]
         for i in ($f.arguments | from json | transpose k v) {
+            let flag = if $i.k in $c { $"--($i.k)" } else { '' }
             if ($i.v | describe) == bool {
                 if $i.v {
-                    $cmd ++= [($c | get $i.k | get name)]
+                    $cmd ++= [$flag]
                 }
             } else {
-                $cmd ++= [($c | get $i.k | get name) $i.v]
+                $cmd ++= [$flag $i.v]
             }
         }
         $cmd | str join ' '

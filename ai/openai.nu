@@ -64,8 +64,11 @@ export def ai-send [
     } else {
         data messages
     }
+
+    mut fn_list = []
     let fns = if ($tools | is-not-empty) {
-        { tools: (func-list ...$tools) }
+        $fn_list = func-list ...$tools
+        { tools: ($fn_list | select type function) }
     } else if ($function | is-not-empty) {
         let f = sqlx $"select name, description, parameters from function
             where name in \(($function | each { Q $in } | str join ', ' )\)"
@@ -127,7 +130,7 @@ export def ai-send [
         if ($tools | is-empty) {
             return $r.tools
         } else {
-            return (json-to-func $r.tools $fns.tools)
+            return (json-to-func $r.tools $fn_list)
         }
     }
     if $out { $r.msg }
