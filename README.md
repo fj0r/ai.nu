@@ -61,11 +61,8 @@ Results:
 
 ### Call nu function
 ```nushell
-'get all svc' | ai-do general en -t [kube-get ssh kube-log kube-edit]
-# kube-get  svc --all
-
-'get all deployment in app' | ai-do general en -t [kube-get ssh kube-log kube-edit]
-# kube-get  deployment --namespace app
+'what applications are currently running?' | ai-do general en -t [kube-get ssh kube-log kube-edit]
+# kube-get  pods --namespace default --all
 
 'edit pod app in xxx' | ai-do general en -t [kube-get ssh kube-log kube-edit]
 # kube-edit  pod --namespace xxx  app

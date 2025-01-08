@@ -101,30 +101,33 @@ export def ai-send [
         Authorization $"Bearer ($s.api_key)"
     ] $"($s.baseurl)/chat/completions" $req
     | lines
-    | reduce -f {msg: '', token: 0} {|i,a|
+    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
         let x = $i | parse -r '.*?(?<data>\{.*)'
         if ($x | is-empty) { return $a }
         let x = $x | get 0.data | from json
-        if 'tool_calls' in $x.choices.0.delta {
-            let c = $a
-            | insert tool_calls $x.choices.0.delta.tool_calls
-            | update token {|x| $x.token + 1 }
-            return $c
+
+        let tools = $x.choices
+        | each {|i|
+            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
         }
-        let m = $x.choices | each { $in.delta.content } | str join
+        | flatten
+        | flatten
+
+        let m = $x.choices | each { $in.delta.content? | default '' } | str join
         if not $out {
             print -n $m
         }
         $a
         | update msg {|x| $x.msg + $m }
+        | update tools {|x| $x.tools | append $tools }
         | update token {|x| $x.token + 1 }
     }
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
-            return $r.tool_calls
+            return $r.tools
         } else {
-            return (json-to-func $r.tool_calls $fns.tools)
+            return (json-to-func $r.tools $fns.tools)
         }
     }
     if $out { $r.msg }
