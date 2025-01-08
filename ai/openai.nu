@@ -5,7 +5,9 @@ use data.nu
 export use config.nu *
 
 export-env {
-    $env.OPENAI_SESSION = date now | format date '%FT%H:%M:%S.%f'
+    if 'OPENAI_SESSION' not-in $env {
+        $env.OPENAI_SESSION = date now | format date '%FT%H:%M:%S.%f'
+    }
     data init
     data make-session $env.OPENAI_SESSION
 }
