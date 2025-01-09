@@ -127,10 +127,14 @@ export def ai-send [
     }
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
+        let tools = $r.tools
+        | update function.arguments {|y| [$y.function.arguments] }
+        | reduce {|i,a| $a | merge deep $i --strategy=append }
+        | update function.arguments {|y| $y.function.arguments | str join }
         if ($tools | is-empty) {
-            return $r.tools
+            return $tools
         } else {
-            return (json-to-func $r.tools $fn_list)
+            return (json-to-func $tools $fn_list)
         }
     }
     if $out { $r.msg }
