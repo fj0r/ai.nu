@@ -93,7 +93,7 @@ export def closure-list [list] {
 
 export def closure-run [list] {
     $list
-    | each {|x|
+    | par-each {|x|
         let f = $env.OPENAI_TOOLS | get -i $x.function.name
         if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
         let f = $f.handler

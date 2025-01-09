@@ -52,7 +52,7 @@ def request [
         | reduce {|i,a| $a | merge deep $i --strategy=append }
         | update function.arguments {|y| $y.function.arguments | str join }
     }
-    $r | update tools $tools
+    $r | update tools [$tools]
 }
 
 export def ai-send [
@@ -60,6 +60,7 @@ export def ai-send [
     --model(-m): string@cmpl-models
     --system: string
     --function(-f): list<string@cmpl-tools>
+    --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
@@ -135,15 +136,22 @@ export def ai-send [
     }
     let r = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
-    if $out { return $r.msg }
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
-            let r = closure-run $r.tools
-            return $r
+            let r1 = closure-run $r.tools
+            if $prevent_call { return $r1 }
+            let r1 = $r1 | each {|x|
+                {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
+            }
+            let h1 = {role: 'assistant', content: $r.msg}
+            let req = $req | update messages {|x| $x.messages ++ [$h1 ...$r1] }
+            let r2 = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
+            if $out { return $r2.msg }
         } else {
             return (json-to-func $r.tools $fn_list)
         }
     }
+    if $out { return $r.msg }
 }
 
 export def ai-chat [
@@ -196,6 +204,7 @@ export def ai-do [
     --out(-o)
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-tools>
+    --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
@@ -247,6 +256,7 @@ export def ai-do [
         ai-send -p $placehold
         --system $system
         --function $fns
+        --prevent-call=$prevent_call
         --tools $tools
         --image $image
         --tag ($args | str join ',')
