@@ -1,4 +1,19 @@
 export-env {
+    $env.OPENAI_TOOLS_CONFIG = {
+        get_weather: {||
+            {
+                observation_time: "12:35 PM"
+                temparature: 16
+                wind_speed: 17
+                wind_dir: "W"
+                pressure: 1016
+                humidity: 87
+                cloudcover: 100
+                feelslike: 16
+                visibility: 16
+            }
+        }
+    }
     $env.OPENAI_TOOLS = {
         get_weather: {
             schema: {
@@ -21,18 +36,7 @@ export-env {
             handler: {|x, config|
                 let location = $x.location
                 let unit = $x.unit
-                {
-                    observation_time: "12:35 PM"
-                    unit: $x.unit
-                    temparature: 16
-                    wind_speed: 17
-                    wind_dir: "W"
-                    pressure: 1016
-                    humidity: 87
-                    cloudcover: 100
-                    feelslike: 16
-                    visibility: 16
-                }
+                $config | insert unit $unit
             }
         }
         search_web: {
@@ -95,10 +99,12 @@ export def closure-run [list] {
     $list
     | par-each {|x|
         let f = $env.OPENAI_TOOLS | get -i $x.function.name
+        let c = $env.OPENAI_TOOLS_CONFIG | get -i $x.function.name
+        let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
         let f = $f.handler
         let a = $x.function.arguments | from json
-        $x | insert result (do $f $a {})
+        $x | insert result (do $f $a $c)
     }
 }
 
