@@ -70,26 +70,7 @@ export def ai-send [
         $fn_list = func-list ...$tools
         { tools: ($fn_list | select type function) }
     } else if ($function | is-not-empty) {
-        let r = $function
-        | uniq
-        | each {|x|
-            let a = $env.OPENAI_TOOLS | get $x
-            | get schema
-            | upsert parameters.properties {|y|
-                $y.parameters.properties
-                | transpose k v
-                | reduce -f {} {|i,a|
-                    let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
-                        $i.v | upsert enum (do $i.v.enum)
-                    } else {
-                        $i.v
-                    }
-                    $a | insert $i.k $v
-                }
-            }
-            {type: function, function: {name: $x, ...$a}}
-        }
-        { tools: $r }
+        { tools: (closure-list $function) }
     } else {
         {}
     }
@@ -137,14 +118,15 @@ export def ai-send [
     }
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
-        let tools = $r.tools
+        let t = $r.tools
         | update function.arguments {|y| [$y.function.arguments] }
         | reduce {|i,a| $a | merge deep $i --strategy=append }
         | update function.arguments {|y| $y.function.arguments | str join }
         if ($tools | is-empty) {
-            return $tools
+            let r = closure-run $t
+            return $r
         } else {
-            return (json-to-func $tools $fn_list)
+            return (json-to-func $t $fn_list)
         }
     }
     if $out { $r.msg }

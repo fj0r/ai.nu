@@ -21,7 +21,18 @@ export-env {
             handler: {|x, config|
                 let location = $x.location
                 let unit = $x.unit
-                return 'good'
+                {
+                    observation_time: "12:35 PM"
+                    unit: $x.unit
+                    temparature: 16
+                    wind_speed: 17
+                    wind_dir: "W"
+                    pressure: 1016
+                    humidity: 87
+                    cloudcover: 100
+                    feelslike: 16
+                    visibility: 16
+                }
             }
         }
         search_web: {
@@ -55,6 +66,39 @@ export-env {
                 return 'hello'
             }
         }
+    }
+}
+
+export def closure-list [list] {
+    $list
+    | uniq
+    | each {|x|
+        let a = $env.OPENAI_TOOLS | get $x
+        | get schema
+        | upsert parameters.properties {|y|
+            $y.parameters.properties
+            | transpose k v
+            | reduce -f {} {|i,a|
+                let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
+                    $i.v | upsert enum (do $i.v.enum)
+                } else {
+                    $i.v
+                }
+                $a | insert $i.k $v
+            }
+        }
+        {type: function, function: {name: $x, ...$a}}
+    }
+}
+
+export def closure-run [list] {
+    $list
+    | each {|x|
+        let f = $env.OPENAI_TOOLS | get -i $x.function.name
+        if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
+        let f = $f.handler
+        let a = $x.function.arguments | from json
+        $x | insert result (do $f $a {})
     }
 }
 
