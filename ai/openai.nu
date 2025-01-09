@@ -14,14 +14,13 @@ export-env {
 }
 
 def request [
+    session
     req
-    --api-key:string
-    --baseurl:string
     --out
 ] {
     let r = http post -e -t application/json --headers [
-        Authorization $"Bearer ($api_key)"
-    ] $"($baseurl)/chat/completions" $req
+        Authorization $"Bearer ($session.api_key)"
+    ] $"($session.baseurl)/chat/completions" $req
     | lines
     | reduce -f {msg: '', token: 0, tools: []} {|i,a|
         let x = $i | parse -r '.*?(?<data>\{.*)'
@@ -48,11 +47,16 @@ def request [
         []
     } else {
         $r.tools
-        | update function.arguments {|y| [$y.function.arguments] }
+        | each {|x|
+            let v = $x | update function.arguments {|y| [$y.function.arguments] }
+            let k = $x.index? | default 0
+            {$k: $v}
+        }
         | reduce {|i,a| $a | merge deep $i --strategy=append }
+        | items {|k, v| $v }
         | update function.arguments {|y| $y.function.arguments | str join }
     }
-    $r | update tools [$tools]
+    $r | update tools $tools
 }
 
 export def ai-send [
@@ -134,7 +138,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
+    let r = request $s $req --out=$out
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
@@ -146,7 +150,7 @@ export def ai-send [
             let h1 = {role: 'assistant', content: $r.msg}
             let req = $req | update messages {|x| $x.messages ++ [$h1 ...$r1] }
             if $debug { print ($req | table -e) }
-            let r2 = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
+            let r2 = request $s $req --out=$out
             if $out { return $r2.msg }
         } else {
             return (json-to-func $r.tools $fn_list)
