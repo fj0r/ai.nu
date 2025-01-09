@@ -13,11 +13,54 @@ export-env {
     data make-session $env.OPENAI_SESSION
 }
 
+def request [
+    req
+    --api-key:string
+    --baseurl:string
+    --out
+] {
+    let r = http post -e -t application/json --headers [
+        Authorization $"Bearer ($api_key)"
+    ] $"($baseurl)/chat/completions" $req
+    | lines
+    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
+        let x = $i | parse -r '.*?(?<data>\{.*)'
+        if ($x | is-empty) { return $a }
+        let x = $x | get 0.data | from json
+
+        let tools = $x.choices
+        | each {|i|
+            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
+        }
+        | flatten
+        | flatten
+
+        let m = $x.choices | each { $in.delta.content? | default '' } | str join
+        if not $out {
+            print -n $m
+        }
+        $a
+        | update msg {|x| $x.msg + $m }
+        | update tools {|x| $x.tools | append $tools }
+        | update token {|x| $x.token + 1 }
+    }
+    let tools = if ($r.tools | is-empty) {
+        []
+    } else {
+        $r.tools
+        | update function.arguments {|y| [$y.function.arguments] }
+        | reduce {|i,a| $a | merge deep $i --strategy=append }
+        | update function.arguments {|y| $y.function.arguments | str join }
+    }
+    $r | update tools [$tools]
+}
+
 export def ai-send [
     message: string = '{}'
     --model(-m): string@cmpl-models
     --system: string
-    --function(-f): list<string@cmpl-function>
+    --function(-f): list<string@cmpl-tools>
+    --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
@@ -32,7 +75,7 @@ export def ai-send [
     let model = if ($model | is-empty) { $s.model } else { $model }
     data record $s.created $s.provider $model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
-    let req = if $oneshot {
+    let user = if $oneshot {
         if ($image | is-empty) {
             [{ role: "user", content: $content }]
         } else {
@@ -70,22 +113,13 @@ export def ai-send [
         $fn_list = func-list ...$tools
         { tools: ($fn_list | select type function) }
     } else if ($function | is-not-empty) {
-        let f = sqlx $"select name, description, parameters from function
-            where name in \(($function | each { Q $in } | str join ', ' )\)"
-        let f = $f | each {|i|
-            let i = $i | update parameters {|x| $x.parameters | from yaml }
-            {
-                type: function
-                function: $i
-            }
-        }
-        { tools: $f }
+        { tools: (closure-list $function) }
     } else {
         {}
     }
     let req = {
         model: $model
-        messages: [...$sys ...$req]
+        messages: [...$sys ...$user]
         temperature: $s.temperature
         stream: true
         ...$fns
@@ -100,44 +134,24 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = http post -e -t application/json --headers [
-        Authorization $"Bearer ($s.api_key)"
-    ] $"($s.baseurl)/chat/completions" $req
-    | lines
-    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
-        let x = $i | parse -r '.*?(?<data>\{.*)'
-        if ($x | is-empty) { return $a }
-        let x = $x | get 0.data | from json
-
-        let tools = $x.choices
-        | each {|i|
-            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
-        }
-        | flatten
-        | flatten
-
-        let m = $x.choices | each { $in.delta.content? | default '' } | str join
-        if not $out {
-            print -n $m
-        }
-        $a
-        | update msg {|x| $x.msg + $m }
-        | update tools {|x| $x.tools | append $tools }
-        | update token {|x| $x.token + 1 }
-    }
+    let r = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
-        let tools = $r.tools
-        | update function.arguments {|y| [$y.function.arguments] }
-        | reduce {|i,a| $a | merge deep $i --strategy=append }
-        | update function.arguments {|y| $y.function.arguments | str join }
         if ($tools | is-empty) {
-            return $tools
+            let r1 = closure-run $r.tools
+            if $prevent_call { return $r1 }
+            let r1 = $r1 | each {|x|
+                {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
+            }
+            let h1 = {role: 'assistant', content: $r.msg}
+            let req = $req | update messages {|x| $x.messages ++ [$h1 ...$r1] }
+            let r2 = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
+            if $out { return $r2.msg }
         } else {
-            return (json-to-func $tools $fn_list)
+            return (json-to-func $r.tools $fn_list)
         }
     }
-    if $out { $r.msg }
+    if $out { return $r.msg }
 }
 
 export def ai-chat [
@@ -189,7 +203,8 @@ export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
     --model(-m): string@cmpl-models
-    --function(-f): list<string@cmpl-function>
+    --function(-f): list<string@cmpl-tools>
+    --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
@@ -217,6 +232,10 @@ export def ai-do [
     }
     let s = data session
     let role = sqlx $"select * from prompt where name = '($args.0)'" | first
+    let fns = sqlx $"select tool from prompt_tools where prompt = '($args.0)'"
+    | get tool
+    | append $function
+
     let placehold = $"<(random chars -l 6)>"
 
     let pls = $role.placeholder | from yaml
@@ -236,7 +255,8 @@ export def ai-do [
     $input | (
         ai-send -p $placehold
         --system $system
-        --function $function
+        --function $fns
+        --prevent-call=$prevent_call
         --tools $tools
         --image $image
         --tag ($args | str join ',')
