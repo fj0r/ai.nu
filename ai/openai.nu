@@ -70,16 +70,26 @@ export def ai-send [
         $fn_list = func-list ...$tools
         { tools: ($fn_list | select type function) }
     } else if ($function | is-not-empty) {
-        let f = sqlx $"select name, description, parameters from function
-            where name in \(($function | each { Q $in } | str join ', ' )\)"
-        let f = $f | each {|i|
-            let i = $i | update parameters {|x| $x.parameters | from yaml }
-            {
-                type: function
-                function: $i
+        let r = $function
+        | uniq
+        | each {|x|
+            let a = $env.OPENAI_TOOLS | get $x
+            | get schema
+            | upsert parameters.properties {|y|
+                $y.parameters.properties
+                | transpose k v
+                | reduce -f {} {|i,a|
+                    let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
+                        $i.v | upsert enum (do $i.v.enum)
+                    } else {
+                        $i.v
+                    }
+                    $a | insert $i.k $v
+                }
             }
+            {type: function, function: {name: $x, ...$a}}
         }
-        { tools: $f }
+        { tools: $r }
     } else {
         {}
     }
@@ -217,6 +227,10 @@ export def ai-do [
     }
     let s = data session
     let role = sqlx $"select * from prompt where name = '($args.0)'" | first
+    let fns = sqlx $"select tool from prompt_tools where prompt = '($args.0)'"
+    | get tool
+    | append $function
+
     let placehold = $"<(random chars -l 6)>"
 
     let pls = $role.placeholder | from yaml
@@ -236,7 +250,7 @@ export def ai-do [
     $input | (
         ai-send -p $placehold
         --system $system
-        --function $function
+        --function $fns
         --tools $tools
         --image $image
         --tag ($args | str join ',')
