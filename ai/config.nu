@@ -76,28 +76,12 @@ export def ai-config-upsert-prompt [
     }
 }
 
-export def ai-config-upsert-function [
-    name?: string@cmpl-function
-    --delete
-    --batch
+export def ai-config-alloc-tools [
+    name: string@cmpl-prompt
+    --tools(-t): list<string@cmpl-tools>
 ] {
-    let x = if ($name | is-empty) {
-        $in | default {}
-    } else {
-        sqlx $"select * from prompt where name = (Q $name)" | get -i 0
-    }
-    $x | upsert-function --delete=$delete --action {|config|
-        let o = $in
-        if $batch {
-            $o
-        } else {
-            $o
-            | to yaml
-            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
-            | block-edit $"upsert-config-XXXXXX.yaml"
-            | from yaml
-        }
-    }
+    let v = $tools | each { $"\((Q $name), (Q $in)\)" } | str join ', '
+    sqlx $"insert into prompt_tools \(prompt, tool\) values ($v);"
 }
 
 export def ai-switch-temperature [

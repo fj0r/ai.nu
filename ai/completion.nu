@@ -11,8 +11,8 @@ export def cmpl-models [] {
     | get data.id
 }
 
-export def cmpl-function [] {
-    sqlx $'select name from function' | get name
+export def cmpl-tools [] {
+    $env.OPENAI_TOOLS | columns
 }
 
 export def cmpl-nu-function [] {

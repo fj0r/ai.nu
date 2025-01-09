@@ -1,3 +1,36 @@
+export-env {
+    $env.OPENAI_TOOLS = {
+        get_weather: {
+            schema: {
+                description: 'Get the current weather in a given location'
+                parameters: {
+                    location: {
+                      type: string
+                      description: "The city and state, e.g. San Francisco, CA"
+                    },
+                    unit: {
+                      type: string
+                      enum: [celsius fahrenheit]
+                    }
+                }
+                required: [location]
+            }
+            handler: {|x|
+                let location = $x.location
+                let unit = $x.unit
+            }
+        }
+        search_web: {
+            schema: {
+
+            }
+            handler: {|x|
+            }
+        }
+    }
+}
+
+
 use completion.nu *
 
 export def func-list [...fns:string@cmpl-nu-function] {

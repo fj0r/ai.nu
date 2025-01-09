@@ -17,7 +17,7 @@ export def ai-send [
     message: string = '{}'
     --model(-m): string@cmpl-models
     --system: string
-    --function(-f): list<string@cmpl-function>
+    --function(-f): list<string@cmpl-tools>
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
@@ -189,7 +189,7 @@ export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
     --model(-m): string@cmpl-models
-    --function(-f): list<string@cmpl-function>
+    --function(-f): list<string@cmpl-tools>
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
