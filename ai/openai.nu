@@ -13,6 +13,48 @@ export-env {
     data make-session $env.OPENAI_SESSION
 }
 
+def request [
+    req
+    --api-key:string
+    --baseurl:string
+    --out
+] {
+    let r = http post -e -t application/json --headers [
+        Authorization $"Bearer ($api_key)"
+    ] $"($baseurl)/chat/completions" $req
+    | lines
+    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
+        let x = $i | parse -r '.*?(?<data>\{.*)'
+        if ($x | is-empty) { return $a }
+        let x = $x | get 0.data | from json
+
+        let tools = $x.choices
+        | each {|i|
+            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
+        }
+        | flatten
+        | flatten
+
+        let m = $x.choices | each { $in.delta.content? | default '' } | str join
+        if not $out {
+            print -n $m
+        }
+        $a
+        | update msg {|x| $x.msg + $m }
+        | update tools {|x| $x.tools | append $tools }
+        | update token {|x| $x.token + 1 }
+    }
+    let tools = if ($r.tools | is-empty) {
+        []
+    } else {
+        $r.tools
+        | update function.arguments {|y| [$y.function.arguments] }
+        | reduce {|i,a| $a | merge deep $i --strategy=append }
+        | update function.arguments {|y| $y.function.arguments | str join }
+    }
+    $r | update tools $tools
+}
+
 export def ai-send [
     message: string = '{}'
     --model(-m): string@cmpl-models
@@ -32,7 +74,7 @@ export def ai-send [
     let model = if ($model | is-empty) { $s.model } else { $model }
     data record $s.created $s.provider $model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
-    let req = if $oneshot {
+    let user = if $oneshot {
         if ($image | is-empty) {
             [{ role: "user", content: $content }]
         } else {
@@ -76,7 +118,7 @@ export def ai-send [
     }
     let req = {
         model: $model
-        messages: [...$sys ...$req]
+        messages: [...$sys ...$user]
         temperature: $s.temperature
         stream: true
         ...$fns
@@ -91,45 +133,17 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = http post -e -t application/json --headers [
-        Authorization $"Bearer ($s.api_key)"
-    ] $"($s.baseurl)/chat/completions" $req
-    | lines
-    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
-        let x = $i | parse -r '.*?(?<data>\{.*)'
-        if ($x | is-empty) { return $a }
-        let x = $x | get 0.data | from json
-
-        let tools = $x.choices
-        | each {|i|
-            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
-        }
-        | flatten
-        | flatten
-
-        let m = $x.choices | each { $in.delta.content? | default '' } | str join
-        if not $out {
-            print -n $m
-        }
-        $a
-        | update msg {|x| $x.msg + $m }
-        | update tools {|x| $x.tools | append $tools }
-        | update token {|x| $x.token + 1 }
-    }
+    let r = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
     data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
+    if $out { return $r.msg }
     if ($fns | is-not-empty) {
-        let t = $r.tools
-        | update function.arguments {|y| [$y.function.arguments] }
-        | reduce {|i,a| $a | merge deep $i --strategy=append }
-        | update function.arguments {|y| $y.function.arguments | str join }
         if ($tools | is-empty) {
-            let r = closure-run $t
+            let r = closure-run $r.tools
             return $r
         } else {
-            return (json-to-func $t $fn_list)
+            return (json-to-func $r.tools $fn_list)
         }
     }
-    if $out { $r.msg }
 }
 
 export def ai-chat [
