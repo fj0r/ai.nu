@@ -145,6 +145,7 @@ export def ai-send [
             }
             let h1 = {role: 'assistant', content: $r.msg}
             let req = $req | update messages {|x| $x.messages ++ [$h1 ...$r1] }
+            if $debug { print ($req | table -e) }
             let r2 = request $req --api-key $s.api_key --baseurl $s.baseurl --out=$out
             if $out { return $r2.msg }
         } else {
