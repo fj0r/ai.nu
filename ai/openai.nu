@@ -27,6 +27,12 @@ def request [
         if ($x | is-empty) { return $a }
         let x = $x | get 0.data | from json
 
+        if 'error' in $x {
+            error make {
+                msg: ($x.error | to yaml)
+            }
+        }
+
         let tools = $x.choices
         | each {|i|
             if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
