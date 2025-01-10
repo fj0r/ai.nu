@@ -164,7 +164,7 @@ export def ai-send [
             let r1 = $r1 | each {|x|
                 {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
             }
-            let h1 = {role: 'assistant', content: $r.msg}
+            let h1 = {role: 'assistant', content: $r.msg, tool_calls: $r.tools}
             let req = $req
             | update messages {|x| $x.messages ++ [$h1 ...$r1] }
             | reject tools tool_choice
