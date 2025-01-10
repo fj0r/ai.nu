@@ -56,12 +56,21 @@ def request [
     } else {
         $r.tools
         | each {|x|
-            let v = $x | update function.arguments {|y| [$y.function.arguments] }
+            let v = $x
+            | upsert id {|y| [($y.id? | default '')] }
+            | upsert function.name {|y| [($y.function?.name? | default '')] }
+            | upsert function.arguments {|y|
+                [($y.function?.arguments? | default '')]
+            }
             let k = $x.index? | default 0
             {$k: $v}
         }
-        | reduce {|i,a| $a | merge deep $i --strategy=append }
+        | reduce {|i,a|
+            $a | merge deep $i --strategy=append
+        }
         | items {|k, v| $v }
+        | update id {|y| $y.id | str join }
+        | update function.name {|y| $y.function.name | str join }
         | update function.arguments {|y| $y.function.arguments | str join }
     }
     $r | update tools $tools
@@ -123,9 +132,9 @@ export def ai-send [
     mut fn_list = []
     let fns = if ($tools | is-not-empty) {
         $fn_list = func-list ...$tools
-        { tools: ($fn_list | select type function), tool_choice: required }
+        { tools: ($fn_list | select type function), tool_choice: auto }
     } else if ($function | is-not-empty) {
-        { tools: (closure-list $function), tool_choice: required }
+        { tools: (closure-list $function), tool_choice: auto }
     } else {
         {}
     }
