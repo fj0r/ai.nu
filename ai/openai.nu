@@ -18,9 +18,11 @@ def request [
     req
     --out
 ] {
-    let r = http post -e -t application/json --headers [
-        Authorization $"Bearer ($session.api_key)"
-    ] $"($session.baseurl)/chat/completions" $req
+    let r = if $env.OPENAI_HTTP_CURL {
+        $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
+    } else {
+        http post -e -t application/json --headers [Authorization $"Bearer ($session.api_key)"] $"($session.baseurl)/chat/completions" $req
+    }
     | lines
     | reduce -f {msg: '', token: 0, tools: []} {|i,a|
         let x = $i | parse -r '.*?(?<data>\{.*)'
