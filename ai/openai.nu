@@ -18,7 +18,7 @@ def request [
     req
     --out
 ] {
-    let r = if $env.OPENAI_HTTP_CURL {
+    let r = if $env.OPENAI_CONFIG.curl {
         $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
     } else {
         http post -e -t application/json --headers [Authorization $"Bearer ($session.api_key)"] $"($session.baseurl)/chat/completions" $req
@@ -42,10 +42,18 @@ def request [
         | flatten
         | flatten
 
-        let m = $x.choices | each { $in.delta.content? | default '' } | str join
-        if not $out {
-            print -n $m
+        let m = $x.choices
+        | each {
+            let i = $in
+            let s = $i.delta.content? | default ''
+            if not $out { print -n $s }
+            if ($env.OPENAI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
+                print $"(ansi $env.OPENAI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
+            }
+            $s
         }
+        | str join
+
         $a
         | update msg {|x| $x.msg + $m }
         | update tools {|x| $x.tools | append $tools }

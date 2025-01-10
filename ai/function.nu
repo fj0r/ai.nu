@@ -35,7 +35,7 @@ export-env {
             }
             handler: {|x, config|
                 let location = $x.location
-                let unit = $x.unit
+                let unit = $x.unit? | default ''
                 sleep 2sec
                 $config | insert unit $unit
             }
@@ -107,7 +107,9 @@ export def closure-run [list] {
         let f = $f.handler
         let a = $x.function.arguments | from json
 
-        print $"(ansi grey)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
+        if ($env.OPENAI_CONFIG.tool_calls | is-not-empty) {
+            print $"(ansi $env.OPENAI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
+        }
         $x | insert result (do $f $a $c)
     }
 }
