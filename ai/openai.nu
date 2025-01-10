@@ -115,9 +115,9 @@ export def ai-send [
     mut fn_list = []
     let fns = if ($tools | is-not-empty) {
         $fn_list = func-list ...$tools
-        { tools: ($fn_list | select type function) }
+        { tools: ($fn_list | select type function), tool_choice: required }
     } else if ($function | is-not-empty) {
-        { tools: (closure-list $function) }
+        { tools: (closure-list $function), tool_choice: required }
     } else {
         {}
     }
@@ -148,7 +148,9 @@ export def ai-send [
                 {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
             }
             let h1 = {role: 'assistant', content: $r.msg}
-            let req = $req | update messages {|x| $x.messages ++ [$h1 ...$r1] }
+            let req = $req
+            | update messages {|x| $x.messages ++ [$h1 ...$r1] }
+            | reject tools tool_choice
             if $debug { print ($req | table -e) }
             let r2 = request $s $req --out=$out
             if $out { return $r2.msg }
