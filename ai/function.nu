@@ -36,6 +36,8 @@ export-env {
             handler: {|x, config|
                 let location = $x.location
                 let unit = $x.unit
+                print $"(ansi grey)...get weather(ansi reset)"
+                sleep 2sec
                 $config | insert unit $unit
             }
         }
