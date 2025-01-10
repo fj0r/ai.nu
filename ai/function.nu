@@ -36,7 +36,6 @@ export-env {
             handler: {|x, config|
                 let location = $x.location
                 let unit = $x.unit
-                print $"(ansi grey)...get weather(ansi reset)"
                 sleep 2sec
                 $config | insert unit $unit
             }
@@ -100,12 +99,15 @@ export def closure-list [list] {
 export def closure-run [list] {
     $list
     | par-each {|x|
-        let f = $env.OPENAI_TOOLS | get -i $x.function.name
-        let c = $env.OPENAI_TOOLS_CONFIG | get -i $x.function.name
+        let name = $x.function.name
+        let f = $env.OPENAI_TOOLS | get -i $name
+        let c = $env.OPENAI_TOOLS_CONFIG | get -i $name
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
         let f = $f.handler
         let a = $x.function.arguments | from json
+
+        print $"(ansi grey)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
         $x | insert result (do $f $a $c)
     }
 }
