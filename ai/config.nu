@@ -86,7 +86,7 @@ export def ai-config-alloc-tools [
         | get tool
     } else {
         let v = $tools | each { $"\((Q $name), (Q $in)\)" } | str join ', '
-        sqlx $"insert into prompt_tools \(prompt, tool\) values ($v);"
+        sqlx $"insert or replace into prompt_tools \(prompt, tool\) values ($v);"
     }
 }
 
