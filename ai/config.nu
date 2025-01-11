@@ -79,9 +79,15 @@ export def ai-config-upsert-prompt [
 export def ai-config-alloc-tools [
     name: string@cmpl-prompt
     --tools(-t): list<string@cmpl-tools>
+    --purge(-p)
 ] {
-    let v = $tools | each { $"\((Q $name), (Q $in)\)" } | str join ', '
-    sqlx $"insert into prompt_tools \(prompt, tool\) values ($v);"
+    if $purge {
+        sqlx $"delete from prompt_tools where prompt = (Q $name) returning tool;"
+        | get tool
+    } else {
+        let v = $tools | each { $"\((Q $name), (Q $in)\)" } | str join ', '
+        sqlx $"insert into prompt_tools \(prompt, tool\) values ($v);"
+    }
 }
 
 export def ai-switch-temperature [
