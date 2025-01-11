@@ -168,6 +168,7 @@ export def ai-send [
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
             let r1 = closure-run $r.tools
+            data record $s.created $s.provider $model 'tool_calls' ($r1 | to yaml) $r.token $tag
             if $prevent_call { return $r1 }
             let r1 = $r1 | each {|x|
                 {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
@@ -178,6 +179,7 @@ export def ai-send [
             | reject tools tool_choice
             if $debug { print ($req | table -e) }
             let r2 = request $s $req --out=$out
+            data record $s.created $s.provider $model 'assistant' $r2.msg $r.token $tag
             if $out { return $r2.msg }
         } else {
             return (json-to-func $r.tools $fn_list)
