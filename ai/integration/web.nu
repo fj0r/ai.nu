@@ -4,7 +4,7 @@ def cmpl-transform [] {
 
 export-env {
     $env.MARKDOWN_TRANSFORM = {
-        summary: { $in | ad text-summary zh -o }
+        summary: { $in | ad text-summary en -o }
     }
 }
 
