@@ -86,22 +86,21 @@ def request [
 
 export def ai-send [
     message: string = '{}'
-    --provider(-p): string@cmpl-provider
-    --model(-m): string@cmpl-models
+    --session(-s): record
     --system: string
     --function(-f): list<string@cmpl-tools>
     --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
-    --placehold(-h): string = '{}'
+    --placehold: string = '{}'
     --out(-o)
     --tag: string = ''
     --debug
 ] {
     let content = $in | default ""
     let content = $message | str replace -m $placehold $content
-    let s = data session -p $provider -m $model
+    let s = $session
     data record $s.created $s.provider $s.model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
     let user = if $oneshot {
@@ -214,7 +213,7 @@ export def ai-chat [
             '\system' => { $system = $l | last }
             _ => {
                 print -n $"✨ ($cm)"
-                ai-send -m $model --system $system $a
+                ai-send -s $s --system $system $a
                 print $cr
             }
         }
@@ -228,7 +227,7 @@ export def ai-editor-run [--debug] {
         if ($c | is-empty) {
             print $"(ansi grey)no content, ignore(ansi reset)"
         } else {
-            $c | ai-do ...$ctx.args --model $ctx.model --function $ctx.function --image $ctx.image --debug=$debug
+            $c | ai-do ...$ctx.args --provider $ctx.provider? --model $ctx.model --function $ctx.function --image $ctx.image --debug=$debug
         }
     }
 }
@@ -236,13 +235,13 @@ export def ai-editor-run [--debug] {
 export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
-    --provider(-p): string@cmpl-provider
-    --model(-m): string@cmpl-models
+    --provider: string@cmpl-provider
+    --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
     --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
-    --previous(-h): int@cmpl-previous
+    --previous(-p): int@cmpl-previous
     --debug
 ] {
     let input = $in
@@ -256,6 +255,7 @@ export def ai-do [
         | block-edit $"($args | str join '_').XXX.temp" --context {
             action: ai-do
             args: $args
+            provider: $s.provider
             model: $s.model
             function: $function
             image: $image
@@ -288,7 +288,9 @@ export def ai-do [
     }
 
     $input | (
-        ai-send -h $placehold
+        ai-send
+        --session $s
+        --placehold $placehold
         --system $system
         --function $fns
         --prevent-call=$prevent_call
@@ -298,16 +300,14 @@ export def ai-do [
         --oneshot
         --out=$out
         --debug=$debug
-        -p $s.provider
-        -m $s.model
         $prompt
     )
 }
 
 export def ai-embed [
     input: string
-    --provider(-p): string@cmpl-provider
-    --model(-m): string@cmpl-models
+    --provider: string@cmpl-provider
+    --model: string@cmpl-models
 ] {
     let s = data session -p $provider -m $model
     http post -t application/json $"($s.baseurl)/embeddings" {

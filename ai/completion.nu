@@ -3,7 +3,7 @@ use data.nu
 
 export def cmpl-models [ctx] {
     let provider = if NU_ARGX_EXISTS in $env {
-        $ctx | argx parse | get opt.provider
+        $ctx | argx parse | get opt.provider?
     }
     let s = data session -p $provider
     http get --headers [

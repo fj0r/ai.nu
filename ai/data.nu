@@ -876,9 +876,11 @@ export def make-session [created] {
 
 export def session [-p:string -m:string] {
     mut o = sqlx $"select * from provider as p join sessions as s
-        on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);"
-    | first
-    if ($p | is-not-empty) { $o.provider = $p }
+        on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);" | first
+    if ($p | is-not-empty) {
+        let p = sqlx $"select * from provider where name = (Q $p)" | first
+        $o = $o | merge $p
+    }
     if ($m | is-not-empty) { $o.model = $m }
     $o
 }
