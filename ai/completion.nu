@@ -1,8 +1,11 @@
 use sqlite.nu *
 use data.nu
 
-export def cmpl-models [] {
-    let s = data session
+export def cmpl-models [ctx] {
+    let provider = if NU_ARGX_EXISTS in $env {
+        $ctx | argx parse | get opt.provider
+    }
+    let s = data session -p $provider
     http get --headers [
         Authorization $"Bearer ($s.api_key)"
         OpenAI-Organization $s.org_id

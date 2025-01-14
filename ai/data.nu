@@ -874,10 +874,13 @@ export def make-session [created] {
     }
 }
 
-export def session [] {
-    sqlx $"select * from provider as p join sessions as s
+export def session [-p:string -m:string] {
+    mut o = sqlx $"select * from provider as p join sessions as s
         on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);"
     | first
+    if ($p | is-not-empty) { $o.provider = $p }
+    if ($m | is-not-empty) { $o.model = $m }
+    $o
 }
 
 export def record [session, provider, model, role, content, token, tag] {

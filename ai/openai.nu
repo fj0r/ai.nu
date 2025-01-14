@@ -86,6 +86,7 @@ def request [
 
 export def ai-send [
     message: string = '{}'
+    --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string
     --function(-f): list<string@cmpl-tools>
@@ -93,16 +94,15 @@ export def ai-send [
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
-    --placehold(-p): string = '{}'
+    --placehold(-h): string = '{}'
     --out(-o)
     --tag: string = ''
     --debug
 ] {
     let content = $in | default ""
     let content = $message | str replace -m $placehold $content
-    let s = data session
-    let model = if ($model | is-empty) { $s.model } else { $model }
-    data record $s.created $s.provider $model 'user' $content 0 $tag
+    let s = data session -p $provider -m $model
+    data record $s.created $s.provider $s.model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
     let user = if $oneshot {
         if ($image | is-empty) {
@@ -147,7 +147,7 @@ export def ai-send [
         {}
     }
     let req = {
-        model: $model
+        model: $s.model
         messages: [...$sys ...$user]
         temperature: $s.temperature
         stream: true
@@ -164,11 +164,11 @@ export def ai-send [
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
     let r = request $s $req --out=$out
-    data record $s.created $s.provider $model 'assistant' $r.msg $r.token $tag
+    data record $s.created $s.provider $s.model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
             let r1 = closure-run $r.tools
-            data record $s.created $s.provider $model 'tool_calls' ($r1 | to yaml) $r.token $tag
+            data record $s.created $s.provider $s.model 'tool_calls' ($r1 | to yaml) $r.token $tag
             if $prevent_call { return $r1 }
             let r1 = $r1 | each {|x|
                 {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
@@ -179,7 +179,7 @@ export def ai-send [
             | reject tools tool_choice
             if $debug { print ($req | table -e) }
             let r2 = request $s $req --out=$out
-            data record $s.created $s.provider $model 'assistant' $r2.msg $r.token $tag
+            data record $s.created $s.provider $s.model 'assistant' $r2.msg $r.token $tag
             if $out { return $r2.msg }
         } else {
             return (json-to-func $r.tools $fn_list)
@@ -189,11 +189,11 @@ export def ai-send [
 }
 
 export def ai-chat [
+    --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
 ] {
-    let s = data session
-    let model = if ($model | is-empty) { $s.model } else { $model }
+    let s = data session -p $provider -m $model
     let system = if ($system | is-empty) { '' } else {
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
@@ -203,7 +203,7 @@ export def ai-chat [
     let cr = ansi reset
     let cm = ansi yellow
     let nl = char newline
-    mut model = $model
+    mut model = $s.model
     mut system = $system
     while true {
         let a = input $"($ci)($p)"
@@ -236,15 +236,17 @@ export def ai-editor-run [--debug] {
 export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
+    --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --function(-f): list<string@cmpl-tools>
     --prevent-call
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
-    --previous(-p): int@cmpl-previous
+    --previous(-h): int@cmpl-previous
     --debug
 ] {
     let input = $in
+    let s = data session -p $provider -m $model
     let input = if ($input | is-empty) {
         if ($previous | is-not-empty) {
             sqlx $"select content from scratch where id = ($previous)" | get 0.content
@@ -254,17 +256,16 @@ export def ai-do [
         | block-edit $"($args | str join '_').XXX.temp" --context {
             action: ai-do
             args: $args
-            model: $model
+            model: $s.model
             function: $function
             image: $image
         }
         | tee {
-            sqlx $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $model)\)"
+            sqlx $"insert into scratch \(type, args, content, model\) values \('ai-do', (Q ($args | str join ' ')), (Q $in), (Q $s.model)\)"
         }
     } else {
         $input
     }
-    let s = data session
     let role = sqlx $"select * from prompt where name = '($args.0)'" | first
     let fns = sqlx $"select tool from prompt_tools where prompt = '($args.0)'"
     | get tool
@@ -287,7 +288,7 @@ export def ai-do [
     }
 
     $input | (
-        ai-send -p $placehold
+        ai-send -h $placehold
         --system $system
         --function $fns
         --prevent-call=$prevent_call
@@ -297,19 +298,20 @@ export def ai-do [
         --oneshot
         --out=$out
         --debug=$debug
-        -m $model
+        -p $s.provider
+        -m $s.model
         $prompt
     )
 }
 
 export def ai-embed [
     input: string
+    --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
 ] {
-    let s = data session
-    let model = if ($model | is-empty) { $s.model } else { $model }
+    let s = data session -p $provider -m $model
     http post -t application/json $"($s.baseurl)/embeddings" {
-        model: $model, input: [$input], encoding_format: 'float'
+        model: $s.model, input: [$input], encoding_format: 'float'
     }
     | get data.0.embedding
 }
