@@ -18,12 +18,17 @@ export def block-edit [
     $c
 }
 
-export def render [scope: record] {
+export def render [vars: record] {
     let tmpl = $in
-    $scope
-    | transpose k v
-    | reduce -f $tmpl {|i,a|
-        let k = if $i.k == '_' { '' } else { $i.k }
-        $a | str replace --all $"{{($k)}}" ($i.v | to text)
+    let v = $tmpl
+    | parse -r '(?<!{){{(?<v>[^{}]*?)}}(?!})'
+    | get v
+    | uniq
+
+    $v
+    | reduce -f $tmpl {|i, a|
+        let k = $i | str trim
+        let k = if ($k | is-empty) { '_' } else { $k }
+        $a | str replace --all $"{{($i)}}" ($vars | get $k | to text)
     }
 }
