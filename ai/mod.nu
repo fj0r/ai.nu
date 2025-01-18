@@ -10,4 +10,5 @@ export-env {
 }
 
 export use ollama.nu *
+export use local.nu *
 export use openai.nu *

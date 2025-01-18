@@ -202,3 +202,4 @@ export def gguf-to-ollama [file --name(-n):string] {
     ollama create $name -f $f
     rm -f $f
 }
+
