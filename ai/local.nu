@@ -11,6 +11,7 @@ export def --wrapped run-llm-with [
     --cuda
     --model:string
     --dry-run
+    --envs:record
     ...args:string
 ] {
     mut dargs = []
@@ -53,7 +54,7 @@ export def --wrapped run-llm-with [
                 image: 'ghcr.io/huggingface/text-generation-inference:latest'
                 args: $args
                 port: 80
-                cache: $"($env.HOME)/.cache/huggingface:/root/.cache/huggingface"
+                cache: $"($env.HOME)/.cache/huggingface:/data"
             }
         }
 
@@ -70,6 +71,9 @@ export def --wrapped run-llm-with [
             -e $"http_proxy=($proxy)"
             -e $"https_proxy=($proxy)"
         ]
+    }
+    if ($envs | is-not-empty) {
+        $dargs ++= $envs | items {|k, v| [-e $'($k)="($v)"'] } | flatten
     }
     if ($world | is-not-empty) {
         $dargs ++= [-v $"($world):/world"]
