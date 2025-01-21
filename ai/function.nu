@@ -103,27 +103,33 @@ export-env {
                     $args ++= [--ignore_hidden]
                 }
                 let p = $x.directory_path | path expand
-                dust $p ...$args
+                sudo dust $p ...$args
             }
         }
-        delete_file: {
+        delete_files: {
             schema: {
-                description: "This function allows you to delete a file at a specified path. It can be used to remove files from the file system.",
+                description: "This function allows you to delete multiple files by providing a list of file paths. It can be used to remove files from the file system.",
                 parameters: {
                   type: object,
                   properties: {
-                    file_path: {
-                      type: string,
-                      description: "The full path to the file that needs to be deleted"
+                    file_paths: {
+                      type: array,
+                      description: "A list of file paths to be deleted",
+                      items: {
+                        type: string,
+                        description: "The full path to a file"
+                      }
                     }
                   },
                   required: [
-                    file_path
+                    file_paths
                   ]
                 }
             }
             handler: {|x, config|
-                print $"rm -f ($x.file_path)"
+                for f in $x.file_paths {
+                    print $"rm -f ($f)"
+                }
             }
         }
     }
