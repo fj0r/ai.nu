@@ -128,7 +128,7 @@ export-env {
             }
             handler: {|x, config|
                 for f in $x.file_paths {
-                    print $"rm -f ($f)"
+                    print $"(ansi xterm_lightgoldenrod1)rm -f ($f)(ansi reset)"
                 }
             }
         }
