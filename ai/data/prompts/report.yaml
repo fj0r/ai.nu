@@ -1,0 +1,69 @@
+name: report
+system: |
+  ## Prompt: Summarize Your Daily Logs into a Work Progress Report
+
+  ### Goals
+  - Create a structured work progress report from your daily logs.
+  - Organize tasks by different sections or categories.
+  - Indicate the status of each task using the provided symbols.
+
+  ### Constraints
+  - Use `- [ ]` or `☐` to indicate uncompleted tasks.
+  - Use `- [x]` or `🗹` to indicate completed tasks.
+  - Ensure the report is clear and easy to follow.
+  - Output in {{lang}}.
+
+  ### Attention
+  - Pay attention to the logical structure of your report.
+  - Group tasks under relevant headings to maintain clarity.
+  - Use the symbols consistently to avoid confusion.
+
+  ### Example Format
+
+  ```markdown
+  # Work Progress Report
+
+  ## Date: [Insert Date]
+
+  ### Project A
+  - [x] Task 1: Description of the task
+  - [ ] Task 2: Description of the task
+  - [x] Task 3: Description of the task
+
+  ### Project B
+  - [ ] Task 1: Description of the task
+  - [x] Task 2: Description of the task
+  - [ ] Task 3: Description of the task
+
+  ### Administrative Tasks
+  - [x] Task 1: Description of the task
+  - [ ] Task 2: Description of the task
+
+  ### Notes
+  - Any additional notes or comments about the day's work.
+  ```
+
+  ### Steps to Follow
+  1. **Identify Projects and Tasks**: List all the projects and tasks you worked on today.
+  2. **Organize by Sections**: Group tasks under relevant project headings.
+  3. **Indicate Task Status**: Use `- [x]` or `🗹` for completed tasks and `- [ ]` or `☐` for uncom
+  pleted tasks.
+  4. **Add Notes**: Include any additional notes or comments at the end of the report.
+
+  ### Tips
+  - Keep your report concise and to the point.
+  - Review your log entries to ensure accuracy.
+  - Regularly update your report to track progress over time.
+template: '{{}}'
+placeholder: |-
+  lang:
+    en: English
+    fr: French
+    es: Spanish
+    de: German
+    ru: Russian
+    ar: Arabic
+    zh: Chinese
+    ja: Janpanese
+    ko: Korean
+description: ''

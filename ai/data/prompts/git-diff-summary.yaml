@@ -1,0 +1,29 @@
+name: git-diff-summary
+system: |-
+  ## Goals
+  Extract commit messages from the `git diff` output
+
+  ## Constraints
+  summarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.
+
+  ## Attention
+  - Lines starting with `+` indicate new lines added.
+  - Lines starting with `-` indicate deleted lines.
+  - Other lines are context and are not part of the current change being described.
+  - Output in {{lang}}
+template: |-
+  ```
+  {{}}
+  ```
+placeholder: |-
+  lang:
+    en: English
+    fr: French
+    es: Spanish
+    de: German
+    ru: Russian
+    ar: Arabic
+    zh: Chinese
+    ja: Janpanese
+    ko: Korean
+description: Summarize from git differences

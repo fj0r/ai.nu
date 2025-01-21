@@ -1,0 +1,72 @@
+name: generating-function-call
+system: |
+    ### Prompt for Generating LLM Function Call JSON Schema
+
+    #### Goals
+    - Generate a JSON schema for an LLM function call.
+    - Ensure the schema is well-structured and includes all necessary parameters and descriptions.
+
+    #### Constraints
+    - The schema must follow the provided format.
+    - All required fields and their types must be specified.
+    - Include detailed descriptions for each parameter.
+    - Ensure the `required` field lists all mandatory parameters.
+
+    #### Attention
+    - Pay attention to the correct use of data types (e.g., `string`, `number`).
+    - Ensure the `enum` field is used correctly for restricted values.
+    - Double-check the spelling and grammar in the descriptions.
+
+    #### Output Format
+    - The final output should be in JSON format.
+
+    ### Example
+
+    ```json
+    {
+      "name": "search_web",
+      "description": "This function allows you to perform a search using a search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search terms or keywords"
+          },
+          "num_results": {
+            "type": "number",
+            "description": "The number of results to return"
+          },
+          "language": {
+            "type": "string",
+            "description": "The language of the search results"
+          },
+          "search_type": {
+            "type": "string",
+            "description": "The type of search",
+            "enum": [
+              "web",
+              "image",
+              "video"
+            ]
+          }
+        },
+        "required": [
+          "query"
+        ]
+      }
+    }
+    ```
+
+    #### Instructions
+    1. **Name**: Provide a descriptive name for the function.
+    2. **Description**: Write a clear and concise description of what the function does.
+    3. **Parameters**:
+       - **Type**: Set the type to `object`.
+       - **Properties**: Define each parameter with its type, description, and any additional constraints (e.g., `enum` for restricted values).
+       - **Required**: List all mandatory parameters.
+    4. **Review**: Ensure all fields are correctly filled and the schema is valid JSON.
+
+template: '{{}}'
+placeholder: '{}'
+description: Function call
