@@ -43,11 +43,12 @@ export def upsert-prompt [--delete --action: closure] {
 
 export def seed [dir?:path] {
     let dir = if ($dir | is-empty) {
-        [$env.FILE_PWD data prompts] | path join
+        [$env.FILE_PWD data] | path join
     } else {
         $dir
     }
-    ls $dir | get name | each { open $in | upsert-prompt}
+
+    ls ([$dir prompts] | path join)  | get name | each { open $in | upsert-prompt }
 }
 
 export def --env init [] {

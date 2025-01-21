@@ -71,6 +71,61 @@ export-env {
                 return 'hello'
             }
         }
+        find_largest_subdirectory: {
+            schema: {
+                description: "This function allows you to find the subdirectory that occupies the most space within a given directory. It can be useful for identifying large directories that may need to be cleaned up or managed.",
+                parameters: {
+                  type: object,
+                  properties: {
+                    directory_path: {
+                      type: string,
+                      description: "The path to the directory to search within"
+                    },
+                    include_hidden: {
+                      type: boolean,
+                      description: "Whether to include hidden subdirectories in the search",
+                      default: false
+                    },
+                    max_depth: {
+                      type: number,
+                      description: "The maximum depth to search within the directory hierarchy. Set to -1 for no limit.",
+                      default: -1
+                    }
+                  },
+                  required: [
+                    directory_path
+                  ]
+                }
+            },
+            handler: {|x, config|
+                mut args = [--output-json --full-paths]
+                if not ($x.include_hidden? | default false) {
+                    $args ++= [--ignore_hidden]
+                }
+                let p = $x.directory_path | path expand
+                dust $p ...$args
+            }
+        }
+        delete_file: {
+            schema: {
+                description: "This function allows you to delete a file at a specified path. It can be used to remove files from the file system.",
+                parameters: {
+                  type: object,
+                  properties: {
+                    file_path: {
+                      type: string,
+                      description: "The full path to the file that needs to be deleted"
+                    }
+                  },
+                  required: [
+                    file_path
+                  ]
+                }
+            }
+            handler: {|x, config|
+                print $"rm -f ($x.file_path)"
+            }
+        }
     }
 }
 
