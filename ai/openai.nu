@@ -166,20 +166,26 @@ export def ai-send [
     data record $s.created $s.provider $s.model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
-            let r1 = closure-run $r.tools
-            data record $s.created $s.provider $s.model 'tool_calls' ($r1 | to yaml) $r.token $tag
-            if $prevent_call { return $r1 }
-            let r1 = $r1 | each {|x|
-                {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
+            mut r0 = $r
+            mut msg = $req.messages
+            mut rst = []
+            while ($r0.tools | is-not-empty) {
+                let r1 = closure-run $r0.tools
+                data record $s.created $s.provider $s.model 'tool_calls' ($r1 | to yaml) $r.token $tag
+                if $prevent_call { return $r1 }
+                let r1 = $r1 | each {|x|
+                    {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
+                }
+                let h1 = {role: 'assistant', content: $r0.msg, tool_calls: $r0.tools}
+                $msg ++= [$h1 ...$r1]
+                let req = $req | update messages $msg
+                if $debug { print ($req | table -e) }
+                let r2 = request $s $req --out=$out
+                data record $s.created $s.provider $s.model 'assistant' $r2.msg $r0.token $tag
+                $rst ++= [$r2.msg]
+                $r0 = $r2
             }
-            let h1 = {role: 'assistant', content: $r.msg, tool_calls: $r.tools}
-            let req = $req
-            | update messages {|x| $x.messages ++ [$h1 ...$r1] }
-            | reject tools tool_choice
-            if $debug { print ($req | table -e) }
-            let r2 = request $s $req --out=$out
-            data record $s.created $s.provider $s.model 'assistant' $r2.msg $r.token $tag
-            if $out { return $r2.msg }
+            if $out { return $rst }
         } else {
             return (json-to-func $r.tools $fn_list)
         }
