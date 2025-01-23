@@ -15,6 +15,22 @@ export-env {
         }
     }
     $env.OPENAI_TOOLS = {
+        get_current_time: {
+            schema: {
+                description: "This function retrieves the current date and time.",
+                parameters: {
+                    type: "object",
+                    properties: {
+                        timezone: {
+                            type: "string",
+                            description: "The timezone for which the current time is requested. If not provided, the default is UTC."
+                        }
+                    },
+                    required: []
+                }
+            }
+            handler: {|x, config| date now | format date '%F %H:%M:%S' }
+        }
         get_weather: {
             schema: {
                 description: 'Get the current weather in a given location'
@@ -153,7 +169,7 @@ export def closure-list [list] {
                 $a | insert $i.k $v
             }
         }
-        {type: function, function: {name: $x, ...$a}}
+        {type: function, function: ($a | upsert name $x)}
     }
 }
 

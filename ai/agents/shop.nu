@@ -157,9 +157,7 @@ $env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
     }
 }
 
-"
-name: shop
-system: |-
+let prompt = "
   #### Goals
   - To assist users in navigating a shopping mall's website or application effectively.
   - To provide information about products, promotions, and customer service options.
@@ -198,11 +196,14 @@ system: |-
   **Initialization**:
   - Familiarize yourself with the latest product catalog and promotional offers.
   - Ensure you have access to all necessary links and resources for quick reference.
-template: '{{}}'
-placeholder: '{}'
-description: ''
 "
-| from yaml
-| ai-config-upsert-prompt
+
+{
+  name: shop
+  system: $prompt
+  template: '{{}}'
+  placeholder: '{}'
+  description: ''
+} | ai-config-upsert-prompt
 
 ai-config-alloc-tools shop -t [query_orders, search_product, search_web, get_weather]
