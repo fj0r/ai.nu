@@ -1,5 +1,13 @@
 # OpenAI and Ollama Clients
 
+## Summary
+
+nu.ai is a collection of Nushell commands to help you create composable and interactive LLM tools. It brings the power of Nushell (composable succinct commands) to LLM tool development.
+
+nu.ai uses Nushell's SQLite native integration to persist providers, settings and LLM interactions.
+
+## Commands
+
 Check current process information
 ```nushell
 ai-session
@@ -34,6 +42,99 @@ Embedding
 ```nushell
 ai-embed
 ```
+
+## Getting Started
+
+### Prerequisites
+
+- Nushell (current version)
+- Either Ollama installed locally, OpenAI API key, Deepseek API key, any OpenAI compliant API
+
+### Installation
+
+Since [unpm](https://github.com/nushell/nupm) might not be mature enough yet. Let's install nu.ai manually.
+
+```bash
+git clone --depth=1 https://github.com/fj0r/ai.nu.git ~/nu_libs/ai.nu
+if [ -z "${XDG_CONFIG_HOME}" ]; then
+    # If not set, set it to the default value (~/.config)
+    export XDG_CONFIG_HOME="${HOME}/.config"
+fi
+mkdir -p $XDG_CONFIG_HOME/nushell/
+echo \$env.NU_LIB_DIRS ++= glob \~/nu_libs/\* | tee -a $XDG_CONFIG_HOME/nushell/env.nu
+echo use ai \* | tee -a $XDG_CONFIG_HOME/nushell/config.nu
+```
+Notes:
+
+- Looks for $XDG_CONFIG_HOME, and if not found, we set the value
+- Points Nushell to look for our downloaded modules in env.nu
+- Loads all ai.nu commands by default when you start Nushell
+- The next time you launch Nushell, you should be able to run `ai-session`
+
+### First Call to Ollama
+
+This section assumes you have Ollama installed locally. Manually execute the following:
+
+```bash
+#install Ollama - https://ollama.com/download
+#curl -fsSL https://ollama.com/install.sh | sh
+
+# see if you have any models running - `ollama stop <model>` if running
+ollama list
+ollama pull llama3.2
+
+# perform a quick test using the cli
+ollama run llama3.2
+```
+
+Note that Ollama running llama3.2 is the ai.nu default provider; therefore, the following should magically work.
+
+Launch `nu` and make your first call using the LLM one-shot command `ai-do`:
+
+```nu
+"what is nushell" | ai-do general en
+```
+
+Where:
+
+- "what is nushell" is the prompt
+- `ai-do` is the ai.nu command
+- `general` is the name of the system prompt for your one-shot call
+- `en` is the language to use
+
+Note that ai.nu includes auto-complete options. This means that you can `ai-do <tab>` to see a list of all prompts, and you can `ai-do general <tab>` to see a list of all languages.
+
+You can see a history of your one-shot prompts using `ai-history-do`.
+
+Launch `nu` again. This time let's engage in a conversation using the LLM chat command `ai-chat`. You are placed into a REPL session where you can interactively converse with llama3.2. Type `\q` to quit the REPL. Execute `ai-history-chat` to see your chat history.
+
+### First Call to OpenAI
+
+This section assumes you have an OpenAI API key.
+
+To see the 'current' provider, execute `ai-session`.
+
+To see a list of existing providers, execute `ai-switch-provider <tab>`. After pressing <tab>, you will be prompted with all available providers. Choosing a provider set the values seen in `ai-sesson`.
+
+To edit an existing provider, execute `ai-config-upsert-provider <tab>`. After choosing your provider, you will be placed into an editor where you can make changes. Save your changes and close your editor. Note that editing a provider does not promote this provider to the be the current.
+
+To load a new provider:
+
+```nu
+{
+    name: openai
+    baseurl: 'https://api.openai.com/v1'
+    model_default: 'gpt-4o'
+    api_key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    org_id: ''
+    project_id: ''
+    temp_max: 1.0
+} | ai-config-upsert-provider --batch
+```
+
+Where `--batch` tells ai.nu to accept these values without prompting the user with an editor.
+
+Once you have created your provider and you can see the appropriate values in `ai-session`, you can repeat the steps in the above Ollama section.
 
 ## Function call
 
