@@ -1,5 +1,5 @@
 export def 'json-to-string' [json] {
-    $json | to json -r | str replace '"' '\"' -a
+    $json | to json -r | str replace --all '"' '\"'
 }
 
 export def block-edit [

@@ -99,7 +99,7 @@ export def ai-send [
     --debug
 ] {
     let content = $in | default ""
-    let content = $message | str replace -m $placehold $content
+    let content = $message | str replace --all $placehold $content
     let s = $session
     data record $s.created $s.provider $s.model 'user' $content 0 $tag
     let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
