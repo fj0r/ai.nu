@@ -281,7 +281,7 @@ export def ai-do [
 
     let pls = $role.placeholder | from yaml
     let val = $pls | columns
-    | zip ($args | range 1..)
+    | zip ($args | slice 1..)
     | reduce -f {} {|i,a|
         $a
         | insert $"($i.0):" $i.1

@@ -38,7 +38,7 @@ export def cmpl-previous [] {
 }
 
 export def 'cmpl-role' [ctx] {
-    let args = $ctx | split row '|' | last | str trim -l | split row ' ' | range 1..
+    let args = $ctx | split row '|' | last | str trim -l | split row ' ' | slice 1..
     let len = $args | length
     match $len {
         1 => {
@@ -55,7 +55,7 @@ export def 'cmpl-role' [ctx] {
 
 
 def cmpl-config [context] {
-    let ctx = $context | split row -r '\s+' | range 1..
+    let ctx = $context | split row -r '\s+' | slice 1..
     if ($ctx | length) < 2 {
         return [provider, prompt, function]
     } else {

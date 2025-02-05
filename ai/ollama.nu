@@ -151,7 +151,7 @@ export def ollama-export [
         source: ([$target source.txt] | path join)
     }
 
-    $model | split row '/' | $"($in | range 0..<-1 | str join '/'):($in | last)" | save $tg.source
+    $model | split row '/' | $"($in | slice 0..<-1 | str join '/'):($in | last)" | save $tg.source
 
 
     let manifests = open ([$base.manifests $model] | path join) | from json
@@ -193,7 +193,7 @@ export def ollama-import [dir] {
 
 export def gguf-to-ollama [file --name(-n):string] {
     let name = if ($name | is-empty) {
-        $file  | path basename | split row '-' | range 0..<-1 | str join '-'
+        $file  | path basename | split row '-' | slice 0..<-1 | str join '-'
     } else {
         $name
     }
