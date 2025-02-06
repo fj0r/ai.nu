@@ -48,7 +48,7 @@ def request [
             let s = $i.delta.content? | default ''
             if not $out { print -n $s }
             if ($env.OPENAI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
-                print $"(ansi $env.OPENAI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
+                print -e $"(ansi $env.OPENAI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
             }
             $s
         }
@@ -231,7 +231,7 @@ export def ai-editor-run [--debug] {
     if $ctx.action == 'ai-do' {
         let c = open -r $ctx.file
         if ($c | is-empty) {
-            print $"(ansi grey)no content, ignore(ansi reset)"
+            print -e $"(ansi grey)no content, ignore(ansi reset)"
         } else {
             $c | ai-do ...$ctx.args --provider $ctx.provider? --model $ctx.model --function $ctx.function --image $ctx.image --debug=$debug
         }

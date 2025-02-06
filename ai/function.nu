@@ -43,7 +43,7 @@ export-env {
                         },
                         unit: {
                           type: string
-                          enum: {|| [celsius fahrenheit] }
+                          enum: {|config| [celsius fahrenheit] }
                         }
                     }
                     required: [location]
@@ -162,7 +162,9 @@ export def closure-list [list] {
             | transpose k v
             | reduce -f {} {|i,a|
                 let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
-                    $i.v | upsert enum (do $i.v.enum)
+                    let c = $env.OPENAI_TOOLS_CONFIG | get -i $x
+                    let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
+                    $i.v | upsert enum (do $i.v.enum $c)
                 } else {
                     $i.v
                 }
@@ -185,7 +187,7 @@ export def closure-run [list] {
         let a = $x.function.arguments | from json
 
         if ($env.OPENAI_CONFIG.tool_calls | is-not-empty) {
-            print $"(ansi $env.OPENAI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
+            print -e $"(ansi $env.OPENAI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
         }
         $x | insert result (do $f $a $c)
     }
