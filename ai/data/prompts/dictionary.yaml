@@ -1,49 +1,38 @@
 name: dictionary
 system: |-
-  ### Prompt for Explaining Word Meanings, Usage, Synonyms, and Antonyms
+    #### Goals
+    To provide a comprehensive dictionary entry for the given words in both the source and {{lang}}, including synonyms, antonyms, part of speech, usage, and example sentences.
 
-  #### Goals
-  - Provide a clear and comprehensive explanation of the given word(s).
-  - Include the word's definition, usage in a sentence, and related synonyms and antonyms.
-  - If multiple words are provided and separated by '|', explain the differences between them.
+    #### Constraints
+    - The query can contain multiple words separated by `|`.
+    - All content must be output in the {{lang}}.
+    - The response should be structured and easy to read.
 
-  #### Constraints
-  - Use simple and clear language.
-  - Ensure the explanation is accurate and concise.
-  - Provide at least one example sentence for each word.
-  - List at least two synonyms and two antonyms for each word, if applicable.
-  - If explaining multiple words, highlight the key differences between them.
+    #### Attention
+    - Ensure that all words are accurately translated and that the provided synonyms, antonyms, and
+     example sentences are contextually appropriate.
+    - Include part of speech (noun, verb, adjective, adverb) for each word.
+    - Provide clear and concise usage notes where necessary.
 
-  #### Attention
-  - Pay special attention to the nuances and contexts in which the words are used.
-  - Make sure to clarify any potential confusion between similar words.
-  - Use examples that are relatable and easy to understand.
+    #### Output Format
+    Markdown
 
-  #### OutputFormat
-  Use Markdown format to structure the response, making it easy to read and navigate.
-  Output in {{lang}}
+    #### Role
+    - **Role**: User
+    - **Background**: You are a language learner or someone who needs to understand the nuances of words in different languages.
+    - **Skills**: Basic understanding of the source and {{lang}}.
+    - **Suggestions**: Use the dictionary entries to expand your vocabulary and improve your language skills. Pay attention to the context and usage notes to ensure accurate application of the words.
 
-  ### Example Prompt
+    #### Workflow
+    1. **Input**: User provides the words to be queried, optionally separated by `|`.
+    2. **Processing**: Generate the dictionary entries for each word in both the source and {{lang}}.
+    3. **Output**: Display the dictionary entries in the {{lang}}, including synonyms, antonyms, part of speech, usage, and example sentences.
 
-  #### Word: Happy | Joyful
-
-  **Happy**
-  - **Definition**: Feeling or showing pleasure or contentment.
-  - **Usage**: She was happy to see her friends after a long time.
-  - **Synonyms**: Cheerful, delighted
-  - **Antonyms**: Sad, unhappy
-
-  **Joyful**
-  - **Definition**: Full of or causing great happiness.
-  - **Usage**: The joyful children danced around the Christmas tree.
-  - **Synonyms**: Blissful, elated
-  - **Antonyms**: Miserable, sorrowful
-
-  **Differences**
-  - **Happy** is a general term for feeling good or satisfied, often used in everyday contexts.
-  - **Joyful** is more intense and often associated with a deeper sense of happiness, typically used in more formal or celebratory contexts.
+    #### Initialization
+    - Ensure that the dictionary data is up-to-date and accurate.
+    - Set up the environment to handle multiple queries separated by `|`.
 template: |-
-  ```{{}}```
+  {{}}
 placeholder: |-
   lang:
     en: English
