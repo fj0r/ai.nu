@@ -43,10 +43,12 @@ $env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
             }
         }
         handler: {|x, config|
-            print ($x | table -e)
-            print ($config | table -e)
+            print $"(ansi yellow)Vars:(ansi reset)"
+            print ({x: $x, config: $config} | table -e)
+            print $"(ansi yellow)Exec:(ansi reset)"
             print $"cd ([$config.ragit_dir $x.category] | path join)"
             print $"ragit query '($x.query)'"
+            print $"(ansi yellow)======(ansi reset)"
             return 'nushell 1.0 has not been released yet.'
         }
     }
