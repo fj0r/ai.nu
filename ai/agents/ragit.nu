@@ -2,6 +2,16 @@ $env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
     query_knowledge_base: {||
         {
             ragit_dir: ~/world/ragit
+            ragit_log: {|query, dir|
+                let m = [
+                    $"(ansi grey)ragit query"
+                    $"(ansi yellow)($query)"
+                    $"(ansi grey) in `($dir)`"
+                    (ansi reset)
+                ]
+                | str join ' '
+                print -e $m
+            }
         }
     }
 }
@@ -43,13 +53,10 @@ $env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
             }
         }
         handler: {|x, config|
-            print $"(ansi yellow)Vars:(ansi reset)"
-            print ({x: $x, config: $config} | table -e)
-            print $"(ansi yellow)Exec:(ansi reset)"
-            print $"cd ([$config.ragit_dir $x.category] | path join)"
-            print $"ragit query '($x.query)'"
-            print $"(ansi yellow)======(ansi reset)"
-            return 'nushell 1.0 has not been released yet.'
+            let dir = [$config.ragit_dir $x.category] | path join
+            do $config.ragit_log $x.query $dir
+            cd $dir
+            ragit query $x.query
         }
     }
 }
