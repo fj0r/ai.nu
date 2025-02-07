@@ -95,6 +95,13 @@ export def ai-chat [
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
 ] {
+}
+
+export def ai-repl [
+    --provider(-p): string@cmpl-provider
+    --model(-m): string@cmpl-models
+    --system: string@cmpl-system
+] {
     let s = data session -p $provider -m $model
     let system = if ($system | is-empty) { '' } else {
         sqlx $"select system from prompt where name = '($system)'"
