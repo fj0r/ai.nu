@@ -7,9 +7,7 @@ use data.nu
 export use config.nu *
 
 export-env {
-    if 'OPENAI_SESSION' not-in $env {
-        $env.OPENAI_SESSION = date now | format date '%FT%H:%M:%S.%f'
-    }
+    $env.OPENAI_SESSION = date now | format date '%FT%H:%M:%S.%f'
     data init
     data make-session $env.OPENAI_SESSION
 }
@@ -31,7 +29,6 @@ export def ai-send [
     let content = $in | default ""
     let content = $message | str replace --all $placehold $content
     let s = $session
-    data record $s.created $s.provider $s.model 'user' $content 0 $tag
     mut req = openai-data -m $s.model -t $s.temperature
     if ($system | is-not-empty) {
         $req = $req | openai-data -r system $system
@@ -43,6 +40,7 @@ export def ai-send [
         | reduce -f $req {|i, a|
             $a | openai-data -r $i.role $i.content
         }
+        | openai-data -r user $content
     }
 
     mut fn_list = []
@@ -65,8 +63,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = $req | openai-call $s --out=$out
-    data record $s.created $s.provider $s.model 'assistant' $r.msg $r.token $tag
+    let r = $req | ai-call $s --out=$out --tag $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
             mut r0 = $r
@@ -74,7 +71,6 @@ export def ai-send [
             mut rst = []
             while ($r0.tools | is-not-empty) {
                 let r1 = closure-run $r0.tools
-                data record $s.created $s.provider $s.model 'tool_calls' ($r1 | to yaml) $r.token $tag
                 if $prevent_call { return $r1 }
                 let r1 = $r1 | each {|x|
                     {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
@@ -83,8 +79,7 @@ export def ai-send [
                 $msg ++= [$h1 ...$r1]
                 let req = $req | update messages $msg
                 if $debug { print ($req | table -e) }
-                let r2 = $req | openai-call $s --out=$out
-                data record $s.created $s.provider $s.model 'assistant' $r2.msg $r0.token $tag
+                let r2 = $req | ai-call $s --out=$out --tag $tag
                 $rst ++= [$r2.msg]
                 $r0 = $r2
             }

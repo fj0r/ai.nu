@@ -142,8 +142,11 @@ export def session [-p:string -m:string] {
     $o
 }
 
-export def record [session, provider, model, role, content, token, tag] {
+export def record [ctx, role, content, token, tag] {
     let n = date now | format date '%FT%H:%M:%S.%f'
+    let session = $ctx.created
+    let provider = $ctx.provider
+    let model = $ctx.model
     sqlx $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
         VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $token), (Q $n), (Q $tag)\);"
 }

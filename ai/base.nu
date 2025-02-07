@@ -1,3 +1,5 @@
+use data.nu
+
 export def image-loader [uri: string] {
     let img = if ($uri | path exists) {
         let b =  open $uri | encode base64
@@ -48,9 +50,8 @@ export def openai-data [
         u => 'user'
         a => 'assistant'
         s => 'system'
-        _ => {
-            error make { msg: $"unsupport role ($role)" }
-        }
+        f => 'function'
+        _ => $role
     }
     if ($content | is-not-empty) {
         $o.messages = $o.messages ++ [{role: $role, content: $content}]
@@ -124,4 +125,17 @@ export def 'openai-call' [session --out] {
         | update function.arguments {|y| $y.function.arguments | str join }
     }
     $r | update tools $tools
+}
+
+export def ai-call [
+    session
+    --tag: string = ''
+    --out
+] {
+    let req = $in
+    let msg = $req | get messages | last
+    data record $session $msg.role $msg.content 0 $tag
+    let r = $req | openai-call $session --out=$out
+    data record $session 'assistant' $r.msg $r.token $tag
+    $r
 }
