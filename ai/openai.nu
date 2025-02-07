@@ -29,18 +29,18 @@ export def ai-send [
     let content = $in | default ""
     let content = $message | str replace --all $placehold $content
     let s = $session
-    mut req = openai-data -m $s.model -t $s.temperature
+    mut req = ai-data -m $s.model -t $s.temperature
     if ($system | is-not-empty) {
-        $req = $req | openai-data -r system $system
+        $req = $req | ai-data -r system $system
     }
     if $oneshot {
-        $req = $req | openai-data -r user -i $image $content
+        $req = $req | ai-data -r user -i $image $content
     } else {
         $req = data messages
         | reduce -f $req {|i, a|
-            $a | openai-data -r $i.role $i.content
+            $a | ai-data -r $i.role $i.content
         }
-        | openai-data -r user $content
+        | ai-data -r user $content
     }
 
     mut fn_list = []
@@ -51,7 +51,7 @@ export def ai-send [
     } else if ($function | is-not-empty) {
         closure-list $function
     }
-    $req = $req | openai-data -f $fns
+    $req = $req | ai-data -f $fns
 
     if $debug {
         let xxx = [
@@ -59,29 +59,28 @@ export def ai-send [
             'placeholder' $placehold
             'content' $content
         ] | str join "\n------\n"
-        print $"(ansi grey)($xxx)(ansi reset)"
+        print $"(ansi blue)($xxx)(ansi reset)"
         print $"======req======"
-        print $"(ansi grey)($req | table -e)(ansi reset)"
+        print $"(ansi blue)($req | to yaml)(ansi reset)"
     }
     let r = $req | ai-call $s --out=$out --tag $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
-            mut r0 = $r
+            mut r = $r
             mut msg = $req.messages
             mut rst = []
-            while ($r0.tools | is-not-empty) {
-                let r1 = closure-run $r0.tools
-                if $prevent_call { return $r1 }
-                let r1 = $r1 | each {|x|
-                    {role: 'tool', content: ($x.result | to json -r), tool_call_id: $x.id}
+            while ($r.tools | is-not-empty) {
+                $req = $req | ai-data -r assistant $r.msg --tool-calls $r.tools
+                let rt = closure-run $r.tools
+                if $prevent_call { return $rt }
+                for x in $rt {
+                    $req = $req
+                    | ai-data -r tool ($x.result | to json -r) --tool-call-id $x.id
                 }
-                let h1 = {role: 'assistant', content: $r0.msg, tool_calls: $r0.tools}
-                $msg ++= [$h1 ...$r1]
-                let req = $req | update messages $msg
-                if $debug { print ($req | table -e) }
-                let r2 = $req | ai-call $s --out=$out --tag $tag
-                $rst ++= [$r2.msg]
-                $r0 = $r2
+                if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
+                # 0 or 1?
+                $r = $req | ai-call $s --out=$out --tag $tag --record (($rt | length) + 0)
+                $rst ++= [$r.msg]
             }
             if $out { return $rst }
         } else {

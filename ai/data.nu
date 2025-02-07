@@ -96,6 +96,7 @@ export def --env init [] {
                 model TEXT,
                 role TEXT,
                 content TEXT,
+                tool_calls TEXT,
                 token INTEGER,
                 created TEXT,
                 tag TEXT
@@ -142,13 +143,20 @@ export def session [-p:string -m:string] {
     $o
 }
 
-export def record [ctx, role, content, token, tag] {
+export def record [
+    ctx
+    role
+    content
+    --tools: string = ''
+    --token: int = 0
+    --tag: string = ''
+] {
     let n = date now | format date '%FT%H:%M:%S.%f'
     let session = $ctx.created
     let provider = $ctx.provider
     let model = $ctx.model
-    sqlx $"insert into messages \(session_id, provider, model, role, content, token, created, tag\)
-        VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $token), (Q $n), (Q $tag)\);"
+    sqlx $"insert into messages \(session_id, provider, model, role, content, tool_calls, token, created, tag\)
+        VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $tools), (Q $token), (Q $n), (Q $tag)\);"
 }
 
 export def messages [num = 10] {

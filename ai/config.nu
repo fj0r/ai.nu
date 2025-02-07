@@ -9,16 +9,30 @@ export def ai-session [--all(-a)] {
 }
 
 export def ai-history-chat [] {
-    sqlx $"select session_id, role, content, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
+    sqlx $"select session_id, role, content, tool_calls, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
 }
 
-export def ai-history-do [tag?: string@cmpl-prompt --num(-n)=10] {
-    let tag = if ($tag | is-empty) {
-        " where tag != '' "
+export def ai-history-do [tag?: string@cmpl-prompt --num(-n):int] {
+    mut w = []
+    if ($tag | is-empty) {
+        $w ++= ["tag != ''"]
     } else {
-        $" where tag like (Q $tag '%') "
+        $w ++= [$"tag like (Q $tag '%')"]
     }
-    sqlx $"select session_id, role, content, tag, created from messages ($tag) order by created desc limit (Q $num)"
+    if ($num | is-empty) {
+        $w ++= [$"session_id = (Q $env.OPENAI_SESSION)"]
+    }
+    let w = if ($w | is-empty) {
+        ""
+    } else {
+        $"where ($w | str join ' and ')"
+    }
+    let n = if ($num | is-not-empty) {
+        $"limit (Q $num)"
+    } else {
+        ""
+    }
+    sqlx $"select session_id, role, content, tool_calls, tag, created from messages ($w) order by created desc ($n)"
     | reverse
 }
 
