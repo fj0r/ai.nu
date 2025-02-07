@@ -94,7 +94,15 @@ export def ai-chat [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
+    --debug
+    ...message: string
 ] {
+    let s = data session -p $provider -m $model
+    let system = if ($system | is-empty) { '' } else {
+        sqlx $"select system from prompt where name = '($system)'"
+        | get 0.system
+    }
+    ai-send -s $s --system $system --debug=$debug ($message | str join ' ')
 }
 
 export def ai-repl [
