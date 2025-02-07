@@ -1,6 +1,6 @@
 export-env {
     use integration/ollama.nu *
-    use openai.nu *
+    use call.nu *
     use function.nu *
     $env.OPENAI_CONFIG = {
         curl: (which curl | is-not-empty)
@@ -12,4 +12,4 @@ export-env {
 
 export use integration/ollama.nu *
 export use integration/local.nu *
-export use openai.nu *
+export use call.nu *
