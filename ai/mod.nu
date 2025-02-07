@@ -3,7 +3,7 @@ export-env {
     use openai.nu *
     use function.nu *
     $env.OPENAI_CONFIG = {
-        curl: true
+        curl: (which curl | is-not-empty)
         finish_reason: xterm_grey30
         tool_calls: grey
     }
