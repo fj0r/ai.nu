@@ -67,7 +67,7 @@ export def openai-req [
     $o
 }
 
-export def 'openai-call' [session --out] {
+export def openai-call [session --out] {
     let $req = $in
     let r = if $env.OPENAI_CONFIG.curl {
         $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
