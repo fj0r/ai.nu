@@ -1,5 +1,5 @@
 export-env {
-    use ollama.nu *
+    use integration/ollama.nu *
     use openai.nu *
     use function.nu *
     $env.OPENAI_CONFIG = {
@@ -9,6 +9,7 @@ export-env {
     }
 }
 
-export use ollama.nu *
-export use local.nu *
+
+export use integration/ollama.nu *
+export use integration/local.nu *
 export use openai.nu *
