@@ -14,7 +14,7 @@ export def image-loader [uri: string] {
     }
 }
 
-export def openai-data [
+export def openai-req [
     --role(-r): string = 'user'
     --image(-i): string
     --audio(-a): string
@@ -135,7 +135,7 @@ export def 'openai-call' [session --out] {
     $r | update tools $tools
 }
 
-export def ai-data [
+export def ai-req [
     --role(-r): string = 'user'
     --image(-i): string
     --audio(-a): string
@@ -149,7 +149,7 @@ export def ai-data [
     let o = $in
     (
         $o
-        | openai-data
+        | openai-req
         --role $role
         --image $image
         --audio $audio
