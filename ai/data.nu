@@ -25,7 +25,7 @@ export def upsert-prompt [--delete --action: closure] {
         pk: [name]
         default: {
             name: ''
-            system: $env.OPENAI_PROMPT_TEMPLATE
+            system: ''
             template: "```\n{{}}\n```"
             placeholder: '{}'
             description: ''
@@ -52,21 +52,6 @@ export def seed [dir?:path] {
 }
 
 export def --env init [] {
-    if 'OPENAI_PROMPT_TEMPLATE' not-in $env {
-        $env.OPENAI_PROMPT_TEMPLATE = "_: |-
-            # Role:
-            ## Background:
-            ## Attention:
-            ## Profile:
-            ## Constraints:
-            ## Goals:
-            ## Skills:
-            ## Workflow:
-            ## OutputFormat:
-            ## Suggestions:
-            ## Initialization:
-            " | from yaml | get _
-    }
     init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
         for s in [
             "CREATE TABLE IF NOT EXISTS provider (
@@ -79,6 +64,7 @@ export def --env init [] {
                 temp_max REAL NOT NULL,
                 org_id TEXT DEFAULT '',
                 project_id TEXT DEFAULT '',
+                adapter TEXT DEFAULT 'openai',
                 active BOOLEAN DEFAULT 0
             );"
             "CREATE INDEX idx_provider ON provider (name);"
