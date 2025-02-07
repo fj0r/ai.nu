@@ -2,6 +2,7 @@ use sqlite.nu *
 use common.nu *
 use function.nu *
 use completion.nu *
+use base.nu *
 use data.nu
 export use config.nu *
 
@@ -11,77 +12,6 @@ export-env {
     }
     data init
     data make-session $env.OPENAI_SESSION
-}
-
-def request [
-    session
-    req
-    --out
-] {
-    let r = if $env.OPENAI_CONFIG.curl {
-        $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
-    } else {
-        http post -e -t application/json --headers [Authorization $"Bearer ($session.api_key)"] $"($session.baseurl)/chat/completions" $req
-    }
-    | lines
-    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
-        let x = $i | parse -r '.*?(?<data>\{.*)'
-        if ($x | is-empty) { return $a }
-        let x = $x | get 0.data | from json
-
-        if 'error' in $x {
-            error make {
-                msg: ($x.error | to yaml)
-            }
-        }
-
-        let tools = $x.choices
-        | each {|i|
-            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
-        }
-        | flatten
-        | flatten
-
-        let m = $x.choices
-        | each {
-            let i = $in
-            let s = $i.delta.content? | default ''
-            if not $out { print -n $s }
-            if ($env.OPENAI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
-                print -e $"(ansi $env.OPENAI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
-            }
-            $s
-        }
-        | str join
-
-        $a
-        | update msg {|x| $x.msg + $m }
-        | update tools {|x| $x.tools | append $tools }
-        | update token {|x| $x.token + 1 }
-    }
-    let tools = if ($r.tools | is-empty) {
-        []
-    } else {
-        $r.tools
-        | each {|x|
-            let v = $x
-            | upsert id {|y| [($y.id? | default '')] }
-            | upsert function.name {|y| [($y.function?.name? | default '')] }
-            | upsert function.arguments {|y|
-                [($y.function?.arguments? | default '')]
-            }
-            let k = $x.index? | default 0
-            {$k: $v}
-        }
-        | reduce {|i,a|
-            $a | merge deep $i --strategy=append
-        }
-        | items {|k, v| $v }
-        | update id {|y| $y.id | str join }
-        | update function.name {|y| $y.function.name | str join }
-        | update function.arguments {|y| $y.function.arguments | str join }
-    }
-    $r | update tools $tools
 }
 
 export def ai-send [
@@ -102,56 +32,29 @@ export def ai-send [
     let content = $message | str replace --all $placehold $content
     let s = $session
     data record $s.created $s.provider $s.model 'user' $content 0 $tag
-    let sys = if ($system | is-empty) { [] } else { [{role: "system", content: $system}] }
-    let user = if $oneshot {
-        if ($image | is-empty) {
-            [{ role: "user", content: $content }]
-        } else {
-            let img = if ($image | path exists) {
-                let b =  open $image | encode base64
-                let t = $image | path parse | get extension | str downcase
-                let t = match $t {
-                    'jpg' | 'jpeg' => 'jpeg'
-                    _ => $t
-                }
-                {url: $"data:image/($t);base64,($b)"}
-            } else {
-                $image
-            }
-            [{
-                role: "user"
-                content: [
-                    {
-                        type: text
-                        text: $content
-                    }
-                    {
-                        type: image_url
-                        image_url: $img
-                    }
-                ]
-            }]
-        }
+    mut req = openai-data -m $s.model -t $s.temperature
+    if ($system | is-not-empty) {
+        $req = $req | openai-data -r system $system
+    }
+    if $oneshot {
+        $req = $req | openai-data -r user -i $image $content
     } else {
-        data messages
+        $req = data messages
+        | reduce -f $req {|i, a|
+            $a | openai-data -r $i.role $i.content
+        }
     }
 
     mut fn_list = []
     let fns = if ($tools | is-not-empty) {
+        # TODO: delete
         $fn_list = func-list ...$tools
-        { tools: ($fn_list | select type function), tool_choice: auto }
+        $fn_list | select type function
     } else if ($function | is-not-empty) {
-        { tools: (closure-list $function), tool_choice: auto }
-    } else {
-        {}
+        closure-list $function
     }
-    let req = {
-        model: $s.model
-        messages: [...$sys ...$user]
-        temperature: $s.temperature
-        stream: true
-        ...$fns
-    }
+    $req = $req | openai-data -f $fns
+
     if $debug {
         let xxx = [
             '' 'message' $message
@@ -162,7 +65,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi grey)($req | table -e)(ansi reset)"
     }
-    let r = request $s $req --out=$out
+    let r = $req | openai-call $s --out=$out
     data record $s.created $s.provider $s.model 'assistant' $r.msg $r.token $tag
     if ($fns | is-not-empty) {
         if ($tools | is-empty) {
@@ -180,7 +83,7 @@ export def ai-send [
                 $msg ++= [$h1 ...$r1]
                 let req = $req | update messages $msg
                 if $debug { print ($req | table -e) }
-                let r2 = request $s $req --out=$out
+                let r2 = $req | openai-call $s --out=$out
                 data record $s.created $s.provider $s.model 'assistant' $r2.msg $r0.token $tag
                 $rst ++= [$r2.msg]
                 $r0 = $r2
