@@ -1,6 +1,6 @@
-$env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
-    search_product: {||
-        {
+$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
+    search_product: {
+        config: {
             embedding: {
                 url: 'http://172.178.5.123:11434/v1/embeddings'
             }
@@ -11,11 +11,6 @@ $env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
                 token: 'Zm9vOmZvbw=='
             }
         }
-    }
-}
-
-$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
-    search_product: {
         schema: {
             "description": "This function allows you to search for products in a product library based on provided criteria such as keywords, price, sales ranking, and more.",
             "parameters": {

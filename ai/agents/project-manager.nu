@@ -1,6 +1,6 @@
-$env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
-  query_job_responsibilities: {||
-        {
+$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
+  query_job_requirements: {
+        config: {
             embedding: {
                 url: 'http://172.178.5.123:11434/v1/embeddings'
             }
@@ -11,11 +11,6 @@ $env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
                 token: 'Zm9vOmZvbw=='
             }
         }
-    }
-}
-
-$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
-  query_job_requirements: {
         schema: {
           "description": "This function allows you to query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
           "parameters": {

@@ -1,19 +1,4 @@
 export-env {
-    $env.OPENAI_TOOLS_CONFIG = {
-        get_weather: {||
-            {
-                observation_time: "12:35 PM"
-                temparature: 16
-                wind_speed: 17
-                wind_dir: "W"
-                pressure: 1016
-                humidity: 87
-                cloudcover: 100
-                feelslike: 16
-                visibility: 16
-            }
-        }
-    }
     $env.OPENAI_TOOLS = {
         get_current_time: {
             schema: {
@@ -32,6 +17,19 @@ export-env {
             handler: {|x, config| date now | format date '%F %H:%M:%S' }
         }
         get_weather: {
+            config: {||
+                {
+                    observation_time: "12:35 PM"
+                    temparature: 16
+                    wind_speed: 17
+                    wind_dir: "W"
+                    pressure: 1016
+                    humidity: 87
+                    cloudcover: 100
+                    feelslike: 16
+                    visibility: 16
+                }
+            }
             schema: {
                 description: 'Get the current weather in a given location'
                 parameters: {
@@ -162,7 +160,7 @@ export def closure-list [list] {
             | transpose k v
             | reduce -f {} {|i,a|
                 let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
-                    let c = $env.OPENAI_TOOLS_CONFIG | get -i $x
+                    let c = $env.OPENAI_TOOLS | get -i $x | get -i config
                     let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
                     $i.v | upsert enum (do $i.v.enum $c)
                 } else {
@@ -180,7 +178,7 @@ export def closure-run [list] {
     | par-each {|x|
         let name = $x.function.name
         let f = $env.OPENAI_TOOLS | get -i $name
-        let c = $env.OPENAI_TOOLS_CONFIG | get -i $name
+        let c = $f.config?
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
         let f = $f.handler

@@ -1,6 +1,6 @@
-$env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
-    query_knowledge_base: {||
-        {
+$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
+    query_knowledge_base: {
+        config: {
             ragit_dir: ~/world/ragit
             ragit_log: {|query, dir|
                 let m = [
@@ -13,11 +13,6 @@ $env.OPENAI_TOOLS_CONFIG = $env.OPENAI_TOOLS_CONFIG | merge deep {
                 print -e $m
             }
         }
-    }
-}
-
-$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
-    query_knowledge_base: {
         schema:  {
             name: query_knowledge_base
             description: "This function allows you to query information from a knowledge base. It can be used to retrieve specific data or answers based on provided keywords or questions."
