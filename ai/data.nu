@@ -52,7 +52,7 @@ export def seed [dir?:path] {
 }
 
 export def --env init [] {
-    init-db OPENAI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
+    init-db AI_STATE ([$nu.data-dir 'openai.db'] | path join) {|sqlx, Q|
         for s in [
             "CREATE TABLE IF NOT EXISTS provider (
                 name TEXT PRIMARY KEY,
@@ -134,7 +134,7 @@ export def make-session [created] {
 
 export def session [-p:string -m:string] {
     mut o = sqlx $"select * from provider as p join sessions as s
-        on p.name = s.provider where s.created = (Q $env.OPENAI_SESSION);" | first
+        on p.name = s.provider where s.created = (Q $env.AI_SESSION);" | first
     if ($p | is-not-empty) {
         let p = sqlx $"select * from provider where name = (Q $p)" | first
         $o = $o | merge $p
@@ -160,6 +160,6 @@ export def record [
 }
 
 export def messages [num = 10] {
-    sqlx $"select role, content from messages where session_id = (Q $env.OPENAI_SESSION) and tag = '' order by created desc limit ($num)"
+    sqlx $"select role, content from messages where session_id = (Q $env.AI_SESSION) and tag = '' order by created desc limit ($num)"
     | reverse
 }

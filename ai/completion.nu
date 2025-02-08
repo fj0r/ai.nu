@@ -15,7 +15,7 @@ export def cmpl-models [ctx] {
 }
 
 export def cmpl-tools [] {
-    $env.OPENAI_TOOLS | columns
+    $env.AI_TOOLS | columns
 }
 
 export def cmpl-nu-function [] {
@@ -64,7 +64,7 @@ def cmpl-config [context] {
 }
 
 export def cmpl-provider [] {
-    let current = sqlx $"select provider from sessions where created = '($env.OPENAI_SESSION)'"
+    let current = sqlx $"select provider from sessions where created = '($env.AI_SESSION)'"
     | get provider
     sqlx $'select name, active from provider'
     | each {|x|

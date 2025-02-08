@@ -9,7 +9,7 @@ export def ai-session [--all(-a)] {
 }
 
 export def ai-history-assistant [] {
-    sqlx $"select session_id, role, content, tool_calls, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
+    sqlx $"select session_id, role, content, tool_calls, created from messages where session_id = (Q $env.AI_SESSION) and tag = ''"
 }
 
 export def ai-history-do [tag?: string@cmpl-prompt --num(-n):int] {
@@ -20,7 +20,7 @@ export def ai-history-do [tag?: string@cmpl-prompt --num(-n):int] {
         $w ++= [$"tag like (Q $tag '%')"]
     }
     if ($num | is-empty) {
-        $w ++= [$"session_id = (Q $env.OPENAI_SESSION)"]
+        $w ++= [$"session_id = (Q $env.AI_SESSION)"]
     }
     let w = if ($w | is-empty) {
         ""
@@ -110,10 +110,10 @@ export def ai-switch-temperature [
 ] {
     if $global {
         sqlx $"update provider set temp_default = '($o)'
-            where name = \(select provider from sessions where created = '($env.OPENAI_SESSION)'\)"
+            where name = \(select provider from sessions where created = '($env.AI_SESSION)'\)"
     }
     sqlx $"update sessions set temperature = '($o)'
-        where created = '($env.OPENAI_SESSION)'"
+        where created = '($env.AI_SESSION)'"
     ai-session
 }
 
@@ -131,7 +131,7 @@ export def ai-switch-provider [
     }
     sqlx $"update sessions set provider = (Q $o),
         model = \(select model_default from provider where name = (Q $o)\)
-        where created = (Q $env.OPENAI_SESSION)"
+        where created = (Q $env.AI_SESSION)"
     ai-session
 }
 
@@ -141,10 +141,10 @@ export def ai-switch-model [
 ] {
     if $global {
         sqlx $"update provider set model_default = (Q $model)
-            where name = \(select provider from sessions where created = (Q $env.OPENAI_SESSION)\)"
+            where name = \(select provider from sessions where created = (Q $env.AI_SESSION)\)"
     }
     sqlx $"update sessions set model = (Q $model)
-        where created = (Q $env.OPENAI_SESSION)"
+        where created = (Q $env.AI_SESSION)"
     ai-session
 }
 

@@ -71,7 +71,7 @@ export def openai-req [
 
 export def openai-call [session --out] {
     let $req = $in
-    let r = if $env.OPENAI_CONFIG.curl {
+    let r = if $env.AI_CONFIG.curl {
         $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
     } else {
         http post -e -t application/json --headers [Authorization $"Bearer ($session.api_key)"] $"($session.baseurl)/chat/completions" $req
@@ -100,8 +100,8 @@ export def openai-call [session --out] {
             let i = $in
             let s = $i.delta.content? | default ''
             if not $out { print -n $s }
-            if ($env.OPENAI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
-                print -e $"(ansi $env.OPENAI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
+            if ($env.AI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
+                print -e $"(ansi $env.AI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
             }
             $s
         }

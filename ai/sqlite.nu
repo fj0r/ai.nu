@@ -4,7 +4,7 @@ export def Q [...t --sep:string=''] {
 }
 
 export def sqlx [s] {
-    open $env.OPENAI_STATE | query db $s
+    open $env.AI_STATE | query db $s
 }
 
 export def --env init-db [env_name:string, file:string, hook: closure] {

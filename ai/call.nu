@@ -7,9 +7,9 @@ use data.nu
 export use config.nu *
 
 export-env {
-    $env.OPENAI_SESSION = date now | format date '%FT%H:%M:%S.%f'
+    $env.AI_SESSION = date now | format date '%FT%H:%M:%S.%f'
     data init
-    data make-session $env.OPENAI_SESSION
+    data make-session $env.AI_SESSION
 }
 
 export def ai-send [

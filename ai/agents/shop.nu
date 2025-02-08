@@ -1,4 +1,4 @@
-$env.OPENAI_TOOLS = $env.OPENAI_TOOLS | merge deep {
+$env.AI_TOOLS = $env.AI_TOOLS | merge deep {
     search_product: {
         config: {
             embedding: {
