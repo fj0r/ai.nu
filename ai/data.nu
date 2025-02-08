@@ -85,12 +85,16 @@ export def --env init [] {
             "CREATE INDEX idx_provider ON provider (name);"
             "CREATE INDEX idx_active ON provider (active);"
             "CREATE TABLE IF NOT EXISTS sessions (
-                created TEXT,
+                id INTEGER PRIMARY KEY,
+                parent_id INTEGER DEFAULT -1,
+                offset INTEGER DEFAULT -1,
+                created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')),
                 provider TEXT NOT NULL,
                 model TEXT NOT NULL,
                 temperature REAL NOT NULL
             );"
-            "CREATE INDEX idx_sessions ON sessions (created);"
+            "CREATE INDEX idx_sessions_id ON sessions (id);"
+            "CREATE INDEX idx_sessions_pid ON sessions (parent_id);"
             "CREATE TABLE IF NOT EXISTS prompt (
                 name TEXT PRIMARY KEY,
                 system TEXT,
@@ -111,7 +115,7 @@ export def --env init [] {
                 PRIMARY KEY (prompt, tool)
             );"
             "CREATE TABLE IF NOT EXISTS messages (
-                session_id TEXT,
+                session_id INTEGER REFERENCES sessions(id),
                 provider TEXT,
                 model TEXT,
                 role TEXT,
@@ -142,19 +146,17 @@ export def --env init [] {
     }
 }
 
-export def make-session [created] {
-    for s in [
-        $"INSERT INTO sessions \(created, provider, model, temperature\)
-        SELECT (Q $created), name, model_default, temp_default
-        FROM provider where active = 1 limit 1;"
-    ] {
-        sqlx $s
-    }
+export def make-session [] {
+    sqlx "INSERT INTO sessions (provider, model, temperature)
+        SELECT name, model_default, temp_default
+        FROM provider where active = 1 limit 1 returning id;"
+    | first
+    | get id
 }
 
 export def session [-p:string -m:string] {
     mut o = sqlx $"select * from provider as p join sessions as s
-        on p.name = s.provider where s.created = (Q $env.AI_SESSION);" | first
+        on p.name = s.provider where s.id = ($env.AI_SESSION);" | first
     if ($p | is-not-empty) {
         let p = sqlx $"select * from provider where name = (Q $p)" | first
         $o = $o | merge $p
@@ -171,16 +173,12 @@ export def record [
     --token: int = 0
     --tag: string = ''
 ] {
-    let n = date now | format date '%FT%H:%M:%S.%f'
-    let session = $ctx.created
-    let provider = $ctx.provider
-    let model = $ctx.model
-    sqlx $"insert into messages \(session_id, provider, model, role, content, tool_calls, token, created, tag\)
-        VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $tools), (Q $token), (Q $n), (Q $tag)\);"
+    sqlx $"insert into messages \(session_id, provider, model, role, content, tool_calls, token, tag\)
+        VALUES \(($ctx.id), (Q $ctx.provider), (Q $ctx.model), (Q $role), (Q $content), (Q $tools), (Q $token), (Q $tag)\);"
 }
 
 export def messages [num = 20] {
-    sqlx $"select role, content from messages where session_id = (Q $env.AI_SESSION) and tag = '' order by created desc limit ($num)"
+    sqlx $"select role, content from messages where session_id = ($env.AI_SESSION) and tag = '' order by created desc limit ($num)"
     | reverse
 }
 

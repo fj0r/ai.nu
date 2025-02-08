@@ -12,8 +12,7 @@ export-env {
 }
 
 export def --env ai-new-session [] {
-    $env.AI_SESSION = date now | format date '%y%m%d%H%M%S'
-    data make-session $env.AI_SESSION
+    $env.AI_SESSION = data make-session
 }
 
 export def ai-send [
