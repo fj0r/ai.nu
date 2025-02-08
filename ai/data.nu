@@ -178,7 +178,21 @@ export def record [
 }
 
 export def messages [num = 20] {
-    sqlx $"select role, content from messages where session_id = ($env.AI_SESSION) and tag = '' order by created desc limit ($num)"
+    sqlx $"
+    with recursive ss as \(
+        select id, parent_id, offset, 1000 as os from sessions
+        where id = ($env.AI_SESSION)
+        union all
+        select s.id, s.parent_id, s.offset, ss.offset as os from sessions as s
+        join ss on ss.parent_id = s.id
+    \), w as \(
+        select ss.id as session_id, m.role, m.content, m.tool_calls, m.created,
+            ss.os,
+            rank\(\) over \(partition by ss.id order by m.created\) as rk
+        from messages as m join ss on m.session_id = ss.id
+        where m.tag = '' order by m.created desc
+    \) select * from w where os >= rk limit ($num);
+    "
     | reverse
 }
 

@@ -66,7 +66,7 @@ def cmpl-config [context] {
 }
 
 export def cmpl-provider [] {
-    let current = sqlx $"select provider from sessions where created = '($env.AI_SESSION)'"
+    let current = sqlx $"select provider from sessions where id = ($env.AI_SESSION)"
     | get provider
     sqlx $'select name, active from provider'
     | each {|x|
