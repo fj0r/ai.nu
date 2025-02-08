@@ -17,7 +17,7 @@ export def ai-send [
     --session(-s): record
     --system: string
     --function(-f): list<string@cmpl-tools>
-    --prevent-call
+    --prevent-func
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
@@ -70,9 +70,9 @@ export def ai-send [
             mut msg = $req.messages
             mut rst = []
             while ($r.tools | is-not-empty) {
+                if $prevent_func { return $r }
                 $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
                 let rt = closure-run $r.tools
-                if $prevent_call { return $rt }
                 for x in $rt {
                     $req = $req
                     | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
@@ -103,13 +103,20 @@ export def ai-assistant [
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
     }
-    (
+    let r = (
         ai-send -s $s
         --system $system
         --out=$out
         --debug=$debug
+        --prevent-func
         ($message | str join ' ')
     )
+    if ($r | describe) == string {
+        return $r
+    }
+    if ($r.tools? | is-not-empty) {
+
+    }
 }
 
 export def ai-chat [
@@ -163,7 +170,7 @@ export def ai-do [
     --provider: string@cmpl-provider
     --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
-    --prevent-call
+    --prevent-func
     --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
@@ -218,7 +225,7 @@ export def ai-do [
         --placehold $placehold
         --system $system
         --function $fns
-        --prevent-call=$prevent_call
+        --prevent-func=$prevent_func
         --tools $tools
         --image $image
         --tag ($args | str join ',')
