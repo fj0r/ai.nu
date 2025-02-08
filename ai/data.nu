@@ -187,14 +187,15 @@ export def messages [num = 20] {
 export def tools [] {
     let t = sqlx $"select name, description, placeholder from prompt;"
     | update placeholder {|x|
-        $x.placeholder | from yaml | items {|k, v|
-            let v = $v | items {|l, w| {value: $l, description: $w} }
-            {name: $k, enum: $v}
-        }
+        $x.placeholder | from yaml
     }
     let f = $env.AI_TOOLS | items {|k, v|
         {name: $k, description: ($v.schema.description?) }
     }
+    let p = sqlx $"select name, yaml from placeholder;"
+    | each {|x|
+        {name: $x.name enum: ($x.yaml | from yaml)}
+    }
 
-    { template: $t, function: $f }
+    { template: $t, function: $f, placeholder: $p }
 }

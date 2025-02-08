@@ -109,6 +109,7 @@ export def --env ai-assistant [
         let d = $env.AI_TOOLS_LIST
         $env.AI_CONFIG.assistant
         | str replace '{{templates}}' ($d.template | to yaml)
+        | str replace '{{placeholders}}' ($d.placeholder | to yaml)
         | str replace '{{tools}}' ($d.function | to yaml)
     } else {
         sqlx $"select system from prompt where name = '($system)'"
@@ -129,12 +130,13 @@ export def --env ai-assistant [
     }
     if ($r.tools? | is-not-empty) {
         let a = $r | get -i tools.0.function.arguments | default '{}' | from json
-        if ($a | is-empty) or ($a.template_name? | is-empty) {
+        if ($a | is-empty) or ($a.template_name? | is-empty) or ($a.query? | is-empty) {
+            print $"(ansi $env.AI_CONFIG.template_calls)Invalid template call(ansi reset)"
             print $"(ansi grey)($a | to yaml)(ansi reset)"
             return
         }
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.template_name) ($a | reject template_name | to nuon)(ansi reset)"
-        $message | ai-do $a.template_name ...$a.placeholders? -f $a.tools?
+        $a.query | ai-do $a.template_name ...$a.placeholders? -f $a.tools?
     }
 }
 

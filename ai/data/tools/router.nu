@@ -6,6 +6,10 @@ export-env {
                 parameters: {
                     type: object
                     properties: {
+                        query: {
+                            type: string,
+                            description: "The search terms or keywords"
+                        }
                         template_name: {
                             type: string
                             description: "The name of the prompt template to be used."
@@ -26,6 +30,7 @@ export-env {
                         }
                     }
                     required: [
+                        query
                         template_name
                         placeholders
                     ]
@@ -44,6 +49,11 @@ export-env {
     ```
 
     The placeholder tokens in the prompts must strictly adhere to their definitions, and the number of placeholders should match the defined number. The values for the placeholders should use the values from the enumeration, and consider the tools that may be needed when performing the task.
+
+    Below is a placeholders:
+    ```
+    {{placeholders}}
+    ```
 
     Below is a list of available tools:
     ```
