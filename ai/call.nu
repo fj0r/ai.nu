@@ -90,7 +90,7 @@ export def ai-send [
     if $out { return $r.msg }
 }
 
-export def ai-chat [
+export def ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
@@ -105,7 +105,7 @@ export def ai-chat [
     ai-send -s $s --system $system --debug=$debug ($message | str join ' ')
 }
 
-export def ai-repl [
+export def ai-chat [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system

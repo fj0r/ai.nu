@@ -1,3 +1,4 @@
+export alias aa = ai-assistant
 export alias ad = ai-do
 export alias ac = ai-chat
 export alias asm = ai-switch-model
