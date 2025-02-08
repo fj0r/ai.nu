@@ -20,12 +20,12 @@ export-env {
                     type: object
                     properties: {
                         location: {
-                          type: string
-                          description: "The city and state, e.g. San Francisco, CA"
+                            type: string
+                            description: "The city and state, e.g. San Francisco, CA"
                         },
                         unit: {
-                          type: string
-                          enum: {|config| [celsius fahrenheit] }
+                            type: string
+                            enum: {|config| [celsius fahrenheit] }
                         }
                     }
                     required: [location]
@@ -40,33 +40,39 @@ export-env {
         }
         search_web: {
             schema: {
-                description: 'This function allows you to perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.'
+                description: "This function allows you to perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
                 parameters: {
-                    type: object
+                    type: object,
                     properties: {
                         query: {
-                          type: string
-                          description: "The search terms or keywords"
-                        }
+                            type: string,
+                            description: "The search terms or keywords"
+                        },
                         num_results: {
-                          type: number
-                          description: "The number of results to return"
-                        }
+                            type: number,
+                            description: "The number of results to return"
+                        },
                         language: {
-                          type: string
-                          description: "The language of the search results"
-                        }
+                            type: string,
+                            description: "The language of the search results"
+                        },
                         search_type: {
-                          type: string
-                          description: "The type of search"
-                          enum: [web image video]
+                            type: string,
+                            description: "The type of search",
+                            enum: [
+                                web,
+                                image,
+                                video
+                            ]
                         }
-                    }
-                    required: [query]
+                    },
+                    required: [
+                        query
+                    ]
                 }
             }
             handler: {|x, config|
-                return 'hello'
+                return 'no results'
             }
         }
     }
