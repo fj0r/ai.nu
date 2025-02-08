@@ -29,18 +29,18 @@ export def ai-send [
     let content = $in | default ""
     let content = $message | str replace --all $placehold $content
     let s = $session
-    mut req = ai-req -m $s.model -t $s.temperature
+    mut req = ai-req $s -m $s.model -t $s.temperature
     if ($system | is-not-empty) {
-        $req = $req | ai-req -r system $system
+        $req = $req | ai-req $s -r system $system
     }
     if $oneshot {
-        $req = $req | ai-req -r user -i $image $content
+        $req = $req | ai-req $s -r user -i $image $content
     } else {
         $req = data messages
         | reduce -f $req {|i, a|
-            $a | ai-req -r $i.role $i.content
+            $a | ai-req $s -r $i.role $i.content
         }
-        | ai-req -r user $content
+        | ai-req $s -r user $content
     }
 
     mut fn_list = []
@@ -51,7 +51,7 @@ export def ai-send [
     } else if ($function | is-not-empty) {
         closure-list $function
     }
-    $req = $req | ai-req -f $fns
+    $req = $req | ai-req $s -f $fns
 
     if $debug {
         let xxx = [
@@ -70,12 +70,12 @@ export def ai-send [
             mut msg = $req.messages
             mut rst = []
             while ($r.tools | is-not-empty) {
-                $req = $req | ai-req -r assistant $r.msg --tool-calls $r.tools
+                $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
                 let rt = closure-run $r.tools
                 if $prevent_call { return $rt }
                 for x in $rt {
                     $req = $req
-                    | ai-req -r tool ($x.result | to json -r) --tool-call-id $x.id
+                    | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
                 }
                 if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
                 # 0 or 1?

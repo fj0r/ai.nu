@@ -23,9 +23,10 @@ export def openai-req [
     --functions(-f): list<any>
     --model(-m): string
     --temperature(-t): number = 0.5
+    --stream
     message?: string
 ] {
-    mut o = $in | default { messages: [], stream: true }
+    mut o = $in | default { messages: [] }
     if $role not-in [user assistant system tool function] {
         error make { msg: $"unsupport role ($role)"}
     }
@@ -39,6 +40,7 @@ export def openai-req [
         $o.tools = $functions
         $o.tool_choice = 'auto'
     }
+    $o.stream = $stream
     let content = if not (($image | is-empty) and ($audio | is-empty)) {
         mut content = []
         if ($message | is-not-empty) {
@@ -136,6 +138,8 @@ export def openai-call [session --out] {
 }
 
 export def ai-req [
+    session
+    message?: string
     --role(-r): string = 'user'
     --image(-i): string
     --audio(-a): string
@@ -144,22 +148,24 @@ export def ai-req [
     --functions(-f): list<any>
     --model(-m): string
     --temperature(-t): number = 0.5
-    message?: string
+    --stream
 ] {
     let o = $in
-    (
-        $o
-        | openai-req
-        --role $role
-        --image $image
-        --audio $audio
-        --tool-calls $tool_calls
-        --tool-call-id $tool_call_id
-        --functions $functions
-        --model $model
-        --temperature $temperature
-        $message
-    )
+    match ($session.adapter? | default 'openai') {
+        'openai' => (
+            $o | openai-req
+            --role $role
+            --image $image
+            --audio $audio
+            --tool-calls $tool_calls
+            --tool-call-id $tool_call_id
+            --functions $functions
+            --model $model
+            --temperature $temperature
+            --stream=$stream
+            $message
+        )
+    }
 }
 
 export def ai-call [
@@ -169,15 +175,19 @@ export def ai-call [
     --record:int = 1
 ] {
     let req = $in
-    let msg = $req | get messages | slice (-1 * $record)..-1
-    for x in $msg {
-        let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
-        data record $session $x.role $x.content --tag $tag --tools $tc
+    match ($session.adapter? | default 'openai') {
+        'openai' => {
+            let msg = $req | get messages | slice (-1 * $record)..-1
+            for x in $msg {
+                let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
+                data record $session $x.role $x.content --tag $tag --tools $tc
+            }
+            let r = $req | ai-req $session --stream | openai-call $session --out=$out
+            let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
+            data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
+            $r
+        }
     }
-    let r = $req | openai-call $session --out=$out
-    let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
-    data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
-    $r
 }
 
 export def ai-models [] {
