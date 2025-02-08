@@ -7,8 +7,12 @@ use data.nu
 export use config.nu *
 
 export-env {
-    $env.AI_SESSION = date now | format date '%y%m%d%H%M%S'
     data init
+    ai-new-session
+}
+
+export def --env ai-new-session [] {
+    $env.AI_SESSION = date now | format date '%y%m%d%H%M%S'
     data make-session $env.AI_SESSION
 }
 
