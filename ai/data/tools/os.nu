@@ -1,4 +1,4 @@
-def is-parent [parent] {
+def is-sub-directory [parent] {
     $in | path expand | str starts-with ($parent | path expand)
 }
 
@@ -77,7 +77,14 @@ export-env {
             }
             handler: {|x, config|
                 for f in $x.file_paths {
-                    print $"(ansi xterm_lightgoldenrod1)rm -f ($f)(ansi reset)"
+                    let x = $f | is-sub-directory $env.AI_CONFIG.permitted-write
+                    let c = if $x {
+                        rm -f $f
+                        'xterm_salmon1'
+                    } else {
+                        'xterm_lightgoldenrod1'
+                    }
+                    print $"(ansi $c)rm -f ($f)(ansi reset)"
                 }
             }
         }
