@@ -159,7 +159,10 @@ export def record [
         VALUES \((Q $session), (Q $provider), (Q $model), (Q $role), (Q $content), (Q $tools), (Q $token), (Q $n), (Q $tag)\);"
 }
 
-export def messages [num = 10] {
+export def messages [num = 20] {
     sqlx $"select role, content from messages where session_id = (Q $env.AI_SESSION) and tag = '' order by created desc limit ($num)"
     | reverse
+}
+
+export def tools [] {
 }

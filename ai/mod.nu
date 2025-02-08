@@ -6,6 +6,7 @@ export-env {
         curl: (which curl | is-not-empty)
         finish_reason: xterm_grey30
         tool_calls: grey
+        message_limit: 20
     }
 }
 

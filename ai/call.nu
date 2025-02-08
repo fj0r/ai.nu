@@ -22,6 +22,7 @@ export def ai-send [
     --image(-i): path
     --oneshot
     --placehold: string = '{}'
+    --limit: int = 20
     --out(-o)
     --tag: string = ''
     --debug
@@ -36,8 +37,9 @@ export def ai-send [
     if $oneshot {
         $req = $req | ai-req $s -r user -i $image $content
     } else {
-        $req = data messages
+        $req = data messages $limit
         | reduce -f $req {|i, a|
+            # TODO: tools
             $a | ai-req $s -r $i.role $i.content
         }
         | ai-req $s -r user $content
@@ -78,7 +80,7 @@ export def ai-send [
                     | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
                 }
                 if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
-                # 0 or 1?
+                # TODO: 0 or 1?
                 $r = $req | ai-call $s --out=$out --tag $tag --record (($rt | length) + 0)
                 $rst ++= [$r.msg]
             }
@@ -108,6 +110,7 @@ export def ai-assistant [
         --system $system
         --out=$out
         --debug=$debug
+        --limit $env.AI_CONFIG.message_limit
         --prevent-func
         ($message | str join ' ')
     )
