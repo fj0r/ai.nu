@@ -10,19 +10,6 @@ template: |-
   {{}}
   ```
 placeholder: |-
-  lang:
-    en: English
-    fr: French
-    es: Spanish
-    de: German
-    ru: Russian
-    ar: Arabic
-    zh: Chinese
-    ja: Janpanese
-    ko: Korean
-  prog:
-    rust: You are a Rust language expert.
-    javascript: You are a Javascript language expert.
-    python: You are a Python language expert.
-    nushell: You are a Nushell language expert.
+  - lang
+  - prog
 description: Programming language experts help you debug.

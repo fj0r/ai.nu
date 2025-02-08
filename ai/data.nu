@@ -41,14 +41,29 @@ export def upsert-prompt [--delete --action: closure] {
     }
 }
 
-export def seed [dir?:path] {
-    let dir = if ($dir | is-empty) {
-        [$env.FILE_PWD data] | path join
-    } else {
-        $dir
-    }
 
-    ls ([$dir prompts] | path join)  | get name | each { open $in | upsert-prompt }
+export def seed [] {
+    const dir = path self .
+
+    ls ([$dir data prompts] | path join)  | get name | each { open $in | upsert-prompt }
+    ls ([$dir data placeholder] | path join)  | get name | each {
+        open $in | table-upsert {
+            table: placeholder
+            pk: [name]
+            default: {
+                name: ''
+                yaml: ''
+            }
+            filter: {
+                out: {
+                    yaml: { $in | to yaml }
+                }
+                in: {
+                    yaml: { $in | from yaml }
+                }
+            }
+        }
+    }
 }
 
 export def --env init [] {
@@ -84,6 +99,11 @@ export def --env init [] {
                 description TEXT
             );"
             "CREATE INDEX idx_prompt ON prompt (name);"
+            "CREATE TABLE IF NOT EXISTS placeholder (
+                name TEXT PRIMARY KEY,
+                yaml TEXT NOT NULL DEFAULT '{}'
+            );"
+            "CREATE INDEX idx_placeholder ON placeholder (name);"
             "CREATE TABLE IF NOT EXISTS prompt_tools (
                 prompt TEXT,
                 tool TEXT,

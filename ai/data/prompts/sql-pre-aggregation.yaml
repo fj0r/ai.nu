@@ -58,5 +58,5 @@ template: |-
   ```
   {{}}
   ```
-placeholder: '{}'
+placeholder: '[]'
 description: matrialized view

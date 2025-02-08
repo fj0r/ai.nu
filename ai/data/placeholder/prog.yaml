@@ -1,0 +1,6 @@
+name: prog
+yaml: |-
+    rust: You are a Rust language expert.
+    javascript: You are a Javascript language expert.
+    python: You are a Python language expert.
+    nushell: You are a Nushell language expert.

@@ -1,0 +1,13 @@
+name: pl
+yaml: |-
+    rust: Rust
+    python: Python pydantic
+    haskell: Haskell
+    nushell: Nushell
+    ts: TypeScript
+    js: Javascript
+    jsonschema: JsonSchema
+    psql: PostgreSQL
+    mysql: MySQL
+    slite: Sqlite
+    bash: Bash

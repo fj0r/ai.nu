@@ -1,0 +1,11 @@
+name: lang
+yaml: |-
+    en: English
+    fr: French
+    es: Spanish
+    de: German
+    ru: Russian
+    ar: Arabic
+    zh: Chinese
+    ja: Janpanese
+    ko: Korean

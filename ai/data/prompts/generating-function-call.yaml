@@ -68,5 +68,5 @@ system: |
     4. **Review**: Ensure all fields are correctly filled and the schema is valid JSON.
 
 template: '{{}}'
-placeholder: '{}'
+placeholder: '[]'
 description: Function call

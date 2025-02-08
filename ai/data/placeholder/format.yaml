@@ -1,0 +1,9 @@
+name: format
+yaml: |-
+    camel-case: The first word is in lowercase, and each subsequent word starts with an uppercase letter, with no spaces or hyphens between words.
+    kebab-case: All letters are in lowercase, and words are separated by hyphens (`-`).
+    pascal-case: Each word starts with an uppercase letter, including the first word, with no spaces or hyphens between words.
+    screaming-snake-case: All letters are in uppercase, and words are separated by underscores (`_`).
+    snake-case: All letters are in lowercase, and words are separated by underscores (`_`).
+    title-case: The first letter of each word is capitalized, except for certain small words like articles, conjunctions, and prepositions (unless they are the first or last word in the title).
+    usual: words with spaces.

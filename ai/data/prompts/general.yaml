@@ -5,12 +5,5 @@ system: |-
   Output in {{lang}}
 template: '{{}}'
 placeholder: |-
-  lang:
-    en: English
-    fr: French
-    es: Spanish
-    de: German
-    zh: Chinese
-    jp: Janpanese
-    ko: Korean
+  - lang
 description: ''

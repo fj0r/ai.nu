@@ -45,10 +45,12 @@ export def 'cmpl-role' [ctx] {
             sqlx "select name as value, description from prompt"
         }
         _ => {
-            let d = sqlx $"select * from prompt where name = '($args.0)'"
+            let d = sqlx $"select * from prompt where name = (Q $args.0)"
             let d = $d | first | get placeholder | from yaml
             let pos = $len - 2
-            $d | get ($d | columns | get $pos) | columns
+            let n = $d | get $pos
+            sqlx $"select yaml from placeholder where name = (Q $n)"
+            | first | get yaml | from yaml | columns
         }
     }
 }

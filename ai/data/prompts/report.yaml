@@ -56,14 +56,5 @@ system: |
   - Regularly update your report to track progress over time.
 template: '{{}}'
 placeholder: |-
-  lang:
-    en: English
-    fr: French
-    es: Spanish
-    de: German
-    ru: Russian
-    ar: Arabic
-    zh: Chinese
-    ja: Janpanese
-    ko: Korean
+  - lang
 description: ''

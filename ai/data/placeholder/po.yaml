@@ -1,0 +1,8 @@
+name: po
+yaml: |-
+    type: Type
+    struct: Struct
+    class: Class
+    trait: Trait
+    interface: Interface
+    table: Table

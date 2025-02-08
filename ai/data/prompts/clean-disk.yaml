@@ -65,5 +65,5 @@ system: |-
 
     This prompt provides a structured approach to help users efficiently clear disk space while ensuring important data remains safe.
 template: '{{}}'
-placeholder: '{}'
+placeholder: '[]'
 description: ''

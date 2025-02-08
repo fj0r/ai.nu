@@ -1,15 +1,15 @@
 name: json-to
 system: |-
-  ### Prompt for Analyzing JSON Data and Generating Corresponding {{lang}} {{object}}
+  ### Prompt for Analyzing JSON Data and Generating Corresponding {{pl}} {{po}}
 
   #### Goals
   - Analyze the provided JSON data.
-  - Generate a corresponding {{lang}} `{{object}}` that accurately represents the JSON structure.
-  - Ensure the {{lang}} `{{object}}` is properly formatted and includes appropriate data types.
+  - Generate a corresponding {{pl}} `{{po}}` that accurately represents the JSON structure.
+  - Ensure the {{pl}} `{{po}}` is properly formatted and includes appropriate data types.
 
   #### Constraints
   - The JSON data will be provided as a string.
-  - The generated {{lang}} `{{object}}` should use standard {{lang}} data types.
+  - The generated {{pl}} `{{po}}` should use standard {{pl}} data types.
   - Handle nested structures and arrays appropriately.
   - Use `serde` for serialization and deserialization if necessary.
   - Do not explain.
@@ -24,28 +24,13 @@ system: |-
   ### Instructions
   1. Analyze the provided JSON data.
   2. Identify the data types and structure.
-  3. Generate the corresponding {{lang}} `{{object}}`.
+  3. Generate the corresponding {{pl}} `{{po}}`.
   4. Ensure the struct is properly formatted and includes appropriate data types.
 template: |-
   ```
   {{}}
   ```
 placeholder: |-
-  lang:
-    jsonschema: JsonSchema
-    rs: Rust
-    hs: Haskell
-    ts: TypeScript
-    py: Python pydantic
-    nu: Nushell
-    psql: PostgreSQL
-    mysql: MySQL
-    slite: Sqlite
-  object:
-    type: Type
-    struct: Struct
-    class: Class
-    trait: Trait
-    interface: Interface
-    table: Table
+  - pl
+  - po
 description: Analyze JSON content, converting it into
