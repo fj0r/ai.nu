@@ -8,7 +8,7 @@ export-env {
                     properties: {
                         query: {
                             type: string,
-                            description: "The search terms or keywords"
+                            description: "User intent derived from analysis"
                         }
                         template_name: {
                             type: string
@@ -60,6 +60,7 @@ export-env {
     {{tools}}
     ```
     ### Constraints
+    - Analyze the user's intent for the query.
     - Placeholder parameters must strictly match those defined in the template.
     - The order of the placeholders in the parameters should match the order defined in the template.
     - The value for each placeholder should be selected from the enum in the template.
