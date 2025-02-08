@@ -5,7 +5,6 @@ export-env {
     use data/tools/os.nu
     use data/tools/web.nu
     $env.AI_CONFIG = {
-        curl: (which curl | is-not-empty)
         finish_reason: xterm_grey30
         tool_calls: grey
         template_calls: xterm_fuchsia

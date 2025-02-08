@@ -71,11 +71,9 @@ export def openai-req [
 
 export def openai-call [session --out] {
     let $req = $in
-    let r = if $env.AI_CONFIG.curl {
-        $req | to json -r | curl -sSL -H 'Content-Type: application/json' -H $"Authorization: Bearer ($session.api_key)"  $"($session.baseurl)/chat/completions" --data @-
-    } else {
-        http post -e -t application/json --headers [Authorization $"Bearer ($session.api_key)"] $"($session.baseurl)/chat/completions" $req
-    }
+    let r = http post -r -e -t application/json --headers [
+            Authorization $"Bearer ($session.api_key)"
+    ] $"($session.baseurl)/chat/completions" $req
     | lines
     | reduce -f {msg: '', token: 0, tools: []} {|i,a|
         let x = $i | parse -r '.*?(?<data>\{.*)'
