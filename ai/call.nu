@@ -92,7 +92,7 @@ export def ai-send [
     if $out { return $r.msg }
 }
 
-export def ai-assistant [
+export def --env ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
@@ -103,7 +103,10 @@ export def ai-assistant [
     let s = data session -p $provider -m $model
     let message = $message | str join ' '
     let system = if ($system | is-empty) {
-        let d = data tools
+        if 'AI_TOOLS_LIST' not-in $env {
+            {AI_TOOLS_LIST: (data tools)} | load-env
+        }
+        let d = $env.AI_TOOLS_LIST
         $env.AI_CONFIG.assistant
         | str replace '{{templates}}' ($d.template | to yaml)
         | str replace '{{tools}}' ($d.function | to yaml)

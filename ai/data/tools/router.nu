@@ -54,7 +54,8 @@ export-env {
     - The order of the placeholders in the parameters should match the order defined in the template.
     - The value for each placeholder should be selected from the enum in the template.
     - Tools listed should be considered for use during task execution.
-    - If there is not enough information, continue asking questions.
+    - Only the router function can be called; if there isn't enough information to fill in the parameters, continue asking questions.
+
 
     ### Attention
     - It's not mandatory to run the prompts template
