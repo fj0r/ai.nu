@@ -28,8 +28,8 @@ ai-config-upsert-function [function]
 
 Interactive conversation
 ```nushell
-ai-chat
-ai-history-chat
+ai-assistant
+ai-history-assistant
 ```
 
 One-shot conversation based on prompt

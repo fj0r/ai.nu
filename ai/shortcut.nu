@@ -4,5 +4,6 @@ export alias ac = ai-chat
 export alias asm = ai-switch-model
 export alias asp = ai-switch-provider
 export alias asn = ai-session
-export alias ahc = ai-history-chat
+export alias ai-history-chat = ai-history-assistant
+export alias aha = ai-history-assistant
 export alias ahd = ai-history-do

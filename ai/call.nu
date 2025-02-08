@@ -94,6 +94,7 @@ export def ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
+    --out(-o)
     --debug
     ...message: string
 ] {
@@ -102,7 +103,13 @@ export def ai-assistant [
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
     }
-    ai-send -s $s --system $system --debug=$debug ($message | str join ' ')
+    (
+        ai-send -s $s
+        --system $system
+        --out=$out
+        --debug=$debug
+        ($message | str join ' ')
+    )
 }
 
 export def ai-chat [

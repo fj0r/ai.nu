@@ -8,7 +8,7 @@ export def ai-session [--all(-a)] {
     | if $all { $in } else { $in | reject api_key }
 }
 
-export def ai-history-chat [] {
+export def ai-history-assistant [] {
     sqlx $"select session_id, role, content, tool_calls, created from messages where session_id = (Q $env.OPENAI_SESSION) and tag = ''"
 }
 
