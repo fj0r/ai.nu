@@ -110,7 +110,7 @@ Markdown
   name: project-manager
   system: $prompt
   template: '{{}}'
-  placeholder: '{}'
+  placeholder: '[]'
   description: ''
 } | ai-config-upsert-prompt
 

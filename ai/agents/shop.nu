@@ -197,7 +197,7 @@ let prompt = "
   name: shop
   system: $prompt
   template: '{{}}'
-  placeholder: '{}'
+  placeholder: '[]'
   description: ''
 } | ai-config-upsert-prompt
 
