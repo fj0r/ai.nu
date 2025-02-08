@@ -1,4 +1,4 @@
-$env.AI_TOOLS = $env.AI_TOOLS | merge deep {
+$env.AI_TOOLS = $env.AI_TOOLS | merge {
   query_job_requirements: {
         config: {
             embedding: {
