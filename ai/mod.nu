@@ -8,9 +8,11 @@ export-env {
         curl: (which curl | is-not-empty)
         finish_reason: xterm_grey30
         tool_calls: grey
+        template_calls: xterm_fuchsia
         message_limit: 20
         permitted-write: ~/Downloads
     }
+    use data/tools/router.nu
 }
 
 

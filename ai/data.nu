@@ -168,7 +168,7 @@ export def tools [] {
     let t = sqlx $"select name, description, placeholder from prompt;"
     | update placeholder {|x|
         $x.placeholder | from yaml | items {|k, v|
-            let v = $v | items {|l, w| {name: $l, value: $w} }
+            let v = $v | items {|l, w| {value: $l, description: $w} }
             {name: $k, enum: $v}
         }
     }
