@@ -19,5 +19,3 @@
         - [x] ai-do add --function flag #341
     - [ ] vllm #334
         - [ ] Pull #335
-- AI #355
-    - [ ] 物化视图改写 #433

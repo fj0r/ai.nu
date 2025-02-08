@@ -165,4 +165,16 @@ export def messages [num = 20] {
 }
 
 export def tools [] {
+    let t = sqlx $"select name, description, placeholder from prompt;"
+    | update placeholder {|x|
+        $x.placeholder | from yaml | items {|k, v|
+            let v = $v | items {|l, w| {name: $l, value: $w} }
+            {name: $k, enum: $v}
+        }
+    }
+    let f = $env.AI_TOOLS | items {|k, v|
+        {name: $k, description: ($v.schema.description?) }
+    }
+
+    { template: $t, function: $f }
 }
