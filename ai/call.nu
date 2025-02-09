@@ -16,7 +16,7 @@ export def --env ai-new-session [
     offset?:int@cmpl-sessoin-offset
 ] {
     let pid = if ($fork | is-empty) {
-        $env.AI_SESSION
+        $env.AI_SESSION?
     } else {
         $fork
     }
