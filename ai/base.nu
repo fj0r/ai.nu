@@ -149,8 +149,8 @@ export def ai-req [
     --stream
 ] {
     let o = $in
-    match ($session.adapter? | default 'openai') {
-        'openai' => (
+    match $session.adapter? {
+        _ => (
             $o | openai-req
             --role $role
             --image $image
@@ -173,8 +173,8 @@ export def ai-call [
     --record:int = 1
 ] {
     let req = $in
-    match ($session.adapter? | default 'openai') {
-        'openai' => {
+    match $session.adapter? {
+        _ => {
             let msg = $req | get messages | slice (-1 * $record)..-1
             for x in $msg {
                 let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
