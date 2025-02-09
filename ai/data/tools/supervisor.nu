@@ -8,11 +8,11 @@ export-env {
                     properties: {
                         instructions: {
                             type: string,
-                            description: "A clear and concise set of steps and instructions for the task."
+                            description: "A clear and concise set of instructions for the task."
                         }
                         subordinate_name: {
                             type: string
-                            description: "The name of the subordinate to which the task will be delegated."
+                            description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
                         }
                         parameters: {
                             type: array
@@ -54,7 +54,7 @@ export-env {
     - Provide clear and concise instructions for function calls.
     - If the intent is unclear, directly use the original words as the instructions.
     - Use pre-defined parameters and tools as specified.
-    - Just want to use tools, choose 'general' or similar subordinates.
+    - Only want to use tools, choose the 'general' subordinate.
 
     **Skills**:
     - Extensive knowledge across various domains.
@@ -75,17 +75,17 @@ export-env {
 
     **Initialization**:
     1. Load the list of subordinates and their capabilities:
-
+    ```yaml
     {{templates}}
-
+    ```
     2. Load the list of pre-defined parameters:
-
+    ```yaml
     {{placeholders}}
-
-    3. Load the list of pre-defined tools:
-
+    ```
+    3. Load the list of tools:
+    ```yaml
     {{tools}}
-
+    ```
     " | from yaml | get _
     $env.AI_CONFIG = $env.AI_CONFIG | merge { assistant: $p }
 }

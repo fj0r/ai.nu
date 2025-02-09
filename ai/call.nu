@@ -141,6 +141,8 @@ export def --env ai-assistant [
             print $"(ansi grey)($a | to yaml)(ansi reset)"
             return
         }
+        # TODO: Check if `subordinate_name` and `parameters` are valid, and provide feedback to the LLM if they are not.
+        # subordinate_name in $env.AI_TOOLS_LIST.template.name
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
         $a.instructions | ai-do $a.subordinate_name ...$a.parameters? -f $a.tools?
     }
