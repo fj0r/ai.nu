@@ -4,8 +4,8 @@ yaml: |-
     python: Python pydantic
     haskell: Haskell
     nushell: Nushell
-    ts: TypeScript
-    js: Javascript
+    typescript: TypeScript
+    Javascript: Javascript
     jsonschema: JsonSchema
     sql: SQL
     psql: PostgreSQL

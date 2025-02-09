@@ -20,7 +20,7 @@ export-env {
                     ]
                 }
             }
-            handler: {|x, config| date now | format date '%F %H:%M:%S' }
+            handler: {|x, config| date now | format date '%F %A %H:%M:%S' }
         }
         find_largest_subdirectory: {
             schema: {
