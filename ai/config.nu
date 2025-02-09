@@ -8,8 +8,8 @@ export def ai-session [--all(-a)] {
     | if $all { $in } else { $in | reject api_key }
 }
 
-export def ai-history-assistant [] {
-    data messages 1000
+export def ai-history-assistant [--num(-n):int = 1000] {
+    data messages $num
 }
 
 export def ai-history-do [tag?: string@cmpl-prompt --num(-n):int] {

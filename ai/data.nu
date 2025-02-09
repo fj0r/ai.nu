@@ -122,7 +122,7 @@ export def --env init [] {
                 content TEXT,
                 tool_calls TEXT,
                 token INTEGER,
-                created TEXT,
+                created TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')),
                 tag TEXT
             );"
             "CREATE INDEX idx_messages ON messages (session_id);"
@@ -193,11 +193,13 @@ export def messages [
             ss.os,
             rank\(\) over \(partition by ss.id order by m.created\) as rk
         from messages as m join ss on m.session_id = ss.id
-        where m.tag = ''
+        where m.tag = '' order by m.created desc
     \) select * from w where os >= rk limit ($num);
     "
     if $sql { return $s }
-    sqlx $s
+    # When the quantity exceeds the num, it will not be possible to obtain the subsequent data.
+    # First retrieve the specified number in reverse order, and then reverse it.
+    sqlx $s | reverse
 }
 
 export def tools [] {
