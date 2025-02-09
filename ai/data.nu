@@ -177,8 +177,11 @@ export def record [
         VALUES \(($ctx.id), (Q $ctx.provider), (Q $ctx.model), (Q $role), (Q $content), (Q $tools), (Q $token), (Q $tag)\);"
 }
 
-export def messages [num = 20] {
-    sqlx $"
+export def messages [
+    num = 20
+    --sql
+] {
+    let s = $"
     with recursive ss as \(
         select id, parent_id, offset, 1000 as os from sessions
         where id = ($env.AI_SESSION)
@@ -190,10 +193,11 @@ export def messages [num = 20] {
             ss.os,
             rank\(\) over \(partition by ss.id order by m.created\) as rk
         from messages as m join ss on m.session_id = ss.id
-        where m.tag = '' order by m.created desc
+        where m.tag = ''
     \) select * from w where os >= rk limit ($num);
     "
-    | reverse
+    if $sql { return $s }
+    sqlx $s
 }
 
 export def tools [] {

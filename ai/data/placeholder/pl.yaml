@@ -7,6 +7,7 @@ yaml: |-
     ts: TypeScript
     js: Javascript
     jsonschema: JsonSchema
+    sql: SQL
     psql: PostgreSQL
     mysql: MySQL
     slite: Sqlite
