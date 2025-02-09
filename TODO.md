@@ -12,7 +12,8 @@
     - [ ] table-upsert multiple pk #500
     - [x] placeholder uses yaml instead of json #501
     - [x] parameters uses yaml instead of json #503
-    - [ ] shared placeholder
+    - [x] shared placeholder
+    - [ ] Generate virtual response for template call
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

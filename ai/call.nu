@@ -21,7 +21,6 @@ export def ai-send [
     --system: string
     --function(-f): list<string@cmpl-tools>
     --prevent-func
-    --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --oneshot
     --placehold: string = '{}'
@@ -48,12 +47,7 @@ export def ai-send [
         | ai-req $s -r user $content
     }
 
-    mut fn_list = []
-    let fns = if ($tools | is-not-empty) {
-        # TODO: delete
-        $fn_list = func-list ...$tools
-        $fn_list | select type function
-    } else if ($function | is-not-empty) {
+    let fns = if ($function | is-not-empty) {
         closure-list $function
     }
     $req = $req | ai-req $s -f $fns
@@ -70,27 +64,23 @@ export def ai-send [
     }
     let r = $req | ai-call $s --out=$out --tag $tag
     if ($fns | is-not-empty) {
-        if ($tools | is-empty) {
-            mut r = $r
-            mut msg = $req.messages
-            mut rst = []
-            while ($r.tools | is-not-empty) {
-                if $prevent_func { return $r }
-                $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
-                let rt = closure-run $r.tools
-                for x in $rt {
-                    $req = $req
-                    | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
-                }
-                if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
-                # TODO: 0 or 1?
-                $r = $req | ai-call $s --out=$out --tag $tag --record (($rt | length) + 0)
-                $rst ++= [$r.msg]
+        mut r = $r
+        mut msg = $req.messages
+        mut rst = []
+        while ($r.tools | is-not-empty) {
+            if $prevent_func { return $r }
+            $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
+            let rt = closure-run $r.tools
+            for x in $rt {
+                $req = $req
+                | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
             }
-            if $out { return $rst }
-        } else {
-            return (json-to-func $r.tools $fn_list)
+            if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
+            # TODO: 0 or 1?
+            $r = $req | ai-call $s --out=$out --tag $tag --record (($rt | length) + 0)
+            $rst ++= [$r.msg]
         }
+        if $out { return $rst }
     }
     if $out { return $r.msg }
 }
@@ -195,7 +185,6 @@ export def ai-do [
     --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
     --prevent-func
-    --tools(-t): list<string@cmpl-nu-function>
     --image(-i): path
     --previous(-p): int@cmpl-previous
     --debug
@@ -255,7 +244,6 @@ export def ai-do [
         --system $system
         --function $fns
         --prevent-func=$prevent_func
-        --tools $tools
         --image $image
         --tag ($args | str join ',')
         --oneshot
