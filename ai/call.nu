@@ -127,7 +127,7 @@ export def --env ai-assistant [
         --out=$out
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
-        --function [router]
+        --function [call_subordinate]
         --prevent-func
         $message
     )
@@ -136,13 +136,13 @@ export def --env ai-assistant [
     }
     if ($r.tools? | is-not-empty) {
         let a = $r | get -i tools.0.function.arguments | default '{}' | from json
-        if ($a | is-empty) or ($a.template_name? | is-empty) or ($a.query? | is-empty) {
+        if ($a | is-empty) or ($a.instructions? | is-empty) or ($a.subordinate_name? | is-empty) {
             print $"(ansi $env.AI_CONFIG.template_calls)Invalid template call(ansi reset)"
             print $"(ansi grey)($a | to yaml)(ansi reset)"
             return
         }
-        print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.template_name) ($a | reject template_name | to nuon)(ansi reset)"
-        $a.query | ai-do $a.template_name ...$a.placeholders? -f $a.tools?
+        print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
+        $a.instructions | ai-do $a.subordinate_name ...$a.parameters? -f $a.tools?
     }
 }
 

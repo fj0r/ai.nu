@@ -14,7 +14,7 @@ export-env {
         message_limit: 20
         permitted-write: ~/Downloads
     }
-    use data/tools/router.nu
+    use data/tools/supervisor.nu
 }
 
 
