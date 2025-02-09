@@ -98,8 +98,9 @@ export def openai-call [session --out] {
             let i = $in
             let s = $i.delta.content? | default ''
             if not $out { print -n $s }
-            if ($env.AI_CONFIG.finish_reason | is-not-empty) and ($i.finish_reason? | is-not-empty) {
-                print -e $"(ansi $env.AI_CONFIG.finish_reason)<($i.finish_reason)>(ansi reset)"
+            let cf = $env.AI_CONFIG.finish_reason
+            if $cf.enable and ($i.finish_reason? | is-not-empty) {
+                print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
             }
             $s
         }
