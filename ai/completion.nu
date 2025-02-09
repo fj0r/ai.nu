@@ -1,9 +1,25 @@
 use sqlite.nu *
 use data.nu
 
+export def cmpl-sessoin-offset [ctx] {
+    let session = if NU_ARGX_EXISTS in $env {
+        $ctx | argx parse | get -i opt.fork
+    }
+    let session = if ($session | is-empty) { $env.AI_SESSION } else { $session }
+    let c = sqlx $"select substr\(content, 0, 30\) as description from messages where session_id = ($session)"
+    | enumerate
+    | each {|x| {value: ($x.index + 1), description: $x.item.description} }
+    # FXXK:
+    if $env.config.completions.partial {
+        $c
+    } else {
+        { completions: $c, options: { sort: false, partial: false } }
+    }
+}
+
 export def cmpl-models [ctx] {
     let provider = if NU_ARGX_EXISTS in $env {
-        $ctx | argx parse | get opt.provider?
+        $ctx | argx parse | get -i opt.provider
     }
     let s = data session -p $provider
     http get --headers [

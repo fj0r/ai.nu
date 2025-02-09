@@ -11,8 +11,21 @@ export-env {
     ai-new-session
 }
 
-export def --env ai-new-session [] {
+export def --env ai-new-session [
+    --fork(-f): int
+    offset?:int@cmpl-sessoin-offset
+] {
+    let pid = if ($fork | is-empty) {
+        $env.AI_SESSION
+    } else {
+        $fork
+    }
+
     $env.AI_SESSION = data make-session
+
+    if ($offset | is-not-empty) {
+        sqlx $"update sessions set parent_id = ($pid), offset = ($offset) where id = ($env.AI_SESSION)"
+    }
 }
 
 export def ai-send [
