@@ -232,17 +232,18 @@ export def ai-do [
     let placehold = $"<(random chars -l 6)>"
 
     let pls = $role.placeholder | from yaml
-    let pls = $pls | each { Q $in } | str join ', '
-    let pls = sqlx $"select name, yaml from placeholder where name in \(($pls)\)"
+    let plm = $pls | each { Q $in } | str join ', '
+    let plm = sqlx $"select name, yaml from placeholder where name in \(($plm)\)"
     | reduce -f {} {|i,a|
         $a | upsert $i.name ($i.yaml | from yaml)
     }
-    let val = $pls | columns
+
+    let val = $pls
     | zip ($args | slice 1..)
     | reduce -f {} {|i,a|
         $a
         | insert $"($i.0):" $i.1
-        | insert ($i.0 | into string) ($pls | get $i.0 | get $i.1)
+        | insert $"($i.0)" ($plm | get $i.0 | get $i.1)
     }
 
     let prompt = $role.template | render {_: $placehold, ...$val}
