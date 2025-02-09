@@ -6,7 +6,8 @@ export def cmpl-sessoin-offset [ctx] {
         $ctx | argx parse | get -i opt.fork
     }
     let session = if ($session | is-empty) { $env.AI_SESSION } else { $session }
-    let c = sqlx $"select substr\(content, 0, 30\) as description from messages where session_id = ($session)"
+    let w = ((term size).columns / 2 | math floor) - 8
+    let c = sqlx $"select substr\(content, 0, ($w)\) as description from messages where session_id = ($session)"
     | enumerate
     | each {|x| {value: ($x.index + 1), description: $x.item.description} }
     # FXXK:
