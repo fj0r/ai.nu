@@ -112,7 +112,7 @@ export def --env ai-assistant [
         if not $env.AI_CONFIG.assistant.filled {
             let d = data tools
             $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt
-            | str replace '{{templates}}' ($d.template | to yaml)
+            | str replace '{{templates}}' ($d.template | rename -c {placeholder:  options}  | to yaml)
             | str replace '{{placeholders}}' ($d.placeholder | to yaml)
             | str replace '{{tools}}' ($d.function | to yaml)
             $env.AI_CONFIG.assistant.function = $env.AI_CONFIG.assistant.function
@@ -121,16 +121,6 @@ export def --env ai-assistant [
                     properties: {
                         subordinate_name: {
                             enum: $d.template.name
-                        }
-                        parameters: {
-                            #items: {
-                            #    enum: (
-                            #        $d.placeholder
-                            #        | each {|x| $x.enum | columns }
-                            #        | flatten
-                            #        | uniq
-                            #    )
-                            #}
                         }
                         tools: {
                             items: {
@@ -142,6 +132,7 @@ export def --env ai-assistant [
             }
             $env.AI_CONFIG.assistant.filled = true
         }
+        $env.AI_CONFIG.assistant.prompt
     } else {
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
@@ -167,11 +158,9 @@ export def --env ai-assistant [
             print $"(ansi grey)($a | to yaml)(ansi reset)"
             return
         }
-        # TODO: Check if `subordinate_name` and `parameters` are valid, and provide feedback to the LLM if they are not.
-        # subordinate_name in $env.AI_TOOLS_LIST.template.name
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
-        let p = ensure-deserialize $a.parameters? | default []
-        $a.instructions | ai-do $a.subordinate_name ...$p -f $a.tools?
+        let o = ensure-deserialize $a.options? | default []
+        $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools?
     }
 }
 

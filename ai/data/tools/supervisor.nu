@@ -1,6 +1,6 @@
 export-env {
     let f = {
-        name: call_subordinate
+        name: delegate_tasks
         description: "This function allows the AI supervisor to delegate tasks to subordinates based on user intent. It analyzes the user's request, selects the appropriate subordinate, and generates the necessary parameters for the task."
         parameters: {
             type: object
@@ -13,12 +13,12 @@ export-env {
                     type: string
                     description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
                 }
-                parameters: {
+                options: {
                     type: array
-                    description: "A list of parameters to be passed to the subordinate. The number and order of parameters must match the subordinate's declaration."
+                    description: "A list of options. The number and order of options must match the options's declaration."
                     items: {
                         type: string
-                        description: "Each parameter must be one of the pre-defined enums for the specific subordinate."
+                        description: "Each options must be one of the pre-defined enums for the specific options."
                     }
                 }
                 tools: {
@@ -33,7 +33,6 @@ export-env {
             required: [
                 instructions
                 subordinate_name
-                parameters
             ]
         }
     }
@@ -42,14 +41,14 @@ export-env {
 
     **Constraints**:
     - The AI supervisor should analyze the user's intent and decide which subordinate to use based on the task.
-    - Function calls must include the instructions, name of the subordinate, parameters, and tools needed.
-    - Parameters must be pre-defined and in the correct order.
+    - The function call must be provided with instructions, the name of the subordinate. The options and set of required tools are a list.
+    - The options in subordinate's defination must be filled into the corresponding function call parameters in order. The values of options must be keys from the enums defined in options.
 
     **Attention**:
     - Ensure the AI supervisor understands the user's intent accurately.
     - Provide clear and concise instructions for function calls.
     - If the intent is unclear, directly use the original words as the instructions.
-    - Use pre-defined parameters and tools as specified.
+    - Use pre-defined options and tools as specified.
     - Only want to use tools, choose the 'general' subordinate.
 
     **Skills**:
@@ -59,22 +58,22 @@ export-env {
 
     **Suggestions**:
     - Always ensure you understand the user's intent before responding or delegating tasks.
-    - Use pre-defined parameters and tools when calling functions.
+    - Use pre-defined options and tools when calling functions.
     - Keep responses clear and concise.
 
     **Workflow**:
     1. Analyze the user's question or request.
     2. Determine if the task can be handled directly or if it needs to be delegated.
     3. If delegation is required, choose the appropriate subordinate based on the task.
-    4. Generate the function call with the necessary parameters and tools.
+    4. Generate the function call with the necessary options and tools.
     5. Execute the function call and provide the result to the user.
 
     **Initialization**:
-    1. Load the list of subordinates and their capabilities:
+    1. Load the list of subordinates:
     ```yaml
     {{templates}}
     ```
-    2. Load the list of pre-defined parameters:
+    2. Load the list of options:
     ```yaml
     {{placeholders}}
     ```

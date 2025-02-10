@@ -99,7 +99,7 @@ export def --env init [] {
                 name TEXT PRIMARY KEY,
                 system TEXT,
                 template TEXT,
-                placeholder TEXT NOT NULL DEFAULT '{}',
+                placeholder TEXT NOT NULL DEFAULT '[]',
                 description TEXT
             );"
             "CREATE INDEX idx_prompt ON prompt (name);"
@@ -203,9 +203,9 @@ export def messages [
 }
 
 export def tools [] {
-    let t = sqlx $"select name, description, placeholder as parameters from prompt;"
-    | update parameters {|x|
-        $x.parameters | from yaml
+    let t = sqlx $"select name, description, placeholder from prompt;"
+    | update placeholder {|x|
+        $x.placeholder | from yaml
     }
     let f = $env.AI_TOOLS | items {|k, v|
         {name: $k, description: ($v.schema.description?) }
