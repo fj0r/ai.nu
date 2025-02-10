@@ -38,7 +38,8 @@ export-env {
                 $config | insert unit $unit
             }
         }
-        search_web: {
+        web_search: {
+            config: {}
             schema: {
                 description: "This function allows you to perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
                 parameters: {
@@ -72,7 +73,13 @@ export-env {
                 }
             }
             handler: {|x, config|
-                return 'no results'
+                let n = $x.num_results? | default 10
+                let p = if ($config.proxy? | is-empty) {
+                    []
+                } else {
+                    [--proxy $config.proxy]
+                }
+                ddgr --json query $x.query -n $n ...$p
             }
         }
     }
