@@ -1,44 +1,43 @@
 export-env {
-    $env.AI_TOOLS = $env.AI_TOOLS | merge {
-        call_subordinate: {
-            schema: {
-                description: "This function allows the AI supervisor to delegate tasks to subordinates based on user intent. It analyzes the user's request, selects the appropriate subordinate, and generates the necessary parameters for the task."
+    let f = {
+        name: call_subordinate
+        description: "This function allows the AI supervisor to delegate tasks to subordinates based on user intent. It analyzes the user's request, selects the appropriate subordinate, and generates the necessary parameters for the task."
+        parameters: {
+            type: object
+            properties: {
+                instructions: {
+                    type: string,
+                    description: "A clear and concise set of instructions for the task."
+                }
+                subordinate_name: {
+                    type: string
+                    description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
+                    enum: []
+                }
                 parameters: {
-                    type: object
-                    properties: {
-                        instructions: {
-                            type: string,
-                            description: "A clear and concise set of instructions for the task."
-                        }
-                        subordinate_name: {
-                            type: string
-                            description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
-                        }
-                        parameters: {
-                            type: array
-                            description: "A list of parameters to be passed to the subordinate. The number and order of parameters must match the subordinate's declaration."
-                            items: {
-                                type: string
-                                description: "Each parameter must be one of the pre-defined enums for the specific subordinate."
-                            }
-                        }
-                        tools: {
-                            type: array
-                            description: "A list of tools that might be used by the subordinate to complete the task."
-                            items: {
-                                type: string
-                                description: "Each tool must be a pre-defined tool name."
-                            }
-                        }
+                    type: array
+                    description: "A list of parameters to be passed to the subordinate. The number and order of parameters must match the subordinate's declaration."
+                    items: {
+                        type: string
+                        description: "Each parameter must be one of the pre-defined enums for the specific subordinate."
+                        enum: []
                     }
-                    required: [
-                        instructions
-                        subordinate_name
-                        parameters
-                    ]
+                }
+                tools: {
+                    type: array
+                    description: "A list of tools that might be used by the subordinate to complete the task."
+                    items: {
+                        type: string
+                        description: "Each tool must be a pre-defined tool name."
+                        enum: []
+                    }
                 }
             }
-            handler: {|x, config| print ($x | table -e) }
+            required: [
+                instructions
+                subordinate_name
+                parameters
+            ]
         }
     }
     let p = "_: |-
@@ -87,5 +86,9 @@ export-env {
     {{tools}}
     ```
     " | from yaml | get _
-    $env.AI_CONFIG = $env.AI_CONFIG | merge { assistant: $p }
+    $env.AI_CONFIG = $env.AI_CONFIG | merge { assistant: {
+        prompt: $p
+        function: $f
+        filled: false
+    } }
 }

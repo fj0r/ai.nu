@@ -32,7 +32,7 @@ export def ai-send [
     message: string = '{}'
     --session(-s): record
     --system: string
-    --function(-f): list<string@cmpl-tools>
+    --function(-f): list<any@cmpl-tools>
     --prevent-func
     --image(-i): path
     --oneshot
@@ -109,25 +109,51 @@ export def --env ai-assistant [
     let s = data session -p $provider -m $model
     let message = $message | str join ' '
     let system = if ($system | is-empty) {
-        if 'AI_TOOLS_LIST' not-in $env {
-            {AI_TOOLS_LIST: (data tools)} | load-env
+        if not $env.AI_CONFIG.assistant.filled {
+            let d = data tools
+            $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt
+            | str replace '{{templates}}' ($d.template | to yaml)
+            | str replace '{{placeholders}}' ($d.placeholder | to yaml)
+            | str replace '{{tools}}' ($d.function | to yaml)
+            $env.AI_CONFIG.assistant.function = $env.AI_CONFIG.assistant.function
+            | merge deep {
+                parameters: {
+                    properties: {
+                        subordinate_name: {
+                            enum: $d.template.name
+                        }
+                        parameters: {
+                            items: {
+                                enum: (
+                                    $d.placeholder
+                                    | each {|x| $x.enum | columns }
+                                    | flatten
+                                    | uniq
+                                )
+                            }
+                        }
+                        tools: {
+                            items: {
+                                enum: $d.function.name
+                            }
+                        }
+                    }
+                }
+            }
+            $env.AI_CONFIG.assistant.filled = true
         }
-        let d = $env.AI_TOOLS_LIST
-        $env.AI_CONFIG.assistant
-        | str replace '{{templates}}' ($d.template | to yaml)
-        | str replace '{{placeholders}}' ($d.placeholder | to yaml)
-        | str replace '{{tools}}' ($d.function | to yaml)
     } else {
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
     }
+    let f = { type: function, function: $env.AI_CONFIG.assistant.function }
     let r = (
         ai-send -s $s
         --system $system
         --out=$out
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
-        --function [call_subordinate]
+        --function [$f]
         --prevent-func
         $message
     )

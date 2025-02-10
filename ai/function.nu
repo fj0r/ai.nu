@@ -3,7 +3,12 @@ export-env {
 }
 
 export def closure-list [list] {
-    $list
+    let list = $list
+    | reduce -f {name: [], defs: []} {|i,a|
+        let p = if ($i | describe) == string { 'name' } else { 'defs' }
+        $a | update $p {|x| $a | get $p | append $i}
+    }
+    $list.name
     | uniq
     | each {|x|
         let a = $env.AI_TOOLS | get $x
@@ -24,6 +29,7 @@ export def closure-list [list] {
         }
         {type: function, function: ($a | upsert name $x)}
     }
+    | append $list.defs
 }
 
 export def closure-run [list] {
