@@ -207,14 +207,33 @@ export def ai-chat [
     }
 }
 
-export def ai-editor-run [--debug] {
-    let ctx = $env.AI_EDITOR_CONTEXT | from nuon
-    if $ctx.action == 'ai-do' {
+export def ai-editor-run [
+    --watch(-w)
+    --clear(-c)
+    --debug
+] {
+    let ctx = $env.AI_EDITOR_CONTEXT?
+    if ($ctx | is-empty) { error make -u { msg: "Must be run in the editor" } }
+    let ctx = $ctx | from nuon
+    let act = {||
         let c = open -r $ctx.file
         if ($c | is-empty) {
             print -e $"(ansi grey)no content, ignore(ansi reset)"
         } else {
             $c | ai-do ...$ctx.args --provider $ctx.provider? --model $ctx.model --function $ctx.function --image $ctx.image --debug=$debug
+        }
+    }
+    if $ctx.action == 'ai-do' {
+        if $watch {
+            watch . -g $ctx.file -q {|op, path, new_path|
+                if $op in ['Write'] {
+                    if $clear { ansi cls }
+                    do $act
+                    if not $clear { print $"(char newline)(ansi grey)------(ansi reset)(char newline)" }
+                }
+            }
+        } else {
+            do $act
         }
     }
 }

@@ -7,11 +7,13 @@ export def block-edit [
     --context: record
 ] {
     let content = $in
-    let tf = mktemp -t $temp
+    let d = mktemp -d -t $temp
+    let tf = [$d ai.md] | path join
     $content | save -f $tf
     if ($context | is-not-empty) {
         $env.AI_EDITOR_CONTEXT = $context | upsert file $tf | to nuon
     }
+    cd $d
     ^$env.EDITOR $tf
     let c = open $tf --raw
     rm -f $tf
