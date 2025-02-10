@@ -154,7 +154,7 @@ export def --env ai-assistant [
     if ($r.tools? | is-not-empty) {
         let a = $r | get -i tools.0.function.arguments | default '{}' | from json
         if ($a | is-empty) or ($a.instructions? | is-empty) or ($a.subordinate_name? | is-empty) {
-            print $"(ansi $env.AI_CONFIG.template_calls)Invalid template call(ansi reset)"
+            print $"(ansi $env.AI_CONFIG.template_calls)($env.AI_CONFIG.assistant.function.name) failed(ansi reset)"
             print $"(ansi grey)($a | to yaml)(ansi reset)"
             return
         }
