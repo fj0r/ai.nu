@@ -276,11 +276,20 @@ export def ai-do [
     }
 
     let val = $pls
-    | zip ($args | slice 1..)
+    | enumerate
     | reduce -f {} {|i,a|
+        let k = $args | get -i ($i.index + 1)
+        let v = $plm | get $i.item | get -i ($k | default '')
+        let v = if ($v | is-empty) {
+            let v = $plm | get $i.item | values | str join '|'
+            $"<choose:($v)>"
+        } else {
+            $v
+        }
+
         $a
-        | insert $"($i.0):" $i.1
-        | insert $"($i.0)" ($plm | get $i.0 | get $i.1)
+        | insert $"($i.item):" $i.item
+        | insert $"($i.item)" $v
     }
 
     let prompt = $role.template | render {_: $placehold, ...$val}
