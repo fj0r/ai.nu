@@ -34,3 +34,11 @@ export def render [vars: record] {
         $a | str replace --all $"{{($i)}}" ($vars | get $k | to text)
     }
 }
+
+export def ensure-deserialize [object: any] {
+    mut o = $object
+    while ($o | describe) == 'string' {
+        $o = $o | from json
+    }
+    $o
+}

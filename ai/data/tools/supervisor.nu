@@ -12,7 +12,6 @@ export-env {
                 subordinate_name: {
                     type: string
                     description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
-                    enum: []
                 }
                 parameters: {
                     type: array
@@ -20,7 +19,6 @@ export-env {
                     items: {
                         type: string
                         description: "Each parameter must be one of the pre-defined enums for the specific subordinate."
-                        enum: []
                     }
                 }
                 tools: {
@@ -29,7 +27,6 @@ export-env {
                     items: {
                         type: string
                         description: "Each tool must be a pre-defined tool name."
-                        enum: []
                     }
                 }
             }
