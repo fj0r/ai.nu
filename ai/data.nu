@@ -187,17 +187,61 @@ export def messages [
 }
 
 export def tools [] {
-    let t = sqlx $"select name, description, placeholder from prompt;"
+    mut t = $env.AI_PROMPTS | values
+    for i in (sqlx $"select name, description, placeholder from prompt;") {
+        if $i.name not-in $env.AI_PROMPTS {
+            $t ++= [$i]
+        }
+    }
+    let t = $t
     | update placeholder {|x|
         $x.placeholder | from yaml
     }
+
     let f = $env.AI_TOOLS | items {|k, v|
         {name: $k, description: ($v.schema.description?) }
     }
+
     let p = sqlx $"select name, yaml from placeholder;"
     | each {|x|
         {name: $x.name enum: ($x.yaml | from yaml)}
     }
 
     { template: $t, function: $f, placeholder: $p }
+}
+
+export def role [...args] {
+    let role = if $args.0 in $env.AI_PROMPTS {
+        $env.AI_PROMPTS | get $args.0
+    } else {
+        sqlx $"select * from prompt where name = '($args.0)'" | first
+    }
+    let pls = $role.placeholder | from yaml
+    let plm = $pls | each { Q $in } | str join ', '
+    let plm = sqlx $"select name, yaml from placeholder where name in \(($plm)\)"
+    | reduce -f {} {|i,a|
+        $a | upsert $i.name ($i.yaml | from yaml)
+    }
+
+    let val = $pls
+    | enumerate
+    | reduce -f {} {|i,a|
+        let k = $args | get -i ($i.index + 1)
+        let v = $plm | get $i.item | get -i ($k | default '')
+        let v = if ($v | is-empty) {
+            let v = $plm | get $i.item | values | str join '|'
+            $"<choose:($v)>"
+        } else {
+            $v
+        }
+
+        $a
+        | insert $"($i.item):" $i.item
+        | insert $"($i.item)" $v
+    }
+
+    let system = if ($role.system | is-not-empty) {
+        $role.system | render $val
+    }
+    {system: $system, vals: $val, template: $role.template}
 }

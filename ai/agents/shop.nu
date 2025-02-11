@@ -200,4 +200,4 @@ ai-config-env-prompts shop {
   description: ''
 }
 
-ai-config-alloc-tools shop -t [query_orders, search_product, search_web, get_weather]
+ai-config-alloc-tools shop -t [query_orders, search_product, web_search, get_weather]

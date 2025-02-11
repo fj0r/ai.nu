@@ -259,47 +259,18 @@ export def ai-do [
     } else {
         $input
     }
-    let role = sqlx $"select * from prompt where name = '($args.0)'" | first
+
     let fns = sqlx $"select tool from prompt_tools where prompt = '($args.0)'"
     | get tool
     | append $function
 
-    let placehold = $"<(random chars -l 6)>"
-
-    let pls = $role.placeholder | from yaml
-    let plm = $pls | each { Q $in } | str join ', '
-    let plm = sqlx $"select name, yaml from placeholder where name in \(($plm)\)"
-    | reduce -f {} {|i,a|
-        $a | upsert $i.name ($i.yaml | from yaml)
-    }
-
-    let val = $pls
-    | enumerate
-    | reduce -f {} {|i,a|
-        let k = $args | get -i ($i.index + 1)
-        let v = $plm | get $i.item | get -i ($k | default '')
-        let v = if ($v | is-empty) {
-            let v = $plm | get $i.item | values | str join '|'
-            $"<choose:($v)>"
-        } else {
-            $v
-        }
-
-        $a
-        | insert $"($i.item):" $i.item
-        | insert $"($i.item)" $v
-    }
-
-    let prompt = $role.template | render {_: $placehold, ...$val}
-    let system = if ($role.system | is-not-empty) {
-        $role.system | render $val
-    }
+    let role = data role ...$args
 
     (
-        $prompt
-        | str replace -a $placehold $input
+        $role.template
+        | render {_: $input, ...$role.vals}
         | ai-send -s $s
-        --system $system
+        --system $role.system
         --function $fns
         --prevent-func=$prevent_func
         --image $image
