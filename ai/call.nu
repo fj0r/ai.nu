@@ -29,36 +29,33 @@ export def --env ai-new-session [
 }
 
 export def ai-send [
-    message: string = '{}'
     --session(-s): record
     --system: string
     --function(-f): list<any@cmpl-tools>
     --prevent-func
     --image(-i): path
     --oneshot
-    --placehold: string = '{}'
     --limit: int = 20
     --out(-o)
     --quiet(-q)
     --tag: string = ''
     --debug
 ] {
-    let content = $in | default ""
-    let content = $message | str replace --all $placehold $content
+    let message = $in
     let s = $session
     mut req = ai-req $s -m $s.model -t $s.temperature
     if ($system | is-not-empty) {
         $req = $req | ai-req $s -r system $system
     }
     if $oneshot {
-        $req = $req | ai-req $s -r user -i $image $content
+        $req = $req | ai-req $s -r user -i $image $message
     } else {
         $req = data messages $limit
         | reduce -f $req {|i, a|
             # TODO: tools
             $a | ai-req $s -r $i.role $i.content
         }
-        | ai-req $s -r user $content
+        | ai-req $s -r user $message
     }
 
     let fns = if ($function | is-not-empty) {
@@ -68,9 +65,7 @@ export def ai-send [
 
     if $debug {
         let xxx = [
-            '' 'message' $message
-            'placeholder' $placehold
-            'content' $content
+            'message' $message
         ] | str join "\n------\n"
         print $"(ansi blue)($xxx)(ansi reset)"
         print $"======req======"
@@ -140,14 +135,14 @@ export def --env ai-assistant [
     }
     let f = { type: function, function: $env.AI_CONFIG.assistant.function }
     let r = (
-        ai-send -s $s
+        $message
+        | ai-send -s $s
         --system $system
         --out=$out
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function [$f]
         --prevent-func
-        $message
     )
     if ($r | describe) == string {
         return $r
@@ -192,7 +187,7 @@ export def ai-chat [
             '\system' => { $system = $l | last }
             _ => {
                 print -n $"✨ ($cm)"
-                ai-send -s $s --system $system $a
+                $a | ai-send -s $s --system $system
                 print $cr
             }
         }
@@ -299,10 +294,10 @@ export def ai-do [
         $role.system | render $val
     }
 
-    $input | (
-        ai-send
-        --session $s
-        --placehold $placehold
+    (
+        $prompt
+        | str replace -a $placehold $input
+        | ai-send -s $s
         --system $system
         --function $fns
         --prevent-func=$prevent_func
@@ -311,7 +306,6 @@ export def ai-do [
         --oneshot
         --out=$out
         --debug=$debug
-        $prompt
     )
 }
 
