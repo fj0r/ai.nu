@@ -37,39 +37,12 @@ export def table-merge [
 ] {
     let d = $in
     let d = $config.default | merge $d
-    let fi = $config.filter?.in?
-    let d = if ($fi | is-empty) {
-        $d
-    } else {
-        $config.default
-        | columns
-        | reduce -f {} {|i,a|
-            let x = $d | get $i
-            let x = if ($i in $fi) {
-                $x | do ($fi | get $i) $x
-            } else {
-                $x
-            }
-            $a | insert $i $x
-        }
-    }
     let d = if ($action | is-not-empty) {
         $d | do $action $config
     } else {
         $d
     }
-    let fo = $config.filter?.out? | default {}
-    $config.default
-    | columns
-    | reduce -f {} {|i,a|
-        let x = $d | get $i
-        let x = if ($i in $fo) {
-            $x | do ($fo | get $i) $x
-        } else {
-            $x
-        }
-        $a | insert $i $x
-    }
+    $d | select ...($config.default | columns)
 }
 
 export def table-upsert [

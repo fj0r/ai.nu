@@ -30,14 +30,6 @@ export def upsert-prompt [--delete --action: closure] {
             placeholder: '{}'
             description: ''
         }
-        filter: {
-            out: {
-                placeholder: { $in | to yaml }
-            }
-            in: {
-                placeholder: { $in | from yaml }
-            }
-        }
     }
 }
 
@@ -53,14 +45,6 @@ export def seed [] {
             default: {
                 name: ''
                 yaml: ''
-            }
-            filter: {
-                out: {
-                    yaml: { $in | to yaml }
-                }
-                in: {
-                    yaml: { $in | from yaml }
-                }
             }
         }
     }
