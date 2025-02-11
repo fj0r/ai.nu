@@ -7,6 +7,7 @@ use data.nu
 export use config.nu *
 
 export-env {
+    $env.AI_PROMPTS = {}
     data init
     ai-new-session
 }

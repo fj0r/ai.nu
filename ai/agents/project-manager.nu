@@ -1,72 +1,72 @@
-$env.AI_TOOLS = $env.AI_TOOLS | merge {
-  query_job_requirements: {
-        config: {
-            embedding: {
-                url: 'http://172.178.5.123:11434/v1/embeddings'
-            }
-            surreal: {
-                url: 'http://surreal.s/sql'
-                ns: 'foo'
-                db: 'foo'
-                token: 'Zm9vOmZvbw=='
-            }
+use ../config.nu *
+ai-config-env-tools query_job_requirements {
+    config: {
+        embedding: {
+            url: 'http://172.178.5.123:11434/v1/embeddings'
         }
-        schema: {
-          "description": "This function allows you to query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
-          "parameters": {
-            "type": "object",
-            "properties": {
-              "job_content": {
-                "type": "string",
-                "description": "The specific job content or requirements to query"
-              },
-              "department": {
-                "type": "string",
-                "description": "The department to filter the search within"
-              },
-              "role_type": {
-                "type": "string",
-                "description": "The type of role to filter the search within",
-                "enum": [
-                  "manager",
-                  "developer",
-                  "analyst",
-                  "designer"
-                ]
-              }
-            },
-            "required": [
-              "job_content"
+        surreal: {
+            url: 'http://surreal.s/sql'
+            ns: 'foo'
+            db: 'foo'
+            token: 'Zm9vOmZvbw=='
+        }
+    }
+    schema: {
+      "description": "This function allows you to query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "job_content": {
+            "type": "string",
+            "description": "The specific job content or requirements to query"
+          },
+          "department": {
+            "type": "string",
+            "description": "The department to filter the search within"
+          },
+          "role_type": {
+            "type": "string",
+            "description": "The type of role to filter the search within",
+            "enum": [
+              "manager",
+              "developer",
+              "analyst",
+              "designer"
             ]
           }
-        }
-        handler: {|x, config|
-          open ~/.cache/employee.yaml
-        }
+        },
+        "required": [
+          "job_content"
+        ]
+      }
     }
-    get_ticket_counts_by_usernames: {
-      schema: {
-        "name": "get_ticket_counts_by_usernames",
-        "description": "This function retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "usernames": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "A list of usernames for which to retrieve ticket counts."
-            }
+    handler: {|x, config|
+      open ~/.cache/employee.yaml
+    }
+}
+
+ai-config-env-tools get_ticket_counts_by_usernames {
+  schema: {
+    "name": "get_ticket_counts_by_usernames",
+    "description": "This function retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "usernames": {
+          "type": "array",
+          "items": {
+            "type": "string"
           },
-          "required": [
-            "usernames"
-          ]
+          "description": "A list of usernames for which to retrieve ticket counts."
         }
-      }
-      handler: {|x, config|
-      }
+      },
+      "required": [
+        "usernames"
+      ]
     }
+  }
+  handler: {|x, config|
+  }
 }
 
 let prompt = '
@@ -106,12 +106,11 @@ Markdown
    - Provide support and adjustments as needed.
 '
 
-{
-  name: project-manager
+ai-config-env-prompts project-manager {
   system: $prompt
   template: '{{}}'
   placeholder: '[]'
   description: ''
-} | ai-config-upsert-prompt
+}
 
 ai-config-alloc-tools project-manager -t [get_current_time, query_job_requirements, get_ticket_counts_by_usernames]

@@ -27,7 +27,7 @@ export def closure-list [list] {
                 $a | insert $i.k $v
             }
         }
-        {type: function, function: ($a | upsert name $x)}
+        {type: function, function: $a}
     }
     | append $list.defs
 }

@@ -66,6 +66,16 @@ export def ai-config-upsert-provider [
     }
 }
 
+export def --env ai-config-env-prompts [name, defs] {
+    let defs = $defs | upsert name $name
+    $env.AI_PROMPTS = $env.AI_PROMPTS | merge deep {$name: $defs}
+}
+
+export def --env ai-config-env-tools [name, defs] {
+    let defs = $defs | merge deep {schema: {name: $name}}
+    $env.AI_TOOLS = $env.AI_TOOLS | merge deep {$name: $defs}
+}
+
 export def ai-config-upsert-prompt [
     name?: string@cmpl-prompt
     --delete
