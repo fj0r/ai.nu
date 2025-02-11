@@ -69,7 +69,10 @@ export def openai-req [
     $o
 }
 
-export def openai-call [session --out] {
+export def openai-call [
+    session
+    --quiet(-q)
+] {
     let $req = $in
     let r = http post -r -e -t application/json --headers [
             Authorization $"Bearer ($session.api_key)"
@@ -97,7 +100,7 @@ export def openai-call [session --out] {
         | each {
             let i = $in
             let s = $i.delta.content? | default ''
-            if not $out { print -n $s }
+            if not $quiet { print -n $s }
             let cf = $env.AI_CONFIG.finish_reason
             if $cf.enable and ($i.finish_reason? | is-not-empty) {
                 print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
@@ -170,7 +173,7 @@ export def ai-req [
 export def ai-call [
     session
     --tag: string = ''
-    --out
+    --quiet(-q)
     --record:int = 1
 ] {
     let req = $in
@@ -181,7 +184,7 @@ export def ai-call [
                 let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
                 data record $session $x.role $x.content --tag $tag --tools $tc
             }
-            let r = $req | ai-req $session --stream | openai-call $session --out=$out
+            let r = $req | ai-req $session --stream | openai-call $session --quiet=$quiet
             let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
             data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
             $r

@@ -39,6 +39,7 @@ export def ai-send [
     --placehold: string = '{}'
     --limit: int = 20
     --out(-o)
+    --quiet(-q)
     --tag: string = ''
     --debug
 ] {
@@ -75,7 +76,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi blue)($req | to yaml)(ansi reset)"
     }
-    let r = $req | ai-call $s --out=$out --tag $tag
+    let r = $req | ai-call $s --quiet=$quiet --tag $tag
     if ($fns | is-not-empty) {
         mut r = $r
         mut msg = $req.messages
@@ -90,7 +91,7 @@ export def ai-send [
             }
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?
-            $r = $req | ai-call $s --out=$out --tag $tag --record (($rt | length) + 0)
+            $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
             $rst ++= [$r.msg]
         }
         if $out { return $rst }
