@@ -45,16 +45,16 @@ export def ai-history-scratch [search?:string --num(-n)=10] {
 export def ai-config-upsert-provider [
     name?: string@cmpl-provider
     --delete
-    --batch
 ] {
-    let x = if ($name | is-empty) {
-        $in | default {}
+    let input = $in
+    if ($name | is-empty) {
+        $input | default {}
     } else {
         sqlx $"select * from provider where name = (Q $name)" | get -i 0
     }
-    $x | upsert-provider --delete=$delete --action {|config|
+    | upsert-provider --delete=$delete --action {|config|
         let o = $in
-        if $batch {
+        if ($input | is-not-empty) {
             $o
         } else {
             $o
@@ -69,16 +69,16 @@ export def ai-config-upsert-provider [
 export def ai-config-upsert-prompt [
     name?: string@cmpl-prompt
     --delete
-    --batch
 ] {
-    let x = if ($name | is-empty) {
-        $in | default {}
+    let input = $in
+    if ($name | is-empty) {
+        {}
     } else {
         sqlx $"select * from prompt where name = (Q $name)" | get -i 0
     }
-    $x | upsert-prompt --delete=$delete --action {|config|
+    | upsert-prompt --delete=$delete --action {|config|
         let o = $in
-        if $batch {
+        if ($input | is-not-empty) {
             $o
         } else {
             $o
