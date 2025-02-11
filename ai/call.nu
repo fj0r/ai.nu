@@ -159,7 +159,8 @@ export def --env ai-assistant [
             return
         }
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
-        let o = ensure-deserialize $a.options? | default []
+        let o = $a.options? | default []
+        let o = if ($o | describe) == 'string' { $o | from json } else { $o }
         $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools?
     }
 }
