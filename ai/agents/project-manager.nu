@@ -1,6 +1,6 @@
 use ../config.nu *
 ai-config-env-tools query_job_requirements {
-    config: {
+    context: {
         embedding: {
             url: 'http://172.178.5.123:11434/v1/embeddings'
         }
@@ -40,7 +40,7 @@ ai-config-env-tools query_job_requirements {
         ]
       }
     }
-    handler: {|x, config|
+    handler: {|x, ctx|
       open ~/.cache/employee.yaml
     }
 }
@@ -65,7 +65,7 @@ ai-config-env-tools get_ticket_counts_by_usernames {
       ]
     }
   }
-  handler: {|x, config|
+  handler: {|x, ctx|
   }
 }
 

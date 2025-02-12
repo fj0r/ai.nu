@@ -1,6 +1,6 @@
 use ../config.nu *
 ai-config-env-tools query_knowledge_base {
-    config: {
+    context: {
         ragit_dir: ~/world/ragit
         ragit_log: {|query, dir|
             let m = [
@@ -34,8 +34,8 @@ ai-config-env-tools query_knowledge_base {
                 category: {
                     type: string
                     description: "The category of information to search within"
-                    enum: {|config|
-                        cd $config.ragit_dir
+                    enum: {|ctx|
+                        cd $ctx.ragit_dir
                         let r = ls | where type == dir | get name
                         $r
                     }
@@ -47,9 +47,9 @@ ai-config-env-tools query_knowledge_base {
             ]
         }
     }
-    handler: {|x, config|
-        let dir = [$config.ragit_dir $x.category] | path join
-        do $config.ragit_log $x.query $dir
+    handler: {|x, ctx|
+        let dir = [$ctx.ragit_dir $x.category] | path join
+        do $ctx.ragit_log $x.query $dir
         cd $dir
         ragit query $x.query
     }

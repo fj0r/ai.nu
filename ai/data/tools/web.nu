@@ -1,7 +1,7 @@
 use ../../config.nu *
 export-env {
     ai-config-env-tools get_weather {
-        config: {||
+        context: {||
             {
                 observation_time: "12:35 PM"
                 temparature: 16
@@ -25,22 +25,22 @@ export-env {
                     },
                     unit: {
                         type: string
-                        enum: {|config| [celsius fahrenheit] }
+                        enum: {|ctx| [celsius fahrenheit] }
                     }
                 }
                 required: [location]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             let location = $x.location
             let unit = $x.unit? | default ''
             sleep 2sec
-            $config | insert unit $unit
+            $ctx | insert unit $unit
         }
     }
 
     ai-config-env-tools curl {
-        config: {
+        context: {
 
         }
         schema: {
@@ -62,12 +62,12 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             curl ...$x.args
         }
     }
     ai-config-env-tools web_search {
-        config: {
+        context: {
             proxy: ''
         }
         schema: {
@@ -102,12 +102,12 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             let n = $x.num_results? | default 10
-            let p = if ($config.proxy? | is-empty) {
+            let p = if ($ctx.proxy? | is-empty) {
                 []
             } else {
-                [--proxy $config.proxy]
+                [--proxy $ctx.proxy]
             }
             ddgr --json query $x.query -n $n ...$p
         }

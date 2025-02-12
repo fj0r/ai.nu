@@ -20,7 +20,7 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config| date now | format date '%F %A %H:%M:%S' }
+        handler: {|x, ctx| date now | format date '%F %A %H:%M:%S' }
     }
 
     ai-config-env-tools find_largest_subdirectory {
@@ -49,7 +49,7 @@ export-env {
                 ]
             }
         },
-        handler: {|x, config|
+        handler: {|x, ctx|
             mut args = [--output-json --full-paths]
             if not ($x.include_hidden? | default false) {
                 $args ++= [--ignore_hidden]
@@ -79,7 +79,7 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             for f in $x.file_paths {
                 let x = $f | is-sub-directory $env.AI_CONFIG.permitted-write
                 let c = if $x {
@@ -109,7 +109,7 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             open -r $x.file_path
         }
     }
@@ -144,7 +144,7 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             if ($x.file_path | is-sub-directory $env.AI_CONFIG.permitted-write) {
                 match $x.mode {
                     w => {
@@ -187,7 +187,7 @@ export-env {
                 ]
             }
         }
-        handler: {|x, config|
+        handler: {|x, ctx|
             if ($x.directory_path? | is-not-empty) {
                 cd $x.directory_path
             }

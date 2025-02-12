@@ -18,7 +18,7 @@ export def closure-list [list] {
             | transpose k v
             | reduce -f {} {|i,a|
                 let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
-                    let c = $env.AI_TOOLS | get -i $x | get -i config
+                    let c = $env.AI_TOOLS | get -i $x | get -i context
                     let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
                     $i.v | upsert enum (do $i.v.enum $c)
                 } else {
@@ -37,7 +37,7 @@ export def closure-run [list] {
     | par-each {|x|
         let name = $x.function.name
         let f = $env.AI_TOOLS | get -i $name
-        let c = $f.config?
+        let c = $f.context?
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
         let f = $f.handler

@@ -23,7 +23,7 @@ ai-config-env-tools kubectl {
             ]
         }
     }
-    handler: {|x, config|
+    handler: {|x, ctx|
         if ($x.confirm? | default true) {
         }
             kubectl ...$x.args

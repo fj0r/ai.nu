@@ -1,6 +1,6 @@
 use ../config.nu *
 ai-config-env-tools search_product {
-    config: {
+    context: {
         embedding: {
             url: 'http://172.178.5.123:11434/v1/embeddings'
         }
@@ -51,7 +51,7 @@ ai-config-env-tools search_product {
           ]
         }
     }
-    handler: {|x, config|
+    handler: {|x, ctx|
 
         mut fields = [
             'goods_name', 'goods_id as id', 'goods_sn', 'cover', 'comp_price as price', 'sales_amount as sales'
@@ -94,7 +94,7 @@ ai-config-env-tools search_product {
 
         let q = $"
             let $kw = \"($x.keyword? | default '')\";
-            let $url = '($config.embedding.url)';
+            let $url = '($ctx.embedding.url)';
             let $e = if string::len\($kw\) > 0 then
                 http::post\($url, {
                     \"model\":\"bge-m3:latest\",
@@ -107,11 +107,11 @@ ai-config-env-tools search_product {
             ($order_by) ($limit);
             select * omit _sales, _price_diff from $r;
         "
-        let sdb_url = $config.surreal.url
+        let sdb_url = $ctx.surreal.url
         let r = http post -H [
-            'surreal-ns' $config.surreal.ns
-            'surreal-db' $config.surreal.db
-            'Authorization' $'Basic ($config.surreal.token)'
+            'surreal-ns' $ctx.surreal.ns
+            'surreal-db' $ctx.surreal.db
+            'Authorization' $'Basic ($ctx.surreal.token)'
             'Accept' 'application/json'
         ] $sdb_url $q
 
@@ -147,7 +147,7 @@ ai-config-env-tools query_orders {
           "required": []
         }
     }
-    handler: {|x, config|
+    handler: {|x, ctx|
         return 'not found'
     }
 }
