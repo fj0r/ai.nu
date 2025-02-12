@@ -32,6 +32,18 @@ export def closure-list [list] {
     | append $list.defs
 }
 
+export def ConfirmExec [msg cond act alt] {
+    print $"($cond) ($act) ($alt)"
+    print $"(ansi yellow)($msg)(ansi reset)"
+    if $cond and ([yes no] | input list 'confirm') == 'no' {
+        do $alt
+        return 'canceled'
+    } else {
+        do $act
+        return 'success'
+    }
+}
+
 export def closure-run [list] {
     $list
     | par-each {|x|
@@ -46,6 +58,7 @@ export def closure-run [list] {
         if ($env.AI_CONFIG.tool_calls | is-not-empty) {
             print -e $"(ansi $env.AI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
         }
+        let c = $c | merge {ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }}
         $x | insert result (do $f $a $c)
     }
 }
