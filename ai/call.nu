@@ -59,8 +59,17 @@ export def ai-send [
         } else {
             $req = data messages $limit
             | reduce -f $req {|i, a|
-                # TODO: tools
-                $a | ai-req $s -r $i.role $i.content
+                match $i.role {
+                    assistant => {
+                        $a | ai-req $s -r $i.role $i.content --tool-calls ($i.tool_calls | from yaml)
+                    }
+                    tool => {
+                        $a | ai-req $s -r $i.role $i.content --tool-call-id $i.tool_calls
+                    }
+                    _ => {
+                        $a | ai-req $s -r $i.role $i.content
+                    }
+                }
             }
         }
         $req
