@@ -13,7 +13,7 @@
     - [x] placeholder uses yaml instead of json #501
     - [x] parameters uses yaml instead of json #503
     - [x] shared placeholder
-    - [ ] Generate virtual response for template call
+    - [x] Generate virtual response for template call
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

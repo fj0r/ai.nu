@@ -31,33 +31,44 @@ export def --env ai-new-session [
 
 export def ai-send [
     --session(-s): record
+    --role: string = 'user'
     --system: string
     --function(-f): list<any@cmpl-tools>
     --prevent-func
     --image(-i): path
+    --audio(-a): path
+    --tool-calls: string
+    --tool-call-id: string
     --oneshot
     --limit: int = 20
-    --out(-o)
     --quiet(-q)
     --tag: string = ''
+    --req: record
     --debug
 ] {
     let message = $in
     let s = $session
-    mut req = ai-req $s
-    if ($system | is-not-empty) {
-        $req = $req | ai-req $s -r system $system
-    }
-    if $oneshot {
-        $req = $req | ai-req $s -r user -i $image $message
-    } else {
-        $req = data messages $limit
-        | reduce -f $req {|i, a|
-            # TODO: tools
-            $a | ai-req $s -r $i.role $i.content
+
+    mut req = if ($req | is-empty) {
+        mut req = ai-req $s
+        if ($system | is-not-empty) {
+            $req = $req | ai-req $s -r system $system
         }
-        | ai-req $s -r user $message
+        if $oneshot {
+            $req
+        } else {
+            $req = data messages $limit
+            | reduce -f $req {|i, a|
+                # TODO: tools
+                $a | ai-req $s -r $i.role $i.content
+            }
+        }
+        $req
+    } else {
+        $req
     }
+    | ai-req $s -r $role -i $image -a $audio --tool-call-id $tool_call_id --tool-calls $tool_calls $message
+
 
     let fns = if ($function | is-not-empty) {
         closure-list $function
@@ -73,11 +84,10 @@ export def ai-send [
         print $"(ansi blue)($req | to yaml)(ansi reset)"
     }
     let r = $req | ai-call $s --quiet=$quiet --tag $tag
-    if ($fns | is-not-empty) {
+    if not $prevent_func and ($fns | is-not-empty) {
         mut r = $r
         mut rst = []
         while ($r.tools | is-not-empty) {
-            if $prevent_func { return $r }
             $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
             let rt = closure-run $r.tools
             for x in $rt {
@@ -89,10 +99,9 @@ export def ai-send [
             $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
             $rst ++= [$r.msg]
         }
-        # Return only the last summary report, not `$rst`
-        if $out { return $r.msg }
+        return {result: $r, req: $req, messages: $rst}
     }
-    if $out { return $r.msg }
+    return {result: $r, req: $req}
 }
 
 export def --env ai-assistant [
@@ -100,6 +109,7 @@ export def --env ai-assistant [
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
     --out(-o)
+    --quiet(-q)
     --debug
     ...message: string
 ] {
@@ -139,17 +149,15 @@ export def --env ai-assistant [
         $message
         | ai-send -s $s
         --system $system
-        --out=$out
+        --quiet=$quiet
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function [$f]
         --prevent-func
     )
-    if ($r | describe) == string {
-        return $r
-    }
-    if ($r.tools? | is-not-empty) {
-        let a = $r | get -i tools.0.function.arguments | default '{}' | from json
+    mut $r = $r
+    while ($r.result.tools? | is-not-empty) {
+        let a = $r | get -i result.tools.0.function.arguments | default '{}' | from json
         if ($a | is-empty) or ($a.instructions? | is-empty) or ($a.subordinate_name? | is-empty) {
             print $"(ansi $env.AI_CONFIG.template_calls)($env.AI_CONFIG.assistant.function.name) failed(ansi reset)"
             print $"(ansi grey)($a | to yaml)(ansi reset)"
@@ -158,8 +166,24 @@ export def --env ai-assistant [
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
         let o = $a.options? | default []
         let o = if ($o | describe) == 'string' { $o | from json } else { $o }
-        let report = $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools? -o
-        # ai-req $s -r tool $report --tool-call-id ($r.tools.0.id) | ai-call $s
+        let tc_id = $r.result.tools.0.id
+        let x = $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools? -o
+        let req = $r.req | ai-req $s -r assistant $r.result.msg --tool-calls $r.result.tools
+        $r = (
+            $x
+            | ai-send -s $s
+            --quiet
+            --req $req
+            --role tool
+            --tool-call-id $tc_id
+            --debug=$debug
+            --limit $env.AI_CONFIG.message_limit
+            --function [$f]
+            --prevent-func
+        )
+    }
+    if $out {
+        $r.result.msg
     }
 }
 
@@ -230,6 +254,7 @@ export def ai-editor-run [
 export def ai-do [
     ...args: string@cmpl-role
     --out(-o)
+    --quiet(-q)
     --provider: string@cmpl-provider
     --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
@@ -267,19 +292,20 @@ export def ai-do [
 
     let role = data role ...$args
 
-    (
+    let r = (
         $role.template
         | render {_: $input, ...$role.vals}
         | ai-send -s $s
+        --quiet=$quiet
         --system $role.system
         --function $fns
         --prevent-func=$prevent_func
         --image $image
         --tag ($args | str join ',')
         --oneshot
-        --out=$out
         --debug=$debug
     )
+    if $out { $r.result.msg }
 }
 
 export def ai-embed [
