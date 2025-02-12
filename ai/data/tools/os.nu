@@ -80,16 +80,14 @@ export-env {
             }
         }
         handler: {|x, ctx|
-            for f in $x.file_paths {
-                let d = $f | is-sub-directory $env.AI_CONFIG.permitted-write
-                {||
+            {||
+                for f in $x.file_paths {
+                    let d = $f | is-sub-directory $env.AI_CONFIG.permitted-write
                     rm -f $f
                     print $"(ansi 'xterm_salmon1')rm -f ($f)(ansi reset)"
                 }
-                | do $ctx.ConfirmExec $'delete ($f)?' (not $d) {||
-                    print $"(ansi 'xterm_lightgoldenrod1')rm -f ($f)(ansi reset)"
-                }
             }
+            | do $ctx.ConfirmExec $'delete ($x.file_paths)?' true {|| }
         }
     }
 

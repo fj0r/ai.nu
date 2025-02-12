@@ -33,7 +33,6 @@ export def closure-list [list] {
 }
 
 export def ConfirmExec [msg cond act alt] {
-    print $"($cond) ($act) ($alt)"
     print $"(ansi yellow)($msg)(ansi reset)"
     if $cond and ([yes no] | input list 'confirm') == 'no' {
         do $alt
