@@ -44,7 +44,7 @@ export def ai-send [
 ] {
     let message = $in
     let s = $session
-    mut req = ai-req $s -m $s.model -t $s.temperature
+    mut req = ai-req $s
     if ($system | is-not-empty) {
         $req = $req | ai-req $s -r system $system
     }
@@ -75,7 +75,6 @@ export def ai-send [
     let r = $req | ai-call $s --quiet=$quiet --tag $tag
     if ($fns | is-not-empty) {
         mut r = $r
-        mut msg = $req.messages
         mut rst = []
         while ($r.tools | is-not-empty) {
             if $prevent_func { return $r }
@@ -90,7 +89,8 @@ export def ai-send [
             $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
             $rst ++= [$r.msg]
         }
-        if $out { return $rst }
+        # Return only the last summary report, not `$rst`
+        if $out { return $r.msg }
     }
     if $out { return $r.msg }
 }
@@ -158,7 +158,8 @@ export def --env ai-assistant [
         print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
         let o = $a.options? | default []
         let o = if ($o | describe) == 'string' { $o | from json } else { $o }
-        $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools?
+        let report = $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools? -o
+        # ai-req $s -r tool $report --tool-call-id ($r.tools.0.id) | ai-call $s
     }
 }
 

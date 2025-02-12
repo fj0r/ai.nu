@@ -162,8 +162,8 @@ export def ai-req [
             --tool-calls $tool_calls
             --tool-call-id $tool_call_id
             --functions $functions
-            --model $model
-            --temperature $temperature
+            --model ($model | default $session.model)
+            --temperature ($temperature | default $session.temperature)
             --stream=$stream
             $message
         )
