@@ -39,6 +39,33 @@ export-env {
         }
     }
 
+    ai-config-env-tools curl {
+        config: {
+
+        }
+        schema: {
+            description: "This function allows you to make HTTP requests using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
+            parameters: {
+                type: object,
+                properties: {
+                    args: {
+                        type: array,
+                        description: "A list of arguments to pass to the curl command. These can include options like method, URL, headers, data, etc.",
+                        items: {
+                            type: string,
+                            description: "Each argument as a string"
+                        }
+                    },
+                }
+                required: [
+                    args
+                ]
+            }
+        }
+        handler: {|x, config|
+            curl ...$x.args
+        }
+    }
     ai-config-env-tools web_search {
         config: {
             proxy: ''
