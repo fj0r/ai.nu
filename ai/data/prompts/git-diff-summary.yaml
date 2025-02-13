@@ -11,6 +11,7 @@ system: |-
   - Lines starting with `-` indicate deleted lines.
   - Other lines are context and are not part of the current change being described.
   - Output in {{lang}}
+  - You can call the git function yourself.
 template: |-
   ```
   {{}}

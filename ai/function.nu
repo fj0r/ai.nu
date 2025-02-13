@@ -43,6 +43,10 @@ export def ConfirmExec [msg cond act alt] {
     }
 }
 
+export def AiSend [session tag system=''] {
+    $in | ai-send $session --system $system --oneshot --tag $tag
+}
+
 export def closure-run [list] {
     $list
     | par-each {|x|
@@ -57,7 +61,10 @@ export def closure-run [list] {
         if ($env.AI_CONFIG.tool_calls | is-not-empty) {
             print -e $"(ansi $env.AI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
         }
-        let c = $c | merge {ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }}
+        let c = $c | merge {
+            AiSend: {|session tag system| $in | AiSend $session $tag $system}
+            ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }
+        }
         $x | insert result (do $f $a $c)
     }
 }

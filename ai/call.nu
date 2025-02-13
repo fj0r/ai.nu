@@ -29,7 +29,7 @@ export def --env ai-new-session [
     }
 }
 
-export def --env ai-assistant [
+export def --env --wrapped ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system

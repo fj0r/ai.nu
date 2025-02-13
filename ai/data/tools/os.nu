@@ -143,7 +143,7 @@ export-env {
             }
         }
         handler: {|x, ctx|
-            if ($x.file_path | is-sub-directory $env.AI_CONFIG.permitted-write) {
+            {||
                 match $x.mode {
                     w => {
                         $x.content | save -f $x.file_path
@@ -152,9 +152,8 @@ export-env {
                         $x.content | save -a $x.file_path
                     }
                 }
-            } else {
-                print $"(ansi yellow)only modify files under the directory specified by `$env.AI_CONFIG.permitted-write` \(($env.AI_CONFIG.permitted-write)\)(ansi reset)"
             }
+            | do $ctx.ConfirmExec $"Write ($x.file_path)" (not ($x.file_path | is-sub-directory $env.AI_CONFIG.permitted-write)) {||}
         }
     }
 

@@ -4,6 +4,7 @@ export-env {
     use function.nu *
     use data/tools/os.nu
     use data/tools/web.nu
+    use data/tools/git.nu
     $env.AI_CONFIG = {
         finish_reason: {
             enable: false
