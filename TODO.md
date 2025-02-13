@@ -1,5 +1,5 @@
 - [ ] llm.nu #443
-    - [ ] Rename `ai do` to `ai-do` to avoid auto-completion failure after aliasing #71
+    - [x] Rename `ai do` to `ai-do` to avoid auto-completion failure after aliasing #71
         - [x] Adjust completion, with default command names containing no spaces #72
         - [x] ai-do follows the `system` in the configuration #322
         - [x] Adjust `--system` of ai-chat #323
@@ -9,11 +9,12 @@
         - [x] Named placeholders are allowed in prompt #467
         - [x] System roles allow the use of placeholders #468
     - [x] Set reasonable default values for placeholders #469
-    - [ ] table-upsert multiple pk #500
+    - [x] table-upsert multiple pk #500
     - [x] placeholder uses yaml instead of json #501
     - [x] parameters uses yaml instead of json #503
     - [x] shared placeholder
     - [x] Generate virtual response for template call
+    - [ ] ai-switch-provider with model
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

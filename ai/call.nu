@@ -33,6 +33,7 @@ export def --env --wrapped ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
+    --complete
     --out(-o)
     --quiet(-q)
     --debug
@@ -93,6 +94,7 @@ export def --env --wrapped ai-assistant [
         let o = if ($o | describe) == 'string' { $o | from json } else { $o }
         let tc_id = $r.result.tools.0.id
         let x = $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools? -o
+        if not $complete { break }
         let req = $r.req | ai-req $s -r assistant $r.result.msg --tool-calls $r.result.tools
         $r = (
             $x

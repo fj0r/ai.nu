@@ -167,7 +167,7 @@ export def messages [
 ] {
     let s = $"
     with recursive ss as \(
-        select id, parent_id, offset, 1000 as os from sessions
+        select id, parent_id, offset, ($num) as os from sessions
         where id = ($env.AI_SESSION)
         union all
         select s.id, s.parent_id, s.offset, ss.offset as os from sessions as s
