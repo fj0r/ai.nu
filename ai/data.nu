@@ -178,12 +178,15 @@ export def messages [
             rank\(\) over \(partition by ss.id order by m.created\) as rk
         from messages as m join ss on m.session_id = ss.id
         where m.tag = '' order by m.created desc
-    \) select * from w where os >= rk limit ($num);
+    \), r as materialized \(
+        select session_id, role, content, tool_calls, created
+        from w where os >= rk limit ($num)
+    \) select * from r order by created
     "
     if $sql { return $s }
     # When the quantity exceeds the num, it will not be possible to obtain the subsequent data.
     # First retrieve the specified number in reverse order, and then reverse it.
-    let o = sqlx $s | reject os rk | reverse
+    let o = sqlx $s
     # Clear unpaired `tool_calls` from the history
     mut c = 0
     mut r = []
