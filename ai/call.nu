@@ -33,6 +33,7 @@ export def --env --wrapped ai-assistant [
     --provider(-p): string@cmpl-provider
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
+    --response-indicator: string = ''
     --complete
     --out(-o)
     --quiet(-q)
@@ -71,6 +72,7 @@ export def --env --wrapped ai-assistant [
         | get 0.system
     }
     let f = { type: function, function: $env.AI_CONFIG.assistant.function }
+    print -n $response_indicator
     let r = (
         $message
         | ai-send -s $s
