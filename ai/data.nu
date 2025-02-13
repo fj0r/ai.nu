@@ -183,8 +183,25 @@ export def messages [
     if $sql { return $s }
     # When the quantity exceeds the num, it will not be possible to obtain the subsequent data.
     # First retrieve the specified number in reverse order, and then reverse it.
-    # TODO: Clear unpaired `tool_calls` from the history
-    sqlx $s | reverse
+    let o = sqlx $s | reject os rk | reverse
+    # Clear unpaired `tool_calls` from the history
+    mut c = 0
+    mut r = []
+    while $c < ($o | length) {
+        let i = $o | get $c
+        if ($i.tool_calls | is-not-empty) {
+            # `get -i` for tail unpaired `tool_calls`
+            let n = $o | get -i ($c + 1)
+            if ($n.tool_calls? | is-not-empty) {
+                $r ++= [$i $n]
+            }
+            $c += 1
+        } else {
+            $r ++= [$i]
+        }
+        $c += 1
+    }
+    $r
 }
 
 export def tools [] {
