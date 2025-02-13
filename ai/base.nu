@@ -195,3 +195,89 @@ export def ai-call [
 export def ai-models [] {
 
 }
+
+
+export def ai-send [
+    --session(-s): record
+    --role: string = 'user'
+    --system: string
+    --function(-f): list<any@cmpl-tools>
+    --prevent-func
+    --image(-i): path
+    --audio(-a): path
+    --tool-calls: string
+    --tool-call-id: string
+    --oneshot
+    --limit: int = 20
+    --quiet(-q)
+    --tag: string = ''
+    --req: record
+    --debug
+] {
+    let message = $in
+    let s = $session
+
+    mut req = if ($req | is-empty) {
+        mut req = ai-req $s
+        if ($system | is-not-empty) {
+            $req = $req | ai-req $s -r system $system
+        }
+        if $oneshot {
+            $req
+        } else {
+            $req = data messages $limit
+            | reduce -f $req {|i, a|
+                match $i.role {
+                    assistant => {
+                        $a | ai-req $s -r $i.role $i.content --tool-calls ($i.tool_calls | from yaml)
+                    }
+                    tool => {
+                        $a | ai-req $s -r $i.role $i.content --tool-call-id $i.tool_calls
+                    }
+                    _ => {
+                        $a | ai-req $s -r $i.role $i.content
+                    }
+                }
+            }
+        }
+        $req
+    } else {
+        $req
+    }
+    | ai-req $s -r $role -i $image -a $audio --tool-call-id $tool_call_id --tool-calls $tool_calls $message
+
+
+    let fns = if ($function | is-not-empty) {
+        closure-list $function
+    }
+    $req = $req | ai-req $s -f $fns
+
+    if $debug {
+        let xxx = [
+            'message' $message
+        ] | str join "\n------\n"
+        print $"(ansi blue)($xxx)(ansi reset)"
+        print $"======req======"
+        print $"(ansi blue)($req | to yaml)(ansi reset)"
+    }
+    let r = $req | ai-call $s --quiet=$quiet --tag $tag
+    if not $prevent_func and ($fns | is-not-empty) {
+        mut r = $r
+        mut rst = []
+        while ($r.tools | is-not-empty) {
+            $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
+            let rt = closure-run $r.tools
+            for x in $rt {
+                $req = $req
+                | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
+            }
+            if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
+            # TODO: 0 or 1?
+            $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
+            $rst ++= [$r.msg]
+        }
+        return {result: $r, req: $req, messages: $rst}
+    }
+    return {result: $r, req: $req}
+}
+
