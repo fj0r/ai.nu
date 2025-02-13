@@ -14,7 +14,10 @@
     - [x] parameters uses yaml instead of json #503
     - [x] shared placeholder
     - [x] Generate virtual response for template call
-    - [ ] ai-switch-provider with model
+    - [x] ai-switch-provider with model
+    - [ ] ai-assistant
+        - [ ] Remove the --complete parameter
+        - [ ] Cache the message for reuse on the next request
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339
