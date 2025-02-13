@@ -18,9 +18,10 @@ export def cmpl-sessoin-offset [ctx] {
     }
 }
 
-export def cmpl-models [ctx] {
+def cmpl-models-temp [path ctx] {
     let provider = if NU_ARGX_EXISTS in $env {
-        $ctx | argx parse | get -i opt.provider
+        let ctx = $ctx | argx parse
+        $ctx | get -i $path
     }
     let s = data session -p $provider
     http get --headers [
@@ -29,6 +30,14 @@ export def cmpl-models [ctx] {
         OpenAI-Project $s.project_id
     ] $"($s.baseurl)/models"
     | get data.id
+}
+
+export def cmpl-models [ctx] {
+    cmpl-models-temp ([opt provider] | into cell-path)  $ctx
+}
+
+export def cmpl-models-pos [ctx] {
+    cmpl-models-temp ([pos provider] | into cell-path) $ctx
 }
 
 export def cmpl-tools [] {

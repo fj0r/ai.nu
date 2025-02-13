@@ -128,20 +128,24 @@ export def ai-switch-temperature [
 }
 
 export def ai-switch-provider [
-    o: string@cmpl-provider
+    provider: string@cmpl-provider
+    model?: string@cmpl-models-pos
     --global(-g)
 ] {
     if $global {
         let tx = $"BEGIN;
             update provider set active = 0;
-            update provider set active = 1 where name = '($o)';
+            update provider set active = 1 where name = '($provider)';
             COMMIT;"
         sqlx $"update provider set active = 0;"
-        sqlx $"update provider set active = 1 where name = (Q $o);"
+        sqlx $"update provider set active = 1 where name = (Q $provider);"
     }
-    sqlx $"update sessions set provider = (Q $o),
-        model = \(select model_default from provider where name = (Q $o)\)
+    sqlx $"update sessions set provider = (Q $provider),
+        model = \(select model_default from provider where name = (Q $provider)\)
         where id = ($env.AI_SESSION)"
+    if ($model | is-not-empty) {
+        ai-switch-model --global=$global $model
+    }
     ai-session
 }
 
