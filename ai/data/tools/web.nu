@@ -39,9 +39,25 @@ export-env {
         }
     }
 
-    ai-config-env-tools curl {
+    ai-config-env-tools get_current_location {
         context: {
 
+        }
+        schema: {
+            description: 'This function retrieves the current geographical location of the user. It can provide latitude, longitude, and optionally a formatted address.'
+            parameters: {
+                type: object
+                properties: {}
+                required: []
+            }
+        }
+        handler: {|x, ctx|
+        }
+    }
+
+    ai-config-env-tools curl {
+        context: {
+            proxy: ''
         }
         schema: {
             description: "This function allows you to make HTTP requests using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
