@@ -8,6 +8,7 @@ export def upsert-provider [--delete --action: closure] {
             name: ''
             baseurl: 'https://'
             api_key: ''
+            adapter: 'openai'
             model_default: ''
             temp_default: 0.5
             temp_min: 0.0
