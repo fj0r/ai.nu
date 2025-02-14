@@ -64,6 +64,7 @@ export def --env --wrapped ai-assistant [
                     }
                 }
             }
+            $env.AI_CONFIG.assistant.data = $d
             $env.AI_CONFIG.assistant.filled = true
         }
         $env.AI_CONFIG.assistant.prompt
@@ -85,26 +86,28 @@ export def --env --wrapped ai-assistant [
     )
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
-        let a = $r | get -i result.tools.0.function.arguments | default '{}' | from json
-        if ($a | is-empty) or ($a.instructions? | is-empty) or ($a.subordinate_name? | is-empty) {
-            print $"(ansi $env.AI_CONFIG.template_calls)($env.AI_CONFIG.assistant.function.name) failed(ansi reset)"
-            print $"(ansi grey)($a | to yaml)(ansi reset)"
+        let x = prompts-call $r {
+            instructions: instructions
+            subordinate_name: subordinate_name
+            options: options
+            tools: tools
+            subordinates: $env.AI_CONFIG.assistant.data.template.name
+        }
+        if ($x | describe -d).type == 'list' {
+            for e in $x {
+                print $e
+            }
             return
         }
-        print -e $"(ansi $env.AI_CONFIG.template_calls)[(date now | format date '%F %H:%M:%S')] ($a.subordinate_name) ($a | reject subordinate_name | to nuon)(ansi reset)"
-        let o = $a.options? | default []
-        let o = if ($o | describe) == 'string' { $o | from json } else { $o }
-        let tc_id = $r.result.tools.0.id
-        let x = $a.instructions | ai-do $a.subordinate_name ...$o -f $a.tools? -o
         if not $complete { break }
         let req = $r.req | ai-req $s -r assistant $r.result.msg --tool-calls $r.result.tools
         $r = (
-            $x
+            $x.result
             | ai-send -s $s
             --quiet
             --req $req
             --role tool
-            --tool-call-id $tc_id
+            --tool-call-id $x.tools_id
             --debug=$debug
             --limit $env.AI_CONFIG.message_limit
             --function [$f]

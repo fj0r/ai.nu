@@ -79,6 +79,7 @@ export-env {
             }
         }
         handler: {|x, ctx|
+            let x = if ($x | describe -d).type == 'list' { {args: $x} } else { $x }
             curl ...$x.args
         }
     }

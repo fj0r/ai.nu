@@ -17,16 +17,18 @@ ai-config-env-tools kubectl {
                     type: boolean,
                     description: "Whether to require user confirmation before executing the command(required for delete and modify commands)"
                 }
-            },
+            }
             required: [
                 args
             ]
         }
     }
     handler: {|x, ctx|
-        if ($x.confirm? | default true) {
-        }
+        let x = if ($x | describe -d).type == 'list' { {args: $x} } else { $x }
+        {||
             kubectl ...$x.args
+        }
+        | do $ctx.ConfirmExec 'run kubectl?' ($x.confirm? | true) {|| }
     }
 }
 
