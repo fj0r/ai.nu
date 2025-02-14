@@ -34,10 +34,20 @@ export def ai-req [
     }
 }
 
+def debug-req [--debug] {
+    let req = $in
+    if $debug {
+        print $"======req======"
+        print $"(ansi blue)($req | to yaml)(ansi reset)"
+    }
+    $req
+}
+
 export def ai-call [
     session
     --tag: string = ''
     --quiet(-q)
+    --debug
     --record:int = 1
 ] {
     let req = $in
@@ -53,14 +63,17 @@ export def ai-call [
             $req
             | ai-req $session --functions $f
             | ai-req $session --stream
+            | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
         }
         _ => {
             $req
             | ai-req $session --stream
+            | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
         }
     }
+
     let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
     data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
     $r
@@ -118,14 +131,6 @@ export def ai-send [
     }
     $req = $req | ai-req $s -f $fns
 
-    if $debug {
-        let xxx = [
-            'message' $message
-        ] | str join "\n------\n"
-        print $"(ansi blue)($xxx)(ansi reset)"
-        print $"======req======"
-        print $"(ansi blue)($req | to yaml)(ansi reset)"
-    }
     let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug
     if not $prevent_func and ($fns | is-not-empty) {
         mut r = $r
