@@ -18,6 +18,19 @@ export def ai-req [
 ] {
     let o = $in
     match $session.adapter? {
+        gemini => (
+            $o | gemini req
+            --role $role
+            --image $image
+            --audio $audio
+            --tool-calls $tool_calls
+            --tool-call-id $tool_call_id
+            --functions $functions
+            --model ($model | default $session.model)
+            --temperature ($temperature | default $session.temperature)
+            --stream=$stream
+            $message
+        )
         _ => (
             $o | openai req
             --role $role

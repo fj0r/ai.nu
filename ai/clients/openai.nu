@@ -12,7 +12,7 @@ def image-loader [uri: string] {
     }
 }
 
-export def --wrapped req [
+export def req [
     --role(-r): string = 'user'
     --image(-i): string
     --audio(-a): string
@@ -22,7 +22,7 @@ export def --wrapped req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
-    ...message: string
+    message?: string
 ] {
     mut o = $in | default { messages: [] }
     if $role not-in [user assistant system tool function] {
@@ -42,14 +42,14 @@ export def --wrapped req [
     let content = if not (($image | is-empty) and ($audio | is-empty)) {
         mut content = []
         if ($message | is-not-empty) {
-            $content ++= [{type: text, text: ($message | str join ' ')}]
+            $content ++= [{type: text, text: $message}]
         }
         if ($image | is-not-empty) {
             $content ++= [{type: image_url, image_url: (image-loader $image) }]
         }
         $content
     } else {
-        $message | str join ' '
+        $message
     }
 
     mut m = {role: $role, content: $content}
