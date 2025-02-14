@@ -230,7 +230,7 @@ export def ai-do [
         --function $fns
         --prevent-func=$prevent_func
         --image $image
-        --tag ($args | str join ',')
+        --tag $"[($args.0)]($args | slice 1.. | str join ',')"
         --oneshot
         --debug=$debug
     )

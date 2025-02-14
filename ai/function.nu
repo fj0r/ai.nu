@@ -58,8 +58,8 @@ export def closure-run [list] {
             print -e $"(ansi $env.AI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
         }
         let c = $c | merge {
-            AiSend: {|session tag system|
-                $in | ai-send $session --system $system --oneshot --tag $tag
+            AiSend: {|session system|
+                $in | ai-send $session --system $system --oneshot --tag $"($name)($a)"
             }
             ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }
         }
