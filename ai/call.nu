@@ -99,20 +99,27 @@ export def --env --wrapped ai-assistant [
             }
             return
         }
-        if not $complete { break }
-        let req = $r.req | ai-req $s -r assistant $r.result.msg --tool-calls $r.result.tools
-        $r = (
-            $x.result
-            | ai-send -s $s
-            --quiet
-            --req $req
-            --role tool
-            --tool-call-id $x.tools_id
-            --debug=$debug
-            --limit $env.AI_CONFIG.message_limit
-            --function [$f]
-            --prevent-func
-        )
+        if not $complete {
+            # FIXME: 
+            data record $s -r tool $x.result --tools $x.tools_id
+            data record $s -r assistant $r.result.msg --tools $r.result.tools
+            break
+        } else {
+            let req = $r.req
+            | ai-req $s -r assistant $r.result.msg --tool-calls $r.result.tools
+            $r = (
+                $x.result
+                | ai-send -s $s
+                --quiet
+                --req $req
+                --role tool
+                --tool-call-id $x.tools_id
+                --debug=$debug
+                --limit $env.AI_CONFIG.message_limit
+                --function [$f]
+                --prevent-func
+            )
+        }
     }
     if $out {
         $r.result.msg

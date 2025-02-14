@@ -54,7 +54,7 @@ export def ai-call [
     let msg = $req | get messages | slice (-1 * $record)..-1
     for x in $msg {
         let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
-        data record $session $x.role $x.content --tag $tag --tools $tc
+        data record $session -r $x.role $x.content --tag $tag --tools $tc
     }
     let r = match $session.adapter? {
         gemini => {
@@ -75,7 +75,7 @@ export def ai-call [
     }
 
     let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
-    data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
+    data record $session -r 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
     $r
 }
 

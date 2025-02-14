@@ -152,8 +152,8 @@ export def session [-p:string -m:string] {
 
 export def record [
     ctx
-    role
     content
+    --role(-r): string
     --tools: string = ''
     --token: int = 0
     --tag: string = ''
