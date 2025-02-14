@@ -18,19 +18,6 @@ export def ai-req [
 ] {
     let o = $in
     match $session.adapter? {
-        gemini => (
-            $o | gemini req
-            --role $role
-            --image $image
-            --audio $audio
-            --tool-calls $tool_calls
-            --tool-call-id $tool_call_id
-            --functions $functions
-            --model ($model | default $session.model)
-            --temperature ($temperature | default $session.temperature)
-            --stream=$stream
-            $message
-        )
         _ => (
             $o | openai req
             --role $role
@@ -54,19 +41,29 @@ export def ai-call [
     --record:int = 1
 ] {
     let req = $in
-    match $session.adapter? {
+    let msg = $req | get messages | slice (-1 * $record)..-1
+    for x in $msg {
+        let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
+        data record $session $x.role $x.content --tag $tag --tools $tc
+    }
+    let r = match $session.adapter? {
+        gemini => {
+            let f = $req.tools? | default []
+            let f = [...$f, {google_search: {}}]
+            $req
+            | ai-req $session --functions $f
+            | ai-req $session --stream
+            | openai call $session --quiet=$quiet
+        }
         _ => {
-            let msg = $req | get messages | slice (-1 * $record)..-1
-            for x in $msg {
-                let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
-                data record $session $x.role $x.content --tag $tag --tools $tc
-            }
-            let r = $req | ai-req $session --stream | openai call $session --quiet=$quiet
-            let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
-            data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
-            $r
+            $req
+            | ai-req $session --stream
+            | openai call $session --quiet=$quiet
         }
     }
+    let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
+    data record $session 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
+    $r
 }
 
 export def req-restore [session req] {
@@ -129,7 +126,7 @@ export def ai-send [
         print $"======req======"
         print $"(ansi blue)($req | to yaml)(ansi reset)"
     }
-    let r = $req | ai-call $s --quiet=$quiet --tag $tag
+    let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug
     if not $prevent_func and ($fns | is-not-empty) {
         mut r = $r
         mut rst = []

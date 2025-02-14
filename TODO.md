@@ -18,6 +18,7 @@
     - [ ] ai-assistant
         - [ ] Remove the --complete parameter
         - [ ] Cache the message for reuse on the next request
+    - [ ] ai-do --previous allow searching
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339
