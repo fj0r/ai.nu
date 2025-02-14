@@ -59,7 +59,7 @@ export def closure-run [list] {
         }
         let c = $c | merge {
             AiSend: {|session system|
-                $in | ai-send $session --system $system --oneshot --tag $"($name)($a)"
+                $in | ai-send $session --system $system --oneshot --tag $"[($name)]($a)"
             }
             ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }
         }
