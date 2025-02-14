@@ -87,7 +87,7 @@ export-env {
                     print $"(ansi 'xterm_salmon1')rm -f ($f)(ansi reset)"
                 }
             }
-            | do $ctx.ConfirmExec $'delete ($x.file_paths)?' true {|| }
+            | do $ctx.ConfirmExec $'delete ($x.file_paths)' true {|| }
         }
     }
 

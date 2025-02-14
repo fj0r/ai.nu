@@ -28,7 +28,7 @@ ai-config-env-tools kubectl {
         {||
             kubectl ...$x.args
         }
-        | do $ctx.ConfirmExec 'run kubectl?' ($x.confirm? | true) {|| }
+        | do $ctx.ConfirmExec 'run kubectl' ($x.confirm? | false) {|| }
     }
 }
 
