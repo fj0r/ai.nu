@@ -1,10 +1,36 @@
-# OpenAI and Ollama Clients
+# Use AI in Nushell
 
 ## Summary
 
 nu.ai is a collection of Nushell commands to help you create composable and interactive LLM tools. It brings the power of Nushell (composable succinct commands) to LLM tool development.
 
 nu.ai uses Nushell's SQLite native integration to persist providers, settings and LLM interactions.
+
+[![asciicast](https://asciinema.org/a/keIWUPQev6K9qZ0FGDzeQCEpk.svg)](https://asciinema.org/a/keIWUPQev6K9qZ0FGDzeQCEpk)
+
+## Why?
+
+There are many AI clients available on the market, but most of them are web-based UIs or local UIs. While these UIs are relatively user-friendly for beginners, they can be inefficient for advanced users. For example, in `ai.nu`, you can run the following command:
+
+```bash
+git diff | a-do git-diff-summary zh | git commit -m $in
+```
+
+This command generates a summary of Git changes and uses it as the commit message. If you use this command frequently, you can further simplify or automate it. Additionally, you can use `Ctrl+r` to quickly search through your history of commands.
+
+However, in a web UI, you would need to follow these steps:
+- Run `git diff`
+- Copy the output
+- Paste it into the UI
+- Press Enter and wait for the result
+- Copy the result
+- Paste it into IDE
+- Manually commit
+
+These steps are cumbersome and require you to focus on each step to ensure you click in the right place.
+Worse still, these steps cannot be saved or automated, and deploying something like an "auto-clicker" tool would encounter issues such as window position changes, which are inherent flaws of GUIs.
+
+While some AI clients offer CLI versions, using Bash for programming is not ideal; its syntax is complex and confusing.
 
 ## Commands
 
