@@ -62,7 +62,7 @@ export def --env --wrapped ai-assistant [
                                     $i.name: {
                                         type: string
                                         description: $i.description?
-                                        enum: $i.enum
+                                        enum: ($i.enum | columns)
                                     }
                                 }
                             })
