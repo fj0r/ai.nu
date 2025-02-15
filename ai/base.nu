@@ -176,7 +176,7 @@ export def prompts-call [rep c] {
     let o = if ($o | describe) == 'string' { $o | from json } else { $o }
     let tc_id = $rep.result.tools.0.id
     let pls = $c.subordinates | where name == $snv | get 0.placeholder
-    let pls = $pls | each {|x| $o | get -i $x | default ''}
+    let pls = $pls | each {|x| $o | get -i $x | default ''} | default []
     let x = $inv | ai-do $snv ...$pls -f $tlv -o
     {
         result: $x

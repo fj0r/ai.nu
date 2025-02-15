@@ -6,6 +6,7 @@ nu.ai is a collection of Nushell commands to help you create composable and inte
 
 nu.ai uses Nushell's SQLite native integration to persist providers, settings and LLM interactions.
 
+[![asciicast](https://asciinema.org/a/uLfvVZJYbISraqDalKo9OKdun.svg)](https://asciinema.org/a/uLfvVZJYbISraqDalKo9OKdun)
 [![asciicast](https://asciinema.org/a/Qd8sHfvdjoCA0o7c2poKO8RT9.svg)](https://asciinema.org/a/Qd8sHfvdjoCA0o7c2poKO8RT9)
 [![asciicast](https://asciinema.org/a/keIWUPQev6K9qZ0FGDzeQCEpk.svg)](https://asciinema.org/a/keIWUPQev6K9qZ0FGDzeQCEpk)
 
