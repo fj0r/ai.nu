@@ -1,4 +1,5 @@
 name: lang
+description: The language in which the response should be provided.
 yaml: |-
     en: English
     fr: French

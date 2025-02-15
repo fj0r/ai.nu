@@ -1,4 +1,5 @@
 name: prog
+description: ''
 yaml: |-
     rust: You are a Rust language expert.
     javascript: You are a Javascript language expert.

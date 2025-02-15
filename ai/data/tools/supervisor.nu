@@ -7,18 +7,20 @@ export-env {
             properties: {
                 instructions: {
                     type: string,
-                    description: "A clear and concise set of instructions for the task."
+                    description: "Clear and concise steps and instructions for the subordinate to follow."
                 }
                 subordinate_name: {
                     type: string
-                    description: "The name of the subordinate to which the task will be delegated. Must be a pre-defined subordinate name"
+                    description: "The name of the subordinate to which the task will be delegated."
                 }
                 options: {
-                    type: array
-                    description: "A list of options. The number and order of options must match the options's declaration."
-                    items: {
+                    type: object
+                    properties: {
+                      lang: {
                         type: string
-                        description: "Each options must be one of the pre-defined enums for the specific options."
+                        description: "The language in which the response should be provided."
+                        enum: [en fr es de ru ar zh ja ko]
+                      },
                     }
                 }
                 tools: {
@@ -26,7 +28,6 @@ export-env {
                     description: "A list of tools that might be used by the subordinate to complete the task."
                     items: {
                         type: string
-                        description: "Each tool must be a pre-defined tool name."
                     }
                 }
             }

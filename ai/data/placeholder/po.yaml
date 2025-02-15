@@ -1,4 +1,5 @@
 name: po
+description: 'objects in programming languages'
 yaml: |-
     type: Type
     struct: Struct

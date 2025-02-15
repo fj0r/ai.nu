@@ -6,30 +6,20 @@ system: |
   #### Constraints
   - Only output names.
   - Each name should be on a separate line.
-  - Use {{format:}} format.
+  - Use {{naming-convention:}} format.
   - Provide names in both English and {{lang}}.
   - Output multiple candidates if possible.
 
   #### Attention
   - Ensure the names are relevant to the input text.
   - Avoid any ambiguous or misleading names.
-  - Use proper {{format:}} formatting ({{format}}).
+  - Use proper {{naming-convention:}} formatting ({{naming-convention}}).
 
   #### OutputFormat
   Lines
 
-  ---
-
-  ### Example Input
-  Input Text: \"快速发展的科技公司\"
-
-  ### Example Output
-  fast growing tech company
-  rapidly developing technology firm
-  快速发展科技公司
-  快速成长科技企业
 template: '{{}}'
 placeholder: |-
   - lang
-  - format
+  - naming-convention
 description: Naming suggestions

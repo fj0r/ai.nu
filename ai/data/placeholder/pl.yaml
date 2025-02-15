@@ -1,4 +1,5 @@
 name: pl
+description: 'name of the programming language'
 yaml: |-
     rust: Rust
     python: Python pydantic

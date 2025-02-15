@@ -45,6 +45,7 @@ export def seed [] {
             pk: [name]
             default: {
                 name: ''
+                description: ''
                 yaml: ''
             }
         }
@@ -90,6 +91,7 @@ export def --env init [] {
             "CREATE INDEX idx_prompt ON prompt (name);"
             "CREATE TABLE IF NOT EXISTS placeholder (
                 name TEXT PRIMARY KEY,
+                description TEXT,
                 yaml TEXT NOT NULL DEFAULT '{}'
             );"
             "CREATE INDEX idx_placeholder ON placeholder (name);"
@@ -224,10 +226,8 @@ export def tools [] {
         {name: $k, description: ($v.schema.description?) }
     }
 
-    let p = sqlx $"select name, yaml from placeholder;"
-    | each {|x|
-        {name: $x.name enum: ($x.yaml | from yaml)}
-    }
+    let p = sqlx $"select name, description, yaml from placeholder;"
+    | each {|x| $x | update yaml {|x| $x.yaml | from yaml } | rename -c {yaml: enum}}
 
     { template: $t, function: $f, placeholder: $p }
 }

@@ -166,7 +166,7 @@ export def prompts-call [rep c] {
             $"($tc_color)($env.AI_CONFIG.assistant.function.name) missing args($rs_color)"
             $"(ansi grey)($a | to yaml)(ansi reset)"
         ]
-    } else if $snv not-in $c.subordinates {
+    } else if $snv not-in $c.subordinates.name {
         return [
             $"($tc_color)($snv) not a valid subordinate name($rs_color)"
         ]
@@ -175,7 +175,9 @@ export def prompts-call [rep c] {
     let o = $onv | default []
     let o = if ($o | describe) == 'string' { $o | from json } else { $o }
     let tc_id = $rep.result.tools.0.id
-    let x = $inv | ai-do $snv ...$o -f $tlv -o
+    let pls = $c.subordinates | where name == $snv | get 0.placeholder
+    let pls = $pls | each {|x| $o | get -i $x | default ''}
+    let x = $inv | ai-do $snv ...$pls -f $tlv -o
     {
         result: $x
         tools_id: $tc_id

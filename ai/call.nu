@@ -56,6 +56,17 @@ export def --env --wrapped ai-assistant [
                         subordinate_name: {
                             enum: $d.template.name
                         }
+                        options: {
+                            properties: ($d.placeholder | reduce -f {} {|i,a|
+                                $a | merge {
+                                    $i.name: {
+                                        type: string
+                                        description: $i.description?
+                                        enum: $i.enum
+                                    }
+                                }
+                            })
+                        }
                         tools: {
                             items: {
                                 enum: $d.function.name
@@ -91,7 +102,7 @@ export def --env --wrapped ai-assistant [
             subordinate_name: subordinate_name
             options: options
             tools: tools
-            subordinates: $env.AI_CONFIG.assistant.data.template.name
+            subordinates: $env.AI_CONFIG.assistant.data.template
         }
         if ($x | describe -d).type == 'list' {
             for e in $x {
