@@ -67,3 +67,42 @@ export def closure-run [list] {
     }
 }
 
+export def prompts-call [rep c] {
+    let a = $rep | get -i result.tools.0.function.arguments | default '{}' | from json
+    let sn = $c.subordinate_name
+    let snv = $a | get -i $sn
+    let inv = $a | get -i $c.instructions
+    let onv = $a | get -i $c.options_value
+    let tlv = $a | get -i $c.tools
+    let tc_color = ansi $env.AI_CONFIG.template_calls
+    let rs_color = ansi reset
+    if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
+        return [
+            $"($tc_color)($env.AI_CONFIG.assistant.function.name) missing args($rs_color)"
+            $"(ansi grey)($a | to yaml)(ansi reset)"
+        ]
+    } else if $snv not-in $c.subordinates.name {
+        return [
+            $"($tc_color)($snv) not a valid subordinate name($rs_color)"
+        ]
+    }
+    print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $sn | to nuon)($rs_color)"
+    let o = $onv | default {}
+    let o = if ($o | describe) == 'string' { $o | from json } else { $o }
+    let tc_id = $rep.result.tools.0.id
+    let pls = $c.subordinates | where name == $snv | get 0.placeholder
+    let pls = $pls | each {|x|
+        let y = $o | get -i $x
+        if ($y | is-empty) {
+            let e = $c.options | where name == $x | get 0.enum
+            $e | columns | input list $"($tc_color)Choose a value for (ansi xterm_yellow)($x)($rs_color)"
+        } else {
+            $y
+        }
+    } | default []
+    let x = $inv | ai-do $snv ...$pls -f $tlv -o
+    {
+        result: $x
+        tools_id: $tc_id
+    }
+}

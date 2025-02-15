@@ -100,9 +100,10 @@ export def --env --wrapped ai-assistant [
         let x = prompts-call $r {
             instructions: instructions
             subordinate_name: subordinate_name
-            options: options
+            options_value: options
             tools: tools
             subordinates: $env.AI_CONFIG.assistant.data.template
+            options: $env.AI_CONFIG.assistant.data.placeholder
         }
         if ($x | describe -d).type == 'list' {
             for e in $x {
