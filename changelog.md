@@ -52,3 +52,8 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 CREATE INDEX idx_messages ON messages (session_id);
 ```
+
+###
+```
+open $env.AI_STATE | query db 'alter table placeholder add column description text'
+```
