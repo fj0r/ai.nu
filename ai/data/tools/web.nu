@@ -60,7 +60,7 @@ export-env {
             proxy: ''
         }
         schema: {
-            description: "This function allows you to make HTTP requests using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
+            description: "This function allows you to perform HTTP requests to fetch web content or submit data using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
             parameters: {
                 type: object,
                 properties: {
