@@ -116,7 +116,7 @@ ai-config-env-tools search_product {
         ] $sdb_url $q
 
         let r = $r | last | get result | to yaml
-        print $"(ansi darkblue)($r)(ansi reset)"
+        print $"(ansi grey50)($r)(ansi reset)"
         return $r
     }
 }

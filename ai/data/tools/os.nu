@@ -120,7 +120,7 @@ export-env {
                 properties: {
                     file_path: {
                         type: string,
-                        description: "The path to the file where the content will be written"
+                        description: "The path to the file where the content will be written (relative to the current path)."
                     },
                     content: {
                         type: string,
