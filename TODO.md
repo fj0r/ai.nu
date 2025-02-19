@@ -16,9 +16,11 @@
     - [x] Generate virtual response for template call
     - [x] ai-switch-provider with model
     - [ ] ai-assistant
+        - [ ] allow ai-assistant to call functions directly
         - [ ] Remove the --complete parameter
-        - [ ] Cache the message for reuse on the next request
+        - [x] Cache the message for reuse on the next request
     - [ ] ai-do --previous allow searching
+    - [ ] copilot mode
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339
