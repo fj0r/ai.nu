@@ -10,3 +10,20 @@ export alias asn = ai-session
 export alias ai-history-chat = ai-history-assistant
 export alias aha = ai-history-assistant
 export alias ahd = ai-history-do
+
+
+export-env {
+    $env.config.keybindings ++= [
+        {
+            name: ask_ai
+            modifier: alt
+            keycode: enter
+            mode: [emacs, vi_normal, vi_insert]
+            event: [
+                { edit: movetolinestart },
+                { edit: insertstring value: 'aa '},
+                { send: Enter }
+            ]
+        }
+    ]
+}
