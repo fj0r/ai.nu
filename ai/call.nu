@@ -40,8 +40,14 @@ export def --env --wrapped ai-assistant [
     --debug
     ...message: string
 ] {
+    let input = $in
     let s = data session -p $provider -m $model
     let message = $message | str join ' '
+    let message = if ($input | is-empty) {
+        $message
+    } else {
+        $message | str replace -a '{{}}' $input
+    }
     let system = if ($system | is-empty) {
         if not $env.AI_CONFIG.assistant.filled {
             let d = data tools
