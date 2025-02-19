@@ -11,20 +11,29 @@ export def closure-list [list] {
     $list.name
     | uniq
     | each {|x|
+        let c = $env.AI_TOOLS | get -i $x | get -i context
+        let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         let a = $env.AI_TOOLS | get $x
         | get schema
         | upsert parameters.properties {|y|
             $y.parameters.properties
             | transpose k v
             | reduce -f {} {|i,a|
-                let v = if ('enum' in $i.v) and ($i.v.enum | describe -d).type == 'closure' {
-                    let c = $env.AI_TOOLS | get -i $x | get -i context
-                    let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
-                    $i.v | upsert enum (do $i.v.enum $c)
-                } else {
-                    $i.v
+                [enum description] | reduce -f $a {|j,b|
+                    let v = if ($j in $i.v) and ($i.v | get $j | describe -d).type == 'closure' {
+                        $i.v | upsert $j (do ($i.v | get $j) $c)
+                    } else {
+                        $i.v
+                    }
+                    $b | upsert $i.k $v
                 }
-                $a | insert $i.k $v
+            }
+        }
+        | upsert description {|x|
+            if ($x.description | describe -d).type == 'closure' {
+                do $x.description $c
+            } else {
+                $x.description
             }
         }
         {type: function, function: $a}
