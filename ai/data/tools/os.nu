@@ -157,6 +157,35 @@ export-env {
         }
     }
 
+    ai-config-env-tools find_file_path {
+        schema: {
+            description: "This function searches for the specified file in the current directory and returns its full path if found."
+            parameters: {
+                type: object
+                properties: {
+                    file_name: {
+                        type: string
+                        description: "A pattern used to match file names. This can include wildcards like '*' to match multiple files."
+                    }
+                    directory: {
+                        type: string
+                        description: "(Optional) The specific directory to search within. If not provided, the current working directory will be used."
+                    }
+                }
+                required: [
+                    file_name
+                ]
+            }
+        }
+        handler: {|x, ctx|
+            if ($x.directory? | is-not-empty) {
+                cd $x.directory
+            }
+            mut p = $"**/($x.file_name)*"
+            glob $p --exclude [**/.git/** */]
+        }
+    }
+
     ai-config-env-tools list_directory_files {
         schema: {
             description: "This function lists all files in a specified directory, including files in subdirectories. It can be used to explore the file structure of a directory and its subdirectories. If no directory is specified, it defaults to the current directory.",
