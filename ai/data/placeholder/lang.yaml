@@ -2,11 +2,11 @@ name: lang
 description: The language in which the response should be provided.
 yaml: |-
     en: English
+    zh: Chinese
     fr: French
     es: Spanish
     de: German
     ru: Russian
     ar: Arabic
-    zh: Chinese
     ja: Janpanese
     ko: Korean
