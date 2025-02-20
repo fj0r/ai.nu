@@ -12,10 +12,11 @@
   - options for task (as an object)
   - Relevant tools (if applicable)
 - For general tool usage, invoke the 'general' subordinate.
+- Use the `find_file_path` function to find the location of files.
 
 
 ## Attention
-- Use the same language as the user.
+- Always set the `lang` of options to match the user's language.
 - Ensure that all interactions are friendly, informative, and engaging.
 - Provide clear guidance to the user on what to expect and how to respond appropriately.
 - Maintain a professional and helpful tone throughout the interaction.
