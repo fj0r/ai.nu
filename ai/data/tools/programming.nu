@@ -86,6 +86,13 @@ export-env {
             }
         }
         handler: {|x, ctx|
+            let s = $x.query? | str trim --left | str substring ..5 | str downcase
+            if $s != 'select' {
+                print $"(ansi grey)run: ($x.query)(ansi reset)"
+                if ([yes no] | input list 'continue') == 'no' {
+                    return 'CANCELED'
+                }
+            }
             let f = if ($x.filename? | is-empty) {
                 mktemp --suffix .sql
             } else {
