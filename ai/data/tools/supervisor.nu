@@ -40,7 +40,7 @@ export-env {
     const p = path self .
     let p = open ([$p supervisor.txt] | path join)
     $env.AI_CONFIG = $env.AI_CONFIG | merge { assistant: {
-        prompt: $p
+        prompt_template: $p
         function: $f
         filled: false
     } }

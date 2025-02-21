@@ -52,7 +52,7 @@ export def --env --wrapped ai-assistant [
     let system = if ($system | is-empty) {
         if not $env.AI_CONFIG.assistant.filled or $refresh {
             let d = data tools
-            $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt
+            $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt_template
             | str replace '{{templates}}' ($d.template | rename -c {placeholder:  options}  | to yaml)
             | str replace '{{placeholders}}' ($d.placeholder | to yaml)
             | str replace '{{tools}}' ($d.function | to yaml)
