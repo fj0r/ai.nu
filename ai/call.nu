@@ -38,6 +38,7 @@ export def --env --wrapped ai-assistant [
     --out(-o)
     --quiet(-q)
     --debug
+    --refresh
     ...message: string
 ] {
     let input = $in
@@ -49,7 +50,7 @@ export def --env --wrapped ai-assistant [
         $message | str replace -a '{{}}' $input
     }
     let system = if ($system | is-empty) {
-        if not $env.AI_CONFIG.assistant.filled {
+        if not $env.AI_CONFIG.assistant.filled or $refresh {
             let d = data tools
             $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt
             | str replace '{{templates}}' ($d.template | rename -c {placeholder:  options}  | to yaml)
