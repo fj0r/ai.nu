@@ -141,7 +141,7 @@ export def --env --wrapped ai-assistant [
         }
     }
     if $out {
-        $r.result.msg
+        $r.result
     }
 }
 
@@ -263,7 +263,7 @@ export def ai-do [
         --oneshot
         --debug=$debug
     )
-    if $out { $r.result.msg }
+    if $out { $r.result }
 }
 
 export def ai-embed [

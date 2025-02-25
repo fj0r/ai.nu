@@ -93,7 +93,7 @@ export def call [
             Authorization $"Bearer ($session.api_key)"
     ] $"($session.baseurl)/chat/completions" $req
     | lines
-    | reduce -f {msg: '', token: 0, tools: []} {|i,a|
+    | reduce -f {msg: '', reason: '', token: 0, tools: []} {|i,a|
         let x = $i | parse -r '.*?(?<data>\{.*)'
         if ($x | is-empty) { return $a }
         let x = $x | get 0.data | from json
@@ -104,29 +104,29 @@ export def call [
             }
         }
 
-        let tools = $x.choices
-        | each {|i|
-            if 'tool_calls' in $i.delta { [$i.delta.tool_calls] } else { [] }
-        }
-        | flatten
-        | flatten
-
-        let m = $x.choices
-        | each {
-            let i = $in
+        $x.choices
+        | reduce -f $a {|i, a|
             let s = $i.delta.content? | default ''
-            if not $quiet { print -n $s }
+            let r = $i.delta.reasoning_content? | default ''
+            let t = $i.delta.tool_calls? | default []
+            if not $quiet {
+                if ($r | is-not-empty) {
+                    print -n $"(ansi $env.AI_CONFIG.tool_calls)($r)(ansi reset)"
+                }
+                if ($s | is-empty) and ($r | is-empty) and ($t | is-empty) {
+                    print (char newline)
+                }
+                print -n $s
+            }
             let cf = $env.AI_CONFIG.finish_reason
             if $cf.enable and ($i.finish_reason? | is-not-empty) {
                 print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
             }
-            $s
+            $a
+            | update msg {|x| $x.msg + $s }
+            | update reason {|x| $x.reason + $r }
+            | update tools {|x| $x.tools ++ $t }
         }
-        | str join
-
-        $a
-        | update msg {|x| $x.msg + $m }
-        | update tools {|x| $x.tools | append $tools }
         | update token {|x| $x.token + 1 }
     }
     let tools = if ($r.tools | is-empty) {
