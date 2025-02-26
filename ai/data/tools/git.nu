@@ -23,6 +23,7 @@ export-env {
             },
         }
         handler: {|x, ctx|
+            let x = if ($x | describe -d).type == 'list' { $x } else { $x.args }
             git ...$x
         }
     }
