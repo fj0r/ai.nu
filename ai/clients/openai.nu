@@ -167,7 +167,7 @@ export def call [
 
                 let cf = $env.AI_CONFIG.finish_reason
                 if $cf.enable and ($i.finish_reason? | is-not-empty) {
-                    print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
+                    print -e $"(char newline)(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
                 }
             }
         }

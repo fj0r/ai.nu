@@ -9,7 +9,7 @@ export-env {
     use data/tools/clipboard.nu
     $env.AI_CONFIG = {
         finish_reason: {
-            enable: false
+            enable: true
             color: xterm_grey30
         }
         reasoning_content: {
