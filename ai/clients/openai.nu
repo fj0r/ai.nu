@@ -84,12 +84,38 @@ export def req-restore [s req] {
     }
 }
 
+export def merge-tools [tools] {
+    if ($tools | is-empty) {
+        []
+    } else {
+        $tools
+        | each {|x|
+            let v = $x
+            | upsert id {|y| [($y.id? | default '')] }
+            | upsert function.name {|y| [($y.function?.name? | default '')] }
+            | upsert function.arguments {|y|
+                [($y.function?.arguments? | default '')]
+            }
+            let k = $x.index? | default 0
+            {$k: $v}
+        }
+        | reduce {|i,a|
+            $a | merge deep $i --strategy=append
+        }
+        #| do {let a = $in; print ($a | table -e); return $a}
+        | items {|k, v| $v }
+        | update id {|y| $y.id | str join }
+        | update function.name {|y| $y.function.name | str join }
+        | update function.arguments {|y| $y.function.arguments | str join }
+    }
+}
+
 export def call [
     session
     --quiet(-q)
 ] {
     let $req = $in
-    let r = http post -r -e -t application/json --headers [
+    http post -r -e -t application/json --headers [
             Authorization $"Bearer ($session.api_key)"
     ] $"($session.baseurl)/chat/completions" $req
     | lines
@@ -129,29 +155,7 @@ export def call [
         }
         | update token {|x| $x.token + 1 }
     }
-    let tools = if ($r.tools | is-empty) {
-        []
-    } else {
-        $r.tools
-        | each {|x|
-            let v = $x
-            | upsert id {|y| [($y.id? | default '')] }
-            | upsert function.name {|y| [($y.function?.name? | default '')] }
-            | upsert function.arguments {|y|
-                [($y.function?.arguments? | default '')]
-            }
-            let k = $x.index? | default 0
-            {$k: $v}
-        }
-        | reduce {|i,a|
-            $a | merge deep $i --strategy=append
-        }
-        | items {|k, v| $v }
-        | update id {|y| $y.id | str join }
-        | update function.name {|y| $y.function.name | str join }
-        | update function.arguments {|y| $y.function.arguments | str join }
-    }
-    $r | update tools $tools
+    | update tools {|x| merge-tools $x.tools }
 }
 
 
