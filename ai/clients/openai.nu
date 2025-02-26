@@ -144,9 +144,15 @@ export def call [
     for x in (raw-call $session $req) {
         if ($x | is-empty) { continue }
         for i in $x.choices {
+            $token += 1
+
             let s = $i.delta.content? | default ''
+            $msg += $s
             let r = $i.delta.reasoning_content? | default ''
+            $reason += $r
             let t = $i.delta.tool_calls? | default []
+            $tools ++= $t
+
             if not $quiet {
                 if ($r | is-not-empty) {
                     print -n $"(ansi $conf.color)($r)(ansi reset)"
@@ -158,19 +164,13 @@ export def call [
                     $nd = false
                     print -n $s
                 }
-            }
 
-            let cf = $env.AI_CONFIG.finish_reason
-            if $cf.enable and ($i.finish_reason? | is-not-empty) {
-                print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
+                let cf = $env.AI_CONFIG.finish_reason
+                if $cf.enable and ($i.finish_reason? | is-not-empty) {
+                    print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
+                }
             }
-
-            $msg += $s
-            $reason += $r
-            $tools ++= $t
         }
-
-        $token += 1
     }
 
     {
