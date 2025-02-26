@@ -6,6 +6,7 @@ export-env {
     use data/tools/web.nu
     use data/tools/git.nu
     use data/tools/programming.nu
+    use data/tools/clipboard.nu
     $env.AI_CONFIG = {
         finish_reason: {
             enable: false
