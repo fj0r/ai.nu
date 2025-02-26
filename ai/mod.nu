@@ -12,6 +12,10 @@ export-env {
             enable: false
             color: xterm_grey30
         }
+        reasoning_content: {
+            color: grey
+            delimiter: $'(char newline)------(char newline)'
+        }
         tool_calls: grey
         template_calls: xterm_fuchsia
         message_limit: 20

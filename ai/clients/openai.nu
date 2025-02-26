@@ -110,18 +110,14 @@ export def merge-tools [tools] {
     }
 }
 
-export def call [
-    session
-    --quiet(-q)
-] {
-    let $req = $in
+export def raw-call [session req] {
     http post -r -e -t application/json --headers [
             Authorization $"Bearer ($session.api_key)"
     ] $"($session.baseurl)/chat/completions" $req
     | lines
-    | reduce -f {msg: '', reason: '', token: 0, tools: []} {|i,a|
+    | each {|i|
         let x = $i | parse -r '.*?(?<data>\{.*)'
-        if ($x | is-empty) { return $a }
+        if ($x | is-empty) { return }
         let x = $x | get 0.data | from json
 
         if 'error' in $x {
@@ -130,32 +126,59 @@ export def call [
             }
         }
 
-        $x.choices
-        | reduce -f $a {|i, a|
+        $x
+    }
+}
+
+export def call [
+    session
+    --quiet(-q)
+] {
+    let $req = $in
+    mut msg = ''
+    mut reason = ''
+    mut token = 0
+    mut tools = []
+    mut nd = true
+    let conf = $env.AI_CONFIG.reasoning_content
+    for x in (raw-call $session $req) {
+        if ($x | is-empty) { continue }
+        for i in $x.choices {
             let s = $i.delta.content? | default ''
             let r = $i.delta.reasoning_content? | default ''
             let t = $i.delta.tool_calls? | default []
             if not $quiet {
                 if ($r | is-not-empty) {
-                    print -n $"(ansi $env.AI_CONFIG.tool_calls)($r)(ansi reset)"
+                    print -n $"(ansi $conf.color)($r)(ansi reset)"
                 }
-                if ($s | is-empty) and ($r | is-empty) and ($t | is-empty) {
-                    print (char newline)
+                if ($s | is-not-empty) {
+                    if $nd and ($reason | is-not-empty) {
+                        print -n $"(ansi $conf.color)($conf.delimiter)(ansi reset)"
+                    }
+                    $nd = false
+                    print -n $s
                 }
-                print -n $s
             }
+
             let cf = $env.AI_CONFIG.finish_reason
             if $cf.enable and ($i.finish_reason? | is-not-empty) {
                 print -e $"(ansi $cf.color)<($i.finish_reason)>(ansi reset)"
             }
-            $a
-            | update msg {|x| $x.msg + $s }
-            | update reason {|x| $x.reason + $r }
-            | update tools {|x| $x.tools ++ $t }
+
+            $msg += $s
+            $reason += $r
+            $tools ++= $t
         }
-        | update token {|x| $x.token + 1 }
+
+        $token += 1
     }
-    | update tools {|x| merge-tools $x.tools }
+
+    {
+        msg: $msg
+        reason: $reason
+        token: $token
+        tools: (merge-tools $tools)
+    }
 }
 
 
