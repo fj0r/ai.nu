@@ -159,7 +159,12 @@ export def call [
 }
 
 
-export def models [] {
-
+export def models [session] {
+    http get --headers [
+        Authorization $"Bearer ($session.api_key)"
+        OpenAI-Organization $session.org_id
+        OpenAI-Project $session.project_id
+    ] $"($session.baseurl)/models"
+    | get data.id
 }
 

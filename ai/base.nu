@@ -2,6 +2,13 @@ use data.nu
 use clients/openai.nu
 use clients/gemini.nu
 
+export def ai-models [session] {
+    match $session.adapter? {
+        _ => {
+            openai models $session
+        }
+    }
+}
 
 export def ai-req [
     session

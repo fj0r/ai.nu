@@ -1,4 +1,5 @@
 use sqlite.nu *
+use base.nu
 use data.nu
 
 export def cmpl-sessoin-offset [ctx] {
@@ -24,12 +25,7 @@ def cmpl-models-temp [path ctx] {
         $ctx | get -i $path
     }
     let s = data session -p $provider
-    http get --headers [
-        Authorization $"Bearer ($s.api_key)"
-        OpenAI-Organization $s.org_id
-        OpenAI-Project $s.project_id
-    ] $"($s.baseurl)/models"
-    | get data.id
+    base ai-models $s
 }
 
 export def cmpl-models [ctx] {
