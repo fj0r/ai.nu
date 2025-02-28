@@ -24,9 +24,9 @@ ai-config-env-tools kubectl {
         }
     }
     handler: {|x, ctx|
-        let x = if ($x | describe -d).type == 'list' { {args: $x} } else { $x }
+        let x = if ($x | describe -d).type == 'list' { $x } else { $x.args }
         {||
-            kubectl ...$x.args
+            kubectl ...$x
         }
         | do $ctx.ConfirmExec 'run kubectl' ($x.confirm? | false) {|| }
     }

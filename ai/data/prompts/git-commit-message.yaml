@@ -1,10 +1,10 @@
-name: git-diff-summary
+name: git-commit-message
 system: |-
   ## Goals
-  Extract commit messages from the `git diff` output
+  Generate a concise and professional Git commit message based on the following diff.
 
   ## Constraints
-  summarize only the content changes within files, ignore changes in hashes, and generate a title based on these summaries.
+  The commit message should include a one-line summary at the top, followed by bullet points for the key changes. Keep it short and include relevant details.
 
   ## Attention
   - Lines starting with `+` indicate new lines added.
