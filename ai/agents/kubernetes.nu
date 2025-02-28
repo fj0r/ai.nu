@@ -24,11 +24,12 @@ ai-config-env-tools kubectl {
         }
     }
     handler: {|x, ctx|
-        let x = if ($x | describe -d).type == 'list' { $x } else { $x.args }
+        let a = if ($x | describe -d).type == 'list' { $x } else { $x.args }
+        let confirm = ($x | describe -d).type == record and ($x.confirm? | false)
         {||
-            kubectl ...$x
+            kubectl ...$a
         }
-        | do $ctx.ConfirmExec 'run kubectl' ($x.confirm? | false) {|| }
+        | do $ctx.ConfirmExec 'run kubectl' $confirm {|| }
     }
 }
 
