@@ -75,6 +75,7 @@ export def --env --wrapped ai-assistant [
     while ($r.result.tools? | is-not-empty) {
         let x = prompts-call $r $env.AI_CONFIG.assistant.data
         if ($x | describe -d).type == 'list' {
+            # TODO: feed back to LLM
             for e in $x {
                 print $e
             }
