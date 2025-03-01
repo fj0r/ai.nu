@@ -73,11 +73,7 @@ export def --env --wrapped ai-assistant [
     )
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
-        let x = prompts-call $r {
-            getter: $env.AI_CONFIG.assistant.data.getter
-            prompt: $env.AI_CONFIG.assistant.data.prompt
-            placeholder: $env.AI_CONFIG.assistant.data.placeholder
-        }
+        let x = prompts-call $r $env.AI_CONFIG.assistant.data
         if ($x | describe -d).type == 'list' {
             for e in $x {
                 print $e
