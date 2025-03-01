@@ -22,6 +22,7 @@
         - [x] Cache the message for reuse on the next request
     - [ ] ai-do --previous allow searching
     - [ ] copilot mode
+    - [ ] MCP support
 - LLM #329
     - [x] Function call #332
         - [x] Add function table #339

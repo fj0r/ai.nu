@@ -35,7 +35,7 @@
 
 ### Initialization
 #### Load the definition of subordinates
-{{templates}}
+{{prompts}}
 #### Load the definition of options
 {{placeholders}}
 #### Load the definition of tools

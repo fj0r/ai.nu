@@ -21,7 +21,7 @@ export-env {
         message_limit: 20
         permitted-write: ~/Downloads
     }
-    use data/tools/supervisor.nu
+    use data/assistant/supervisor
 }
 
 

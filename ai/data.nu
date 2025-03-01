@@ -229,7 +229,7 @@ export def tools [] {
     let p = sqlx $"select name, description, yaml from placeholder;"
     | each {|x| $x | update yaml {|x| $x.yaml | from yaml } | rename -c {yaml: enum}}
 
-    { template: $t, function: $f, placeholder: $p }
+    { prompt: $t, function: $f, placeholder: $p }
 }
 
 export def role [...args] {

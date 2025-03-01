@@ -51,39 +51,8 @@ export def --env --wrapped ai-assistant [
     }
     let system = if ($system | is-empty) {
         if not $env.AI_CONFIG.assistant.filled or $refresh {
-            let d = data tools
-            $env.AI_CONFIG.assistant.prompt = $env.AI_CONFIG.assistant.prompt_template
-            | str replace '{{templates}}' ($d.template | rename -c {placeholder:  options}  | to yaml)
-            | str replace '{{placeholders}}' ($d.placeholder | to yaml)
-            | str replace '{{tools}}' ($d.function | to yaml)
-            $env.AI_CONFIG.assistant.function = $env.AI_CONFIG.assistant.function
-            | merge deep {
-                parameters: {
-                    properties: {
-                        subordinate_name: {
-                            enum: $d.template.name
-                        }
-                        options: {
-                            properties: ($d.placeholder | reduce -f {} {|i,a|
-                                $a | merge {
-                                    $i.name: {
-                                        type: string
-                                        description: $i.description?
-                                        enum: ($i.enum | columns)
-                                    }
-                                }
-                            })
-                        }
-                        tools: {
-                            items: {
-                                enum: $d.function.name
-                            }
-                        }
-                    }
-                }
-            }
-            $env.AI_CONFIG.assistant.data = $d
-            $env.AI_CONFIG.assistant.filled = true
+            let u = do $env.AI_CONFIG.assistant.merge (data tools)
+            $env.AI_CONFIG.assistant = $env.AI_CONFIG.assistant | merge deep $u
         }
         $env.AI_CONFIG.assistant.prompt
     } else {
@@ -105,12 +74,9 @@ export def --env --wrapped ai-assistant [
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
         let x = prompts-call $r {
-            instructions: instructions
-            subordinate_name: subordinate_name
-            options_value: options
-            tools: tools
-            subordinates: $env.AI_CONFIG.assistant.data.template
-            options: $env.AI_CONFIG.assistant.data.placeholder
+            getter: $env.AI_CONFIG.assistant.data.getter
+            prompt: $env.AI_CONFIG.assistant.data.prompt
+            placeholder: $env.AI_CONFIG.assistant.data.placeholder
         }
         if ($x | describe -d).type == 'list' {
             for e in $x {
