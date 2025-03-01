@@ -78,7 +78,7 @@ export-env {
             {
                 data: {
                     ...$d
-                    getter: {
+                    selector: {
                         message: instructions
                         prompt: subordinate_name
                         placeholder: options

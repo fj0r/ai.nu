@@ -78,11 +78,11 @@ export def closure-run [list] {
 
 export def prompts-call [rep c] {
     let a = $rep | get -i result.tools.0.function.arguments | default '{}' | from json
-    let sn = $c.getter.prompt
-    let snv = $a | get -i $sn
-    let inv = $a | get -i $c.getter.message
-    let onv = $a | get -i $c.getter.placeholder
-    let tlv = $a | get -i $c.getter.tools
+    let s = $c.selector
+    let snv = $a | get -i $s.prompt
+    let inv = $a | get -i $s.message
+    let onv = $a | get -i $s.placeholder
+    let tlv = $a | get -i $s.tools
     let tc_color = ansi $env.AI_CONFIG.template_calls
     let rs_color = ansi reset
     if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
@@ -95,7 +95,7 @@ export def prompts-call [rep c] {
             $"($tc_color)($snv) not a valid subordinate name($rs_color)"
         ]
     }
-    print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $sn | to nuon)($rs_color)"
+    print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $s.prompt | to nuon)($rs_color)"
     let o = $onv | default {}
     let o = if ($o | describe) == 'string' { $o | from json } else { $o }
     let tc_id = $rep.result.tools.0.id
