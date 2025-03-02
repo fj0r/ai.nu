@@ -77,7 +77,8 @@ export def closure-run [list] {
 }
 
 export def prompts-call [rep c] {
-    let a = $rep | get -i result.tools.0.function.arguments | default '{}' | from json
+    let aj = $rep | get -i result.tools.0.function.arguments | default '{}'
+    let a = $aj | from json
     let tc_id = $rep.result.tools.0.id
     let s = $c.selector
     let snv = $a | get -i $s.prompt
@@ -86,15 +87,24 @@ export def prompts-call [rep c] {
     let tlv = $a | get -i $s.tools
     let tc_color = ansi $env.AI_CONFIG.template_calls
     let rs_color = ansi reset
+    let func = {
+        function: {
+            name: $env.AI_CONFIG.assistant.function.name
+            arguments: $aj
+        }
+        id: $tc_id
+        index: 0
+        type: function
+    }
     if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
         return {
-            err: $"($env.AI_CONFIG.assistant.function.name) missing args\n($a | to yaml)"
-            tools_id: $tc_id
+            err: $"($env.AI_CONFIG.assistant.function.name) missing ($s.prompt)\n($a | to yaml)"
+            function: [$func]
         }
     } else if $snv not-in $c.prompt.name {
         return  {
             err: $"($snv) not a valid ($s.prompt)"
-            tools_id: $tc_id
+            function: [$func]
         }
     }
     print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $s.prompt | to nuon)($rs_color)"
@@ -113,6 +123,6 @@ export def prompts-call [rep c] {
     let x = $inv | ai-do $snv ...$pls -f $tlv -o
     {
         result: $x
-        tools_id: $tc_id
+        function: [$func]
     }
 }
