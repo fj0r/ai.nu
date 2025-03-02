@@ -34,7 +34,6 @@ export def --env --wrapped ai-assistant [
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
     --response-indicator: string = ''
-    --complete
     --out(-o)
     --quiet(-q)
     --debug
@@ -92,29 +91,9 @@ export def --env --wrapped ai-assistant [
                 --prevent-func
             )
         } else {
-            if not $complete {
-                # FIXME:
-                data record $s -r tool $x.result --tools $x.function.0.id
-                data record $s -r assistant $r.result.msg --tools $r.result.tools
-                break
-            } else {
-                # $r.result.tools
-                # x.function
-                let req = $r.req
-                | ai-req $s -r assistant $r.result.msg --tool-calls $x.function
-                $r = (
-                    $x.result.msg
-                    | ai-send -s $s
-                    --quiet
-                    --req $req
-                    --role tool
-                    --tool-call-id $x.function.0.id
-                    --debug=$debug
-                    --limit $env.AI_CONFIG.message_limit
-                    --function [$f]
-                    --prevent-func
-                )
-            }
+            data record $s -r tool $x.result.msg --tools $x.function.0.id
+            data record $s -r assistant $r.result.msg --tools $x.function
+            break
         }
     }
     if $out {
