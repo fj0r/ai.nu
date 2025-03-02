@@ -82,7 +82,7 @@ export def ai-call [
     }
 
     let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
-    data record $session -r 'assistant' $r.msg --token $r.token --tag $tag --tools $tc
+    data record $session -r 'assistant' $r.content --token $r.token --tag $tag --tools $tc
     $r
 }
 
@@ -143,7 +143,7 @@ export def ai-send [
         mut r = $r
         mut rst = []
         while ($r.tools | is-not-empty) {
-            $req = $req | ai-req $s -r assistant $r.msg --tool-calls $r.tools
+            $req = $req | ai-req $s -r assistant $r.content --tool-calls $r.tools
             let rt = closure-run $r.tools
             for x in $rt {
                 $req = $req
@@ -152,7 +152,7 @@ export def ai-send [
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?
             $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
-            $rst ++= [$r.msg]
+            $rst ++= [$r.content]
         }
         return {result: $r, req: $req, messages: $rst}
     }

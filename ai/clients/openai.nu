@@ -135,7 +135,7 @@ export def call [
     --quiet(-q)
 ] {
     let $req = $in
-    mut msg = ''
+    mut content = ''
     mut reason = ''
     mut token = 0
     mut tools = []
@@ -147,7 +147,7 @@ export def call [
             $token += 1
 
             let s = $i.delta.content? | default ''
-            $msg += $s
+            $content += $s
             let r = $i.delta.reasoning_content? | default ''
             $reason += $r
             let t = $i.delta.tool_calls? | default []
@@ -174,7 +174,7 @@ export def call [
     }
 
     {
-        msg: $msg
+        content: $content
         reason: $reason
         token: $token
         tools: (merge-tools $tools)

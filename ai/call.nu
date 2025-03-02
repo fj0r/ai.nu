@@ -78,7 +78,7 @@ export def --env --wrapped ai-assistant [
             # TODO: tweak ai-history-assistant
             print $"(ansi $env.AI_CONFIG.tool_calls)($x.err)(ansi reset)"
             let req = $r.req
-            | ai-req $s -r assistant $r.result.msg --tool-calls $x.function
+            | ai-req $s -r assistant $r.result.content --tool-calls $x.function
             $r = (
                 $x.err
                 | ai-send -s $s
@@ -92,8 +92,8 @@ export def --env --wrapped ai-assistant [
                 --prevent-func
             )
         } else {
-            data record $s -r tool $x.result.msg --tools $x.function.0.id
-            data record $s -r assistant $r.result.msg --tools $x.function
+            data record $s -r tool $x.result.content --tools $x.function.0.id
+            data record $s -r assistant $r.result.content --tools $x.function
             break
         }
     }
