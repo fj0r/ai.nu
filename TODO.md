@@ -16,9 +16,9 @@
     - [x] Generate virtual response for template call
     - [x] ai-switch-provider with model
     - [ ] ai-assistant
-        - [ ] Return the reason for prompt call failure
+        - [x] Return the reason for prompt call failure
         - [ ] allow ai-assistant to call functions directly
-        - [ ] Remove the --complete parameter
+        - [x] Remove the --complete parameter
         - [x] Cache the message for reuse on the next request
     - [ ] ai-do --previous allow searching
     - [ ] copilot mode

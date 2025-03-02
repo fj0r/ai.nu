@@ -92,7 +92,8 @@ export def extract [o, fields] {
 }
 
 export def prompts-call [rep c] {
-    let aj = $rep | get -i result.tools.0.function.arguments | default '{}'
+    let f = $rep | get -i result.tools.0.function
+    let aj = $f.arguments | default {}
     let a = $aj | from json
     let tc_id = $rep.result.tools.0.id
     let s = $c.selector
@@ -106,8 +107,14 @@ export def prompts-call [rep c] {
         index: 0
         type: function
     }
+    if $f.name != $env.AI_CONFIG.assistant.function.name {
+        return {
+            err: $"function name must be `($env.AI_CONFIG.assistant.function.name)`"
+            function: [$func]
+        }
+    }
     if ($d.err | is-not-empty) {
-        let e = $d.err | each {|x| $"require `($x)`" } | str join (char newline)
+        let e = $d.err | each {|x| $"miss `($x)`" } | str join (char newline)
         return {
             err: $e
             function: [$func]
