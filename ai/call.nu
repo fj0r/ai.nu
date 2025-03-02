@@ -94,6 +94,7 @@ export def --env --wrapped ai-assistant [
         } else {
             data record $s -r tool $x.result.content --tools $x.function.0.id
             data record $s -r assistant $r.result.content --tools $x.function
+            $r = $x
             break
         }
     }
