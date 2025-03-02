@@ -78,6 +78,7 @@ export def closure-run [list] {
 
 export def prompts-call [rep c] {
     let a = $rep | get -i result.tools.0.function.arguments | default '{}' | from json
+    let tc_id = $rep.result.tools.0.id
     let s = $c.selector
     let snv = $a | get -i $s.prompt
     let inv = $a | get -i $s.message
@@ -86,19 +87,19 @@ export def prompts-call [rep c] {
     let tc_color = ansi $env.AI_CONFIG.template_calls
     let rs_color = ansi reset
     if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
-        return [
-            $"($tc_color)($env.AI_CONFIG.assistant.function.name) missing args($rs_color)"
-            $"(ansi grey)($a | to yaml)(ansi reset)"
-        ]
+        return {
+            err: $"($env.AI_CONFIG.assistant.function.name) missing args\n\n($a | to yaml)"
+            tools_id: $tc_id
+        }
     } else if $snv not-in $c.prompt.name {
-        return [
-            $"($tc_color)($snv) not a valid subordinate name($rs_color)"
-        ]
+        return  {
+            err: $"($snv) not a valid ($s.prompt)"
+            tools_id: $tc_id
+        }
     }
     print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $s.prompt | to nuon)($rs_color)"
     let o = $onv | default {}
     let o = if ($o | describe) == 'string' { $o | from json } else { $o }
-    let tc_id = $rep.result.tools.0.id
     let pls = $c.prompt | where name == $snv | get 0.placeholder
     let pls = $pls | each {|x|
         let y = $o | get -i $x
