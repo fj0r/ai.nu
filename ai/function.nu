@@ -88,7 +88,7 @@ export def prompts-call [rep c] {
     let rs_color = ansi reset
     if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
         return {
-            err: $"($env.AI_CONFIG.assistant.function.name) missing args\n\n($a | to yaml)"
+            err: $"($env.AI_CONFIG.assistant.function.name) missing args\n($a | to yaml)"
             tools_id: $tc_id
         }
     } else if $snv not-in $c.prompt.name {
