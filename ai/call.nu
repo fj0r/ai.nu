@@ -75,6 +75,7 @@ export def --env --wrapped ai-assistant [
         let x = prompts-call $r $env.AI_CONFIG.assistant.data
         if ($x.err? | is-not-empty) {
             # feed back to LLM
+            # TODO: tweak ai-history-assistant
             print $"(ansi $env.AI_CONFIG.tool_calls)($x.err)(ansi reset)"
             let req = $r.req
             | ai-req $s -r assistant $r.result.msg --tool-calls $x.function

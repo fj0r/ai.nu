@@ -76,17 +76,27 @@ export def closure-run [list] {
     }
 }
 
+export def extract [o, fields] {
+    if ($o | is-empty) {
+        return {err: ["data"], data: null}
+    }
+    $fields
+    | reduce -f {err: [], data: {} } {|i, a|
+        let v = $o | get -i $i
+        if ($v | is-empty) {
+            $a | update err {|x| $x.err | append $i }
+        } else {
+            $a | update data {|x| $x.data | upsert $i $v }
+        }
+    }
+}
+
 export def prompts-call [rep c] {
     let aj = $rep | get -i result.tools.0.function.arguments | default '{}'
     let a = $aj | from json
     let tc_id = $rep.result.tools.0.id
     let s = $c.selector
-    let snv = $a | get -i $s.prompt
-    let inv = $a | get -i $s.message
-    let onv = $a | get -i $s.placeholder
-    let tlv = $a | get -i $s.tools
-    let tc_color = ansi $env.AI_CONFIG.template_calls
-    let rs_color = ansi reset
+    let d = extract $a [$s.prompt $s.message $s.placeholder]
     let func = {
         function: {
             name: $env.AI_CONFIG.assistant.function.name
@@ -96,12 +106,20 @@ export def prompts-call [rep c] {
         index: 0
         type: function
     }
-    if ([$a $snv $inv $snv] | any {|i| $i | is-empty} ) {
+    if ($d.err | is-not-empty) {
+        let e = $d.err | each {|x| $"require `($x)`" } | str join (char newline)
         return {
-            err: $"($env.AI_CONFIG.assistant.function.name) missing ($s.prompt)\n($a | to yaml)"
+            err: $e
             function: [$func]
         }
-    } else if $snv not-in $c.prompt.name {
+    }
+    let snv = $d.data | get -i $s.prompt
+    let inv = $d.data | get -i $s.message
+    let onv = $d.data | get -i $s.placeholder
+    let tlv = $a | get -i $s.tools
+    let tc_color = ansi $env.AI_CONFIG.template_calls
+    let rs_color = ansi reset
+    if $snv not-in $c.prompt.name {
         return  {
             err: $"($snv) not a valid ($s.prompt)"
             function: [$func]
