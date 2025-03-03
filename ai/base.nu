@@ -102,8 +102,8 @@ export def ai-send [
     --system: string
     --function(-f): list<any@cmpl-tools>
     --prevent-func
-    --image(-i): path
-    --audio(-a): path
+    --image(-i): string
+    --audio(-a): string
     --tool-calls: string
     --tool-call-id: string
     --oneshot

@@ -32,7 +32,7 @@ export def ollama-embed [
 export def ollama-gen [
     prompt: string
     --model(-m): string@cmpl-models
-    --image(-i): path
+    --image(-i): string
     --full(-f)
 ] {
     let content = $in | default ""
@@ -58,7 +58,7 @@ export def ollama-gen [
 export def --env ollama-chat [
     message: string
     --model(-m): string@cmpl-models
-    --image(-i): path
+    --image(-i): string
     --reset(-r)
     --oneshot
     --placehold(-p): string = '{}'

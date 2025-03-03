@@ -34,8 +34,8 @@ export def --env --wrapped ai-assistant [
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
     --response-indicator: string = ''
-    --image(-i): path
-    --audio(-a): path
+    --image(-i): string
+    --audio(-a): string
     --out(-o)
     --quiet(-q)
     --debug
@@ -179,7 +179,7 @@ export def ai-do [
     --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
     --prevent-func
-    --image(-i): path
+    --image(-i): string
     --previous(-p): int@cmpl-previous
     --debug
 ] {

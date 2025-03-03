@@ -1,6 +1,13 @@
 def image-loader [uri: string] {
-    if ($uri | path exists) {
-        let b =  open $uri | encode base64
+    let is_url = $uri | str starts-with http
+    let is_file = $uri | path exists
+    if $is_url or $is_file {
+        let b = if $is_url {
+            http get $uri
+        } else {
+            open $uri
+        }
+        | encode base64
         let t = $uri | path parse | get extension | str downcase
         let t = match $t {
             'jpg' | 'jpeg' => 'jpeg'
