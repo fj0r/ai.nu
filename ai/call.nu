@@ -34,6 +34,8 @@ export def --env --wrapped ai-assistant [
     --model(-m): string@cmpl-models
     --system: string@cmpl-system
     --response-indicator: string = ''
+    --image(-i): path
+    --audio(-a): path
     --out(-o)
     --quiet(-q)
     --debug
@@ -65,6 +67,8 @@ export def --env --wrapped ai-assistant [
         | ai-send -s $s
         --system $system
         --quiet=$quiet
+        --image $image
+        --audio $audio
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function [$f]
@@ -82,7 +86,7 @@ export def --env --wrapped ai-assistant [
             $r = (
                 $x.err
                 | ai-send -s $s
-                #--quiet
+                --quiet=$quiet
                 --req $req
                 --role tool
                 --tool-call-id $x.function.0.id

@@ -1,5 +1,5 @@
 def image-loader [uri: string] {
-    let img = if ($uri | path exists) {
+    if ($uri | path exists) {
         let b =  open $uri | encode base64
         let t = $uri | path parse | get extension | str downcase
         let t = match $t {
