@@ -4,8 +4,7 @@ export-env {
         context: {
         }
         schema: {
-            description: "Copies specified text content to the system clipboard, supports plain text fo
-        rmat",
+            description: "Copies specified text content to the system clipboard, supports plain text format"
             parameters: {
                 properties: {
                     text: {
