@@ -55,6 +55,43 @@ export-env {
         }
     }
 
+    ai-config-env-tools web_download {
+        context: {}
+        schema: {
+            description: "This function allows you to download web page content and convert it to Markdown format.",
+            parameters: {
+              type: object
+              properties: {
+                url: {
+                  type: string
+                },
+                format: {
+                  type: string
+                  enum: ["txt", "markdown", "html"],
+                  description: "Output format (default: txt)"
+                }
+              },
+              required: [url]
+            }
+        }
+        handler: {|x, ctx|
+            let r = http get -r -e $x.url
+            match $x.format? {
+                markdown | md => {
+                    $r | ^($env.HTML_TO_MARKDOWN? | default 'html2markdown')
+                }
+                text => {
+                    $r
+                    | query web -q 'p, pre, div'
+                    | flatten
+                    | filter { $in | str trim  | is-not-empty }
+                    | str join (char newline)
+                }
+                _ => $r
+            }
+        }
+    }
+
     ai-config-env-tools curl {
         context: {
             proxy: ''
@@ -83,6 +120,7 @@ export-env {
             curl ...$x
         }
     }
+
     ai-config-env-tools web_search {
         context: {
             proxy: ''

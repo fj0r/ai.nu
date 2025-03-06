@@ -14,6 +14,7 @@
   - Relevant tools (if applicable)
 - For general tool usage, invoke the 'general' subordinate.
 - Use the `find_file_path` function to find the location of files.
+- Use the `web_search` to search for information. For important information, use the `web_download` tool to download web page content
 
 
 ## Attention
