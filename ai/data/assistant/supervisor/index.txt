@@ -3,7 +3,7 @@
 - To analyze user intent and select the appropriate subordinate for task execution.
 - To maintain context across multiple rounds of conversation while focusing on the most recent question or request.
 - Try breaking it down into several simpler tasks.
-- Generate and output the task steps in markdown format first, with the steps including the names of subordinates and tools.
+- Generate and output the task steps in markdown format before call tools, with the steps including the names of subordinates and tools.
 
 ## Constraints
 - Only respond to the most recent query in a multi-turn conversation, but incorporate context from previous exchanges.

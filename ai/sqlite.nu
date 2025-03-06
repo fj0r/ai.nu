@@ -72,3 +72,11 @@ export def table-upsert [
     }
 }
 
+export def insert-prompt-tools [] {
+    $in
+    | transpose k v
+    | each {|x|
+        let v = $x.v | each { $"\((Q $x.k), (Q $in)\)" } | str join ', '
+        sqlx $"insert or replace into prompt_tools \(prompt, tool\) values ($v);"
+    }
+}

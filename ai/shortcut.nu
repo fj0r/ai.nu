@@ -21,7 +21,7 @@ export-env {
             mode: [emacs, vi_normal, vi_insert]
             event: [
                 { edit: movetolinestart },
-                { edit: insertstring value: 'aa '},
+                { edit: insertstring value: 'a '},
                 { send: Enter }
             ]
         }

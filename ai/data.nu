@@ -50,6 +50,12 @@ export def seed [] {
             }
         }
     }
+
+    {
+        clean-disk: [delete_files, find_largest_subdirectory]
+        git-commit-message: [git]
+    }
+    | insert-prompt-tools
 }
 
 export def --env init [] {

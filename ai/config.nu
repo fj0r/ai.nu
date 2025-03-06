@@ -109,8 +109,10 @@ export def ai-config-alloc-tools [
         sqlx $"delete from prompt_tools where prompt = (Q $name) returning tool;"
         | get tool
     } else {
-        let v = $tools | each { $"\((Q $name), (Q $in)\)" } | str join ', '
-        sqlx $"insert or replace into prompt_tools \(prompt, tool\) values ($v);"
+        {
+            $name: $tools
+        }
+        | insert-prompt-tools
     }
 }
 
