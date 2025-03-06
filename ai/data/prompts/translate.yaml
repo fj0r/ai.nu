@@ -1,4 +1,4 @@
-name: trans-to
+name: translate
 system: |-
   #### Goals
   - Translate the given text into the {{lang}}.
@@ -20,7 +20,7 @@ system: |-
   - Provide the translated text in Markdown format.
   - Include any notes or explanations if there are specific idiomatic expressions used.
 template: |-
-  {{}}
+  translate: {{}}
 placeholder: |-
   - lang
 description: Translation into the specified language
