@@ -75,4 +75,4 @@ ai-config-env-prompts deep_research {
 }
 
 
-ai-config-alloc-tools deep_research -t [web_search, web_download] 
+ai-config-alloc-tools deep_research -t [web_search, web_download]
