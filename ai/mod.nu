@@ -27,4 +27,5 @@ export-env {
 
 export use integration/ollama.nu *
 export use integration/local.nu *
+export use integration/audio.nu *
 export use call.nu *
