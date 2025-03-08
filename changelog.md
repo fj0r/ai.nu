@@ -1,4 +1,15 @@
 sqlite3 $env.AI_STATE
+### model table
+```sql
+CREATE TABLE IF NOT EXISTS model (
+    -- provider TEXT,
+    name TEXT,
+    has_fn BOOLEAN DEFAULT 1,
+    PRIMARY KEY (name)
+);
+```
+
+###
 ```sql
 alter table provider add column adapter TEXT default 'openai';
 alter table messages add column tool_calls TEXT;
