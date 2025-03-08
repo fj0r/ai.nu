@@ -60,13 +60,7 @@ export def 'cmpl-role' [ctx] {
     let len = $args | length
     match $len {
         1 => {
-            $env.AI_PROMPTS
-            | values
-            | select name description
-            | rename value
-            | insert style {fg: xterm_blue}
-            | append (sqlx "select name as value, description from prompt")
-            | { completions: $in, options: { sort: false } }
+            cmpl-prompt
         }
         _ => {
             let d = sqlx $"select * from prompt where name = (Q $args.0)"
@@ -101,8 +95,13 @@ export def cmpl-provider [] {
 }
 
 export def cmpl-prompt [] {
-    sqlx $"select name from prompt"
-    | get name
+    $env.AI_PROMPTS
+    | values
+    | select name description
+    | rename value
+    | insert style {fg: xterm_blue}
+    | append (sqlx "select name as value, description from prompt")
+    | { completions: $in, options: { sort: false } }
 }
 
 export def cmpl-system [] {
