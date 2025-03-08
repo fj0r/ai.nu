@@ -6,7 +6,10 @@ export def audio-request [file --host:string = 'localhost:4201'] {
 
 export def audio-to-text [--host:string] {
     let a = mktemp -t XXX.wav
-    arecord $a
+    # TODO: background
+    let pid = arecord $a
+    let k = input listen
+    kill -9 $pid
     let t = audio-request $a --host $host
     rm -f $a
     $t
