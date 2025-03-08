@@ -64,9 +64,10 @@ export def seed [] {
     {
         clean-disk: [delete_files, find_largest_subdirectory]
         git-commit-message: [git]
-        general: [get_current_time, web_search, web_download, read_file, write_file, list_directory_files, run_python_code]
-        debug: [web_search, web_download, web_download, read_file, write_file, list_directory_files]
-        programming-expert: [get_current_time, web_search, web_download, read_file, write_file, list_directory_files, run_python_code]
+        general: [get_current_time, web_search, web_download, read_file, write_file, list_directory_files, find_file_path, run_python_code]
+        debug: [web_search, web_download, web_download, read_file, write_file, list_directory_files, find_file_path]
+        programming-expert: [get_current_time, web_search, web_download, read_file, write_file, list_directory_files, find_file_path, run_python_code]
+        translate: [find_file_path, read_file, read_clipboard, write_file, copy_to_clipboard]
     }
     | insert-prompt-tools
 }
