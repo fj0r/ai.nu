@@ -34,6 +34,16 @@ export def upsert-prompt [--delete --action: closure] {
     }
 }
 
+export def upsert-model [--delete --action: closure] {
+    $in | table-upsert --action $action --delete=$delete {
+        table: model
+        pk: [name]
+        default: {
+            name: ''
+            has_fn: ''
+        }
+    }
+}
 
 export def seed [] {
     const dir = path self .

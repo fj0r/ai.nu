@@ -42,6 +42,16 @@ export def ai-history-scratch [search?:string --num(-n)=10] {
     | reverse
 }
 
+export def --env ai-config-env-prompts [name, defs] {
+    let defs = $defs | upsert name $name
+    $env.AI_PROMPTS = $env.AI_PROMPTS | merge deep {$name: $defs}
+}
+
+export def --env ai-config-env-tools [name, defs] {
+    let defs = $defs | merge deep {schema: {name: $name}}
+    $env.AI_TOOLS = $env.AI_TOOLS | merge deep {$name: $defs}
+}
+
 export def ai-config-upsert-provider [
     name?: string@cmpl-provider
     --delete
@@ -66,16 +76,6 @@ export def ai-config-upsert-provider [
     }
 }
 
-export def --env ai-config-env-prompts [name, defs] {
-    let defs = $defs | upsert name $name
-    $env.AI_PROMPTS = $env.AI_PROMPTS | merge deep {$name: $defs}
-}
-
-export def --env ai-config-env-tools [name, defs] {
-    let defs = $defs | merge deep {schema: {name: $name}}
-    $env.AI_TOOLS = $env.AI_TOOLS | merge deep {$name: $defs}
-}
-
 export def ai-config-upsert-prompt [
     name?: string@cmpl-prompt
     --delete
@@ -95,6 +95,30 @@ export def ai-config-upsert-prompt [
             | to yaml
             | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
             | block-edit $"upsert-config-XXXXXX.yaml"
+            | from yaml
+        }
+    }
+}
+
+export def ai-config-upsert-model [
+    name?: string@cmpl-models
+    --delete
+] {
+    let input = $in
+    if ($name | is-empty) {
+        {}
+    } else {
+        sqlx $"select * from model where name = (Q $name)" | get -i 0 | default {}
+    }
+    | upsert-model --delete=$delete --action {|config|
+        let o = $in
+        if ($input | is-not-empty) {
+            $o
+        } else {
+            $o
+            | to yaml
+            | $"# ($config.pk| str join ', ') is the primary key, do not modify it\n($in)"
+            | block-edit $"upsert-model-XXXXXX.yaml"
             | from yaml
         }
     }
