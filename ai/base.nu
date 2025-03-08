@@ -133,7 +133,8 @@ export def ai-send [
     | ai-req $s -r $role -i $image -a $audio --tool-call-id $tool_call_id --tool-calls $tool_calls $message
 
 
-    let fns = if ($function | is-not-empty) {
+    let has_fn = ($session.has_fn? | default 1) > 0
+    let fns = if $has_fn and ($function | is-not-empty) {
         closure-list $function
     }
     $req = $req | ai-req $s -f $fns

@@ -79,6 +79,12 @@ export def --env init [] {
             );"
             "CREATE INDEX idx_provider ON provider (name);"
             "CREATE INDEX idx_active ON provider (active);"
+            "CREATE TABLE IF NOT EXISTS model (
+                -- provider TEXT,
+                name TEXT,
+                has_fn BOOLEAN DEFAULT 1,
+                PRIMARY KEY (name)
+            );"
             "CREATE TABLE IF NOT EXISTS sessions (
                 id INTEGER PRIMARY KEY,
                 parent_id INTEGER DEFAULT -1,
@@ -158,7 +164,12 @@ export def session [-p:string -m:string] {
         $o = $o | merge $p
     }
     if ($m | is-not-empty) { $o.model = $m }
-    $o
+    let i = sqlx $"select * from model where name = (Q $o.model)"
+    if ($i | is-empty) {
+        $o
+    } else {
+        $o | merge ($i | first | reject name)
+    }
 }
 
 export def record [
