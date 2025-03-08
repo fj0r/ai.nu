@@ -146,7 +146,7 @@ export def call [
     mut reason = ''
     mut token = 0
     mut tools = []
-    mut nd = true
+    mut nd = true # need delimiter
     let conf = $env.AI_CONFIG.reasoning_content
     for x in (raw-call $session $req) {
         if ($x | is-empty) { continue }
