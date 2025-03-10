@@ -1,3 +1,10 @@
+```
+open $env.AI_STATE | query db '
+    alter table model add column has_search boolean default 0;
+'
+```
+
+
 sqlite3 $env.AI_STATE
 ### model table
 ```sql

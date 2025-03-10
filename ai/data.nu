@@ -41,6 +41,7 @@ export def upsert-model [--delete --action: closure] {
         default: {
             name: ''
             has_fn: ''
+            has_search: ''
         }
     }
 }
@@ -94,6 +95,7 @@ export def --env init [] {
                 -- provider TEXT,
                 name TEXT,
                 has_fn BOOLEAN DEFAULT 1,
+                has_search BOOLEAN DEFAULT 0,
                 PRIMARY KEY (name)
             );"
             "CREATE TABLE IF NOT EXISTS sessions (

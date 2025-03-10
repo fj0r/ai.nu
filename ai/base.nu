@@ -74,7 +74,22 @@ export def ai-call [
             | openai call $session --quiet=$quiet
         }
         _ => {
+            let f = if ($session.has_search? | default 0) > 0 {
+                let f = $req.tools? | default []
+                [
+                    {
+                        type: web_search
+                        web_search: {
+                            enable: true
+                        }
+                    }
+                    ...$f
+                ]
+            } else {
+                $req.tools?
+            }
             $req
+            | ai-req $session --functions $f
             | ai-req $session --stream
             | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
