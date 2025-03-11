@@ -1,32 +1,34 @@
 ```
-open $env.AI_STATE | query db '
+open $env.AI_STATE | query db "
     alter table model add column has_search boolean default 0;
-'
+"
 ```
 
 
 sqlite3 $env.AI_STATE
 ### model table
-```sql
-CREATE TABLE IF NOT EXISTS model (
-    -- provider TEXT,
-    name TEXT,
-    has_fn BOOLEAN DEFAULT 1,
-    PRIMARY KEY (name)
-);
+```
+open $env.AI_STATE | query db "
+    CREATE TABLE IF NOT EXISTS model (
+        -- provider TEXT,
+        name TEXT,
+        has_fn BOOLEAN DEFAULT 1,
+        PRIMARY KEY (name)
+    );
+"
 ```
 
 ###
 ```sql
-alter table provider add column adapter TEXT default 'openai';
-alter table messages add column tool_calls TEXT;
+open $env.AI_STATE | query db "alter table provider add column adapter TEXT default 'openai';"
+open $env.AI_STATE | query db "alter table messages add column tool_calls TEXT;"
 
-CREATE TABLE IF NOT EXISTS placeholder (
+open $env.AI_STATE | query db "CREATE TABLE IF NOT EXISTS placeholder (
     name TEXT PRIMARY KEY,
     yaml TEXT NOT NULL DEFAULT '{}'
-);
+);"
 
-CREATE INDEX idx_placeholder ON placeholder (name);
+open $env.AI_STATE | query db "CREATE INDEX idx_placeholder ON placeholder (name);"
 
 ```
 
