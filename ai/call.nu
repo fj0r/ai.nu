@@ -72,7 +72,7 @@ export def --env --wrapped ai-assistant [
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function [$f]
-        --prevent-func
+        --prevent-func {|x| true }
     )
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
@@ -93,7 +93,7 @@ export def --env --wrapped ai-assistant [
                 --debug=$debug
                 --limit $env.AI_CONFIG.message_limit
                 --function [$f]
-                --prevent-func
+                --prevent-func {|x| true }
             )
         } else {
             data record $s -r tool $x.result.content --tools $x.function.0.id
@@ -178,7 +178,7 @@ export def ai-do [
     --provider: string@cmpl-provider
     --model: string@cmpl-models
     --function(-f): list<string@cmpl-tools>
-    --prevent-func
+    --prevent-func: closure
     --image(-i): string
     --previous(-p): int@cmpl-previous
     --debug
@@ -219,7 +219,7 @@ export def ai-do [
         --quiet=$quiet
         --system $role.system
         --function $fns
-        --prevent-func=$prevent_func
+        --prevent-func $prevent_func
         --image $image
         --tag $"($args.0)|($args | slice 1.. | str join ',')"
         --oneshot

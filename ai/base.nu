@@ -116,7 +116,7 @@ export def ai-send [
     --role: string = 'user'
     --system: string
     --function(-f): list<any@cmpl-tools>
-    --prevent-func
+    --prevent-func: closure
     --image(-i): string
     --audio(-a): string
     --tool-calls: string
@@ -155,10 +155,13 @@ export def ai-send [
     $req = $req | ai-req $s -f $fns
 
     let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug
-    if not $prevent_func and ($fns | is-not-empty) {
+    if ($fns | is-not-empty) {
         mut r = $r
         mut rst = []
         while ($r.tools | is-not-empty) {
+            if ($prevent_func | is-not-empty) and (do $prevent_func $r.tools) {
+                return {result: $r, req: $req}
+            }
             $req = $req | ai-req $s -r assistant $r.content --tool-calls $r.tools
             let rt = closure-run $r.tools
             for x in $rt {
