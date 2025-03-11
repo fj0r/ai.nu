@@ -1,5 +1,7 @@
 export-env {
-    $env.AI_TOOLS = {}
+    if ($env.AI_TOOLS? | is-empty) {
+        $env.AI_TOOLS = {}
+    }
 }
 
 export def closure-list [list] {
