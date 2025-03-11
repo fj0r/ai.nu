@@ -15,7 +15,7 @@ ai-config-env-tools query_knowledge_base {
     }
     schema:  {
         name: query_knowledge_base
-        description: "This function allows you to query information from a knowledge base. It can be used to retrieve specific data or answers based on provided keywords or questions."
+        description: "Query information from a knowledge base. It can be used to retrieve specific data or answers based on provided keywords or questions."
         parameters: {
             type: object
             properties: {

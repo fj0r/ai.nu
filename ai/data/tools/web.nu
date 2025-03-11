@@ -44,7 +44,7 @@ export-env {
 
         }
         schema: {
-            description: 'This function retrieves the current geographical location of the user. It can provide latitude, longitude, and optionally a formatted address.'
+            description: 'Retrieves the current geographical location of the user. It can provide latitude, longitude, and optionally a formatted address.'
             parameters: {
                 type: object
                 properties: {}
@@ -58,7 +58,7 @@ export-env {
     ai-config-env-tools web_fetch {
         context: {}
         schema: {
-            description: "This function allows you to download web page content and convert it to Markdown format.",
+            description: "Fetch web content and convert it to Text or Markdown format.",
             parameters: {
               type: object
               properties: {
@@ -97,7 +97,7 @@ export-env {
             proxy: ''
         }
         schema: {
-            description: "This function allows you to perform HTTP requests to fetch web content or submit data using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
+            description: "Perform HTTP requests to fetch web content or submit data using curl. It takes a list of parameters that are passed directly to the curl command, excluding the 'curl' keyword itself."
             parameters: {
                 type: object,
                 properties: {
@@ -126,7 +126,7 @@ export-env {
             proxy: ''
         }
         schema: {
-            description: "This function allows you to perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
+            description: "Perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
             parameters: {
                 type: object,
                 properties: {

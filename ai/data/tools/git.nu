@@ -4,7 +4,7 @@ export-env {
         context: {
         }
         schema: {
-            description: "This function allows you to execute Git commands. It takes a list of Git command arguments to perform various Git operations such as commit, push, pull, etc.",
+            description: "Execute Git commands. It takes a list of Git command arguments to perform various Git operations such as commit, push, pull, etc.",
             parameters: {
                 type: object,
                 properties: {

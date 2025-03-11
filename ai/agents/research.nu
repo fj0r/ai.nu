@@ -25,7 +25,7 @@ Decomposed into:
 ### Stage Two: Directed Search
 First use web_search to gather introductory content.
 Assess relevance based on the introduction.
-Use web_fetch to download the most relevant pages.
+Use web_fetch to download the relevant pages.
 
 ### Stage Three: Material Processing
 ```markdown

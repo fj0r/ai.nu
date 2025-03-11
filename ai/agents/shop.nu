@@ -12,7 +12,7 @@ ai-config-env-tools search_product {
         }
     }
     schema: {
-        "description": "This function allows you to search for products in a product library based on provided criteria such as keywords, price, sales ranking, and more.",
+        "description": "Search for products in a product library based on provided criteria such as keywords, price, sales ranking, and more.",
         "parameters": {
           "type": "object",
           "properties": {

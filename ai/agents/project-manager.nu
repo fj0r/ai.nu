@@ -12,7 +12,7 @@ ai-config-env-tools query_job_requirements {
         }
     }
     schema: {
-      "description": "This function allows you to query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
+      "description": "Query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -48,7 +48,7 @@ ai-config-env-tools query_job_requirements {
 ai-config-env-tools get_ticket_counts_by_usernames {
   schema: {
     "name": "get_ticket_counts_by_usernames",
-    "description": "This function retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order.",
+    "description": "Retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order.",
     "parameters": {
       "type": "object",
       "properties": {

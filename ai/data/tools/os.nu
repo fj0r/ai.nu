@@ -6,7 +6,7 @@ use ../../config.nu *
 export-env {
     ai-config-env-tools get_current_time {
         schema: {
-            description: "This function retrieves the current date and time.",
+            description: "Retrieves the current date and time.",
             parameters: {
                 type: object,
                 properties: {
@@ -25,7 +25,7 @@ export-env {
 
     ai-config-env-tools find_largest_subdirectory {
         schema: {
-            description: "This function allows you to find the subdirectory that occupies the most space within a given directory. It can be useful for identifying large directories that may need to be cleaned up or managed.",
+            description: "Find the subdirectory that occupies the most space within a given directory. It can be useful for identifying large directories that may need to be cleaned up or managed.",
             parameters: {
                 type: object,
                 properties: {
@@ -61,7 +61,7 @@ export-env {
 
     ai-config-env-tools delete_files {
         schema: {
-            description: "This function allows you to delete multiple files by providing a list of file paths. It can be used to remove files from the file system.",
+            description: "Delete multiple files by providing a list of file paths. It can be used to remove files from the file system.",
             parameters: {
                 type: object,
                 properties: {
@@ -93,7 +93,7 @@ export-env {
 
     ai-config-env-tools read_file {
         schema: {
-            description: "This function reads the content of a file from the specified path and returns the content as a string.",
+            description: "Read the content of a file from the specified path and return the content as a string.",
             parameters: {
                 type: object,
                 properties: {
@@ -114,7 +114,7 @@ export-env {
 
     ai-config-env-tools write_file {
         schema: {
-            description: "This function allows you to write content to a file. It can be used to create new files or append content to existing files.",
+            description: "Write content to a file. It can be used to create new files or append content to existing files.",
             parameters: {
                 type: object,
                 properties: {
@@ -159,7 +159,7 @@ export-env {
 
     ai-config-env-tools find_file_path {
         schema: {
-            description: "This function searches for the specified file in the current directory and returns its full path if found."
+            description: "Search for the specified file in the current directory and returns its full path if found."
             parameters: {
                 type: object
                 properties: {
@@ -188,7 +188,7 @@ export-env {
 
     ai-config-env-tools list_directory_files {
         schema: {
-            description: "This function lists all files in a specified directory, including files in subdirectories. It can be used to explore the file structure of a directory and its subdirectories. If no directory is specified, it defaults to the current directory.",
+            description: "List all files in a specified directory, including files in subdirectories. If no directory is specified, it defaults to the current directory.",
             parameters: {
                 type: object,
                 properties: {

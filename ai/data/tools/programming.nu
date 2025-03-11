@@ -2,7 +2,7 @@ use ../../config.nu *
 export-env {
     ai-config-env-tools run_python_code {
         schema: {
-            description: "This function executes Python code in the current working directory. It can be used to run scripts, modules, or any Python code snippet.",
+            description: "Executes Python code in the current working directory. It can be used to run scripts, modules, or any Python code snippet.",
             parameters: {
                 type: object,
                 properties: {
@@ -63,7 +63,7 @@ export-env {
                 | psql -U $ctx.username -d $ctx.database -h $ctx.host -p $ctx.port
                 $"This function executes a PostgreSQL query from a file located in the current directory. The file should contain valid SQL statements. including the following table: ($t)"
             }
-            description: "This function executes a PostgreSQL query from a file located in the current directory. The file should contain valid SQL statements."
+            description: "Executes a PostgreSQL query from a file located in the current directory. The file should contain valid SQL statements."
             parameters: {
                 type: object,
                 properties: {

@@ -4,7 +4,7 @@ export-env {
         context: {
         }
         schema: {
-            description: "Copies specified text content to the system clipboard, supports plain text format"
+            description: "Copy specified text content to the system clipboard, supports plain text format"
             parameters: {
                 properties: {
                     text: {
@@ -26,7 +26,7 @@ export-env {
         context: {
         }
         schema: {
-            description: "This function retrieves the contents of the clipboard. It can be used to access text, images, or other data that has been copied or cut to the clipboard.",
+            description: "Retrieve the contents of the clipboard. It can be used to access text, images, or other data that has been copied or cut to the clipboard.",
             parameters: {
                 type: object,
                 properties: {}
