@@ -126,7 +126,7 @@ export-env {
             proxy: ''
         }
         schema: {
-            description: "Perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords.",
+            description: "Perform a search using search engine. It can be used to find web pages, images, videos, or any other content based on provided keywords."
             parameters: {
                 type: object,
                 properties: {
