@@ -61,8 +61,16 @@ export def --env --wrapped ai-assistant [
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
     }
-    let f = { type: function, function: $env.AI_CONFIG.assistant.function }
     print -n $response_indicator
+
+    let f = [{ type: function, function: $env.AI_CONFIG.assistant.function }]
+    let f = if $ensure_prompt {
+        $f
+    } else {
+        $f | append ($env.AI_TOOLS | items {|k, v|
+            { type: function, function: ($v.schema | upsert name $k) }
+        })
+    }
     let filter_assistant = if $ensure_prompt {
         {|x| true }
     } else {
@@ -80,7 +88,7 @@ export def --env --wrapped ai-assistant [
         --audio $audio
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
-        --function [$f]
+        --function $f
         --prevent-func $filter_assistant
     )
     mut $r = $r
@@ -101,7 +109,7 @@ export def --env --wrapped ai-assistant [
                 --tool-call-id $x.function.0.id
                 --debug=$debug
                 --limit $env.AI_CONFIG.message_limit
-                --function [$f]
+                --function $f
                 --prevent-func $filter_assistant
             )
         } else {
