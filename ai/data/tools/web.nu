@@ -55,7 +55,7 @@ export-env {
         }
     }
 
-    ai-config-env-tools web_download {
+    ai-config-env-tools web_fetch {
         context: {}
         schema: {
             description: "This function allows you to download web page content and convert it to Markdown format.",

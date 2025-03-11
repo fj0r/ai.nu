@@ -25,7 +25,7 @@ Decomposed into:
 ### Stage Two: Directed Search
 First use web_search to gather introductory content.
 Assess relevance based on the introduction.
-Use web_download to download the most relevant pages.
+Use web_fetch to download the most relevant pages.
 
 ### Stage Three: Material Processing
 ```markdown
@@ -75,4 +75,4 @@ ai-config-env-prompts deep_research {
 }
 
 
-ai-config-alloc-tools deep_research -t [web_search, web_download]
+ai-config-alloc-tools deep_research -t [web_search, web_fetch]
