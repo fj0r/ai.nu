@@ -44,10 +44,6 @@ export-env {
         function: $f
         filled: false
         merge: {|d|
-            let prompt = $env.AI_CONFIG.assistant.prompt_template
-            | str replace '{{prompts}}' ($d.prompt | rename -c {placeholder:  options}  | to yaml)
-            | str replace '{{placeholders}}' ($d.placeholder | to yaml)
-            | str replace '{{tools}}' ($d.function | to yaml)
             let function = $env.AI_CONFIG.assistant.function
             | merge deep {
                 parameters: {
@@ -85,7 +81,16 @@ export-env {
                         tools: tools
                     }
                 }
-                prompt: $prompt
+                prompt: {|ensure_prompt|
+                    $env.AI_CONFIG.assistant.prompt_template
+                    | str replace '{{prompts}}' ($d.prompt | rename -c {placeholder:  options}  | to yaml)
+                    | str replace '{{placeholders}}' ($d.placeholder | to yaml)
+                    | str replace '{{tools}}' (if $ensure_prompt {
+                        $d.function | to yaml
+                     } else {
+                        ''
+                     })
+                }
                 function: $function
                 filled: $filled
             }

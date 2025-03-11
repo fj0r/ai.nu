@@ -53,10 +53,11 @@ export def --env --wrapped ai-assistant [
     }
     let system = if ($system | is-empty) {
         if not $env.AI_CONFIG.assistant.filled or $refresh {
-            let u = do $env.AI_CONFIG.assistant.merge (data tools)
+            let d = data tools
+            let u = do $env.AI_CONFIG.assistant.merge $d
             $env.AI_CONFIG.assistant = $env.AI_CONFIG.assistant | merge deep $u
         }
-        $env.AI_CONFIG.assistant.prompt
+        do $env.AI_CONFIG.assistant.prompt $ensure_prompt
     } else {
         sqlx $"select system from prompt where name = '($system)'"
         | get 0.system
