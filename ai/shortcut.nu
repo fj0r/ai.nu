@@ -1,6 +1,6 @@
 export alias an = ai-new-session
-export alias a = ai-assistant --directly-tools
-export alias A = ai-assistant
+export alias a = ai-assistant
+export alias A = ai-assistant --ensure-prompt
 export alias Q: = ai-assistant --response-indicator 'A: '
 export alias Q： = ai-assistant --response-indicator 'A： '
 export alias ad = ai-do
