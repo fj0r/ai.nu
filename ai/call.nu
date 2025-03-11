@@ -38,6 +38,7 @@ export def --env --wrapped ai-assistant [
     --audio(-a): string
     --out(-o)
     --quiet(-q)
+    --directly-tools
     --debug
     --refresh
     ...message: string
@@ -62,6 +63,14 @@ export def --env --wrapped ai-assistant [
     }
     let f = { type: function, function: $env.AI_CONFIG.assistant.function }
     print -n $response_indicator
+    let filter_assistant = if $directly_tools {
+        {|x|
+            let c = $x | get -i 0.function.name | default ''
+            $c == $env.AI_CONFIG.assistant.function.name
+        }
+    } else {
+        {|x| true }
+    }
     let r = (
         $message
         | ai-send -s $s
@@ -72,7 +81,7 @@ export def --env --wrapped ai-assistant [
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function [$f]
-        --prevent-func {|x| true }
+        --prevent-func $filter_assistant
     )
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
@@ -93,7 +102,7 @@ export def --env --wrapped ai-assistant [
                 --debug=$debug
                 --limit $env.AI_CONFIG.message_limit
                 --function [$f]
-                --prevent-func {|x| true }
+                --prevent-func $filter_assistant
             )
         } else {
             data record $s -r tool $x.result.content --tools $x.function.0.id
