@@ -165,6 +165,9 @@ export def ai-send [
             $req = $req | ai-req $s -r assistant $r.content --tool-calls $r.tools
             let rt = closure-run $r.tools
             for x in $rt {
+                if err in $x {
+                    error make { msg: $x.err }
+                }
                 $req = $req
                 | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
             }

@@ -61,7 +61,10 @@ export def closure-run [list] {
         let f = $env.AI_TOOLS | get -i $name
         let c = $f.context?
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
-        if ($f | is-empty) { return $"Err: function ($x.function.name) not found" }
+        if ($f | is-empty) {
+            let e = $x | insert err $"function `($x.function.name)` not found"
+            return $e
+        }
         let f = $f.handler
         let a = $x.function.arguments | from json
 
