@@ -1,6 +1,6 @@
-export def audio-request [file --host:string = 'localhost:4010'] {
+export def audio-request [file --host:string = 'http://localhost:4010'] {
     # USE: onerahmet/openai-whisper-asr-webservice:latest
-    http post --content-type multipart/form-data $"http://($host)/asr" {
+    http post --content-type multipart/form-data $"($host)/asr" {
         audio_file: (open -r ($file | path expand))
     }
 }
@@ -21,7 +21,7 @@ def audio_record [file?: path] {
     $a
 }
 
-export def audio-to-text [--host:string = 'localhost:4010'] {
+export def audio-to-text [--host:string = 'http://localhost:4010'] {
     let a = audio_record
     print $"(ansi grey)Recording stopped. Starting recognition...(ansi reset)"
     let t = audio-request $a --host $host

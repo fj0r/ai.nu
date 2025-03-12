@@ -13,7 +13,8 @@ export alias aha = ai-history-assistant
 export alias ahd = ai-history-do
 
 export def aa [] {
-    let a = audio-to-text
+    let host = $env.WHISPER_HOST? | default 'http://localhost:4010'
+    let a = audio-to-text --host $host
     print $"Q: ($a)"
     ai-assistant $a --response-indicator 'A: '
 }
