@@ -5,12 +5,16 @@ export def audio-request [file --host:string = 'localhost:4010'] {
     }
 }
 
-def audio_record [] {
-    let a = mktemp -t XXX.mp3
+def audio_record [file?: path] {
+    let a = if ($file | is-empty) {
+        mktemp -t XXX.mp3
+    } else {
+        $file
+    }
     print $"(ansi grey)Recording started. Please speak clearly into the microphone. Press [(ansi yellow)q(ansi grey)] when finished.(ansi reset)"
     let inputfmt = match $nu.os-info.name {
         linux => 'alsa'
-        windows => 'dshow'
+        windows => 'lavfi'
         _ => 'avfoundation'
     }
     ffmpeg -f $inputfmt -y -loglevel error -i default -acodec libmp3lame -ar 44100 -ac 2 $a
