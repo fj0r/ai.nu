@@ -12,6 +12,11 @@ export alias ai-history-chat = ai-history-assistant
 export alias aha = ai-history-assistant
 export alias ahd = ai-history-do
 
+export def aa [] {
+    let a = audio-to-text
+    print $"Q: ($a)"
+    ai-assistant $a --response-indicator 'A: '
+}
 
 export-env {
     $env.config.keybindings ++= [
