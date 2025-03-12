@@ -75,6 +75,10 @@ export-env {
             }
         }
         handler: {|x, ctx|
+            if ($ctx.proxy? | is-not-empty) {
+                $env.http_proxy = $ctx.proxy
+                $env.https_proxy = $ctx.proxy
+            }
             let r = http get -r -e $x.url
             match $x.format? {
                 markdown | md => {
