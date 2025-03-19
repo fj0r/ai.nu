@@ -169,7 +169,7 @@ export def ai-send [
                     error make { msg: $x.err }
                 }
                 $req = $req
-                | ai-req $s -r tool ($x.result | to json -r) --tool-call-id $x.id
+                | ai-req $s -r tool ($x.result | to json -rs) --tool-call-id $x.id
             }
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?
