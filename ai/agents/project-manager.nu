@@ -12,31 +12,31 @@ ai-config-env-tools query_job_requirements {
         }
     }
     schema: {
-      "description": "Query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "job_content": {
-            "type": "string",
-            "description": "The specific job content or requirements to query"
+      description: "Query job responsibilities and requirements. It returns related employees/team and job duties based on the provided job content or requirements.",
+      parameters: {
+        type: object
+        properties: {
+          job_content: {
+            type: string
+            description: "The specific job content or requirements to query"
           },
-          "department": {
-            "type": "string",
+          department: {
+            type: string
             "description": "The department to filter the search within"
           },
-          "role_type": {
-            "type": "string",
-            "description": "The type of role to filter the search within",
-            "enum": [
-              "manager",
-              "developer",
-              "analyst",
-              "designer"
+          role_type: {
+            type: string
+            description: "The type of role to filter the search within"
+            enum: [
+              manager
+              developer
+              analyst
+              designer
             ]
           }
         },
-        "required": [
-          "job_content"
+        required: [
+          job_content
         ]
       }
     }
@@ -47,21 +47,21 @@ ai-config-env-tools query_job_requirements {
 
 ai-config-env-tools get_ticket_counts_by_usernames {
   schema: {
-    "name": "get_ticket_counts_by_usernames",
-    "description": "Retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order.",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "usernames": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of usernames for which to retrieve ticket counts."
+    name: get_ticket_counts_by_usernames
+    description: "Retrieves the number of tickets assigned to each employee based on a list of usernames and sorts them by the number of tickets in ascending order."
+    parameters: {
+      type: object
+      properties: {
+        usernames: {
+          type: array
+          items: {
+            type: string
+          }
+          description: "A list of usernames for which to retrieve ticket counts."
         }
-      },
-      "required": [
-        "usernames"
+      }
+      required: [
+        usernames
       ]
     }
   }

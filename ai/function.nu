@@ -5,30 +5,37 @@ export-env {
 }
 
 export def closure-list [list] {
-    let list = $list
-    | reduce -f {name: [], defs: []} {|i,a|
-        let p = if ($i | describe) == string { 'name' } else { 'defs' }
-        $a | update $p {|x| $a | get $p | append $i}
+    $list
+    | reduce -f [] {|i,a|
+        let p = if ($i | describe) == string {
+            $env.AI_TOOLS | get -i $i
+        } else {
+            {schema: $i}
+        }
+        if ($a | where schema.name == $p.schema.name | is-empty) {
+            $a | append $p
+        } else {
+            $a
+        }
     }
-    $list.name
-    | uniq
     | each {|x|
-        let c = $env.AI_TOOLS | get -i $x | get -i context
+        let c = $x | get -i context
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
-        let a = $env.AI_TOOLS | get $x
+        let a = $x
         | get schema
+        | select name description parameters
         | upsert parameters.properties {|y|
             $y.parameters.properties
             | transpose k v
             | reduce -f {} {|i,a|
-                [enum description] | reduce -f $a {|j,b|
-                    let v = if ($j in $i.v) and ($i.v | get $j | describe -d).type == 'closure' {
-                        $i.v | upsert $j (do ($i.v | get $j) $c)
-                    } else {
-                        $i.v
+                mut v = $i.v
+                for j in [enum description] {
+                    if ($i.v | get -i $j | describe -d).type == 'closure' {
+                        let r = (do ($i.v | get $j) $c)
+                        $v = $v | upsert $j $r
                     }
-                    $b | upsert $i.k $v
                 }
+                $a | upsert $i.k $v
             }
         }
         | upsert description {|x|
@@ -40,7 +47,6 @@ export def closure-list [list] {
         }
         {type: function, function: $a}
     }
-    | append $list.defs
 }
 
 export def ConfirmExec [msg cond act alt] {

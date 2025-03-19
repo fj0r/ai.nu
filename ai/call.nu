@@ -64,12 +64,12 @@ export def --env --wrapped ai-assistant [
     }
     print -n $response_indicator
 
-    let f = [{ type: function, function: $env.AI_CONFIG.assistant.function }]
+    let f = [$env.AI_CONFIG.assistant.function]
     let f = if $ensure_prompt {
         $f
     } else {
         $f | append ($env.AI_TOOLS | items {|k, v|
-            { type: function, function: ($v.schema | upsert name $k) }
+            $v.schema | upsert name $k
         })
     }
     let filter_assistant = if $ensure_prompt {

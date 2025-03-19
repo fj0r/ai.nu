@@ -123,28 +123,28 @@ ai-config-env-tools search_product {
 
 ai-config-env-tools query_orders {
     schema: {
-        "description": "This function queries orders from the database. The user ID is obtained from the context and does not need to be provided as a parameter.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "order_status": {
-              "type": "string",
-              "description": "The status of the orders to filter by (e.g., 'pending', 'shipped', 'delivered')"
-            },
-            "start_date": {
-              "type": "string",
-              "description": "The start date to filter orders (format: YYYY-MM-DD)"
-            },
-            "end_date": {
-              "type": "string",
-              "description": "The end date to filter orders (format: YYYY-MM-DD)"
-            },
-            "limit": {
-              "type": "number",
-              "description": "The maximum number of orders to return"
+        description: "This function queries orders from the database. The user ID is obtained from the context and does not need to be provided as a parameter."
+        parameters: {
+          type: object
+          properties: {
+            order_status: {
+              type: string
+              description: "The status of the orders to filter by (e.g., 'pending', 'shipped', 'delivered')"
             }
-          },
-          "required": []
+            start_date: {
+              type: string
+              description: "The start date to filter orders (format: YYYY-MM-DD)"
+            }
+            end_date: {
+              type: string
+              description: "The end date to filter orders (format: YYYY-MM-DD)"
+            }
+            limit: {
+              type: number
+              description: "The maximum number of orders to return"
+            }
+          }
+          required: []
         }
     }
     handler: {|x, ctx|
