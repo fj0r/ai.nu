@@ -84,14 +84,14 @@ export-env {
                 markdown | md => {
                     $r | ^($env.HTML_TO_MARKDOWN? | default 'html2markdown')
                 }
-                text => {
+                html => { $r }
+                _ => {
                     $r
                     | query web -q 'p, pre, div'
                     | flatten
                     | filter { $in | str trim  | is-not-empty }
                     | str join (char newline)
                 }
-                _ => $r
             }
         }
     }
