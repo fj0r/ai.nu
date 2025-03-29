@@ -60,7 +60,7 @@ export def ConfirmExec [msg cond act alt] {
     }
 }
 
-export def closure-run [list] {
+export def closure-run [list --fallback: string] {
     $list
     | par-each {|x|
         let name = $x.function.name
@@ -68,8 +68,13 @@ export def closure-run [list] {
         let c = $f.context?
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) {
-            let e = $x | insert err $"function `($x.function.name)` not found"
-            return $e
+            mut e = $"function `($x.function.name)` not found."
+            if ($fallback | is-not-empty) {
+                $e = $"($e) try calling `($fallback)`."
+            }
+            print -e $"(ansi $env.AI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($e)(ansi reset)"
+            let r = $x | insert err $e
+            return $r
         }
         let f = $f.handler
         let a = $x.function.arguments | from json

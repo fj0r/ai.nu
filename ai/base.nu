@@ -121,6 +121,7 @@ export def ai-send [
     --audio(-a): string
     --tool-calls: string
     --tool-call-id: string
+    --tool-fallback: string
     --oneshot
     --limit: int = 20
     --quiet(-q)
@@ -163,13 +164,15 @@ export def ai-send [
                 return {result: $r, req: $req}
             }
             $req = $req | ai-req $s -r assistant $r.content --tool-calls $r.tools
-            let rt = closure-run $r.tools
+            let rt = closure-run $r.tools --fallback $tool_fallback
             for x in $rt {
-                if err in $x {
-                    error make { msg: $x.err }
+                let msg = if err in $x {
+                    $x.err
+                } else {
+                    $x.result | to json -rs
                 }
                 $req = $req
-                | ai-req $s -r tool ($x.result | to json -rs) --tool-call-id $x.id
+                | ai-req $s -r tool $msg --tool-call-id $x.id
             }
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?

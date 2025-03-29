@@ -91,6 +91,7 @@ export def --env --wrapped ai-assistant [
         --limit $env.AI_CONFIG.message_limit
         --function $f
         --prevent-func $filter_assistant
+        --tool-fallback $env.AI_CONFIG.assistant.function.name
     )
     mut $r = $r
     while ($r.result.tools? | is-not-empty) {
