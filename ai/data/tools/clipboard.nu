@@ -6,6 +6,7 @@ export-env {
         schema: {
             description: "Copy specified text content to the system clipboard, supports plain text format"
             parameters: {
+                type: object
                 properties: {
                     text: {
                         type: string,
