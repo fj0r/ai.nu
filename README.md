@@ -82,6 +82,16 @@ ai-embed
 
 Since [unpm](https://github.com/nushell/nupm) might not be mature enough yet. Let's install nu.ai manually.
 
+Nushell:
+
+```nushell
+git clone --depth=1 https://github.com/fj0r/ai.nu.git ~/nu_libs/ai.nu
+$"(char newline)$env.NU_LIB_DIRS ++= glob ~/nu_libs/*" | save -a $nu.env-path
+$"(char newline)use ai *" | save -a $nu.config-path
+exec nu
+```
+
+Bash:
 ```bash
 git clone --depth=1 https://github.com/fj0r/ai.nu.git ~/nu_libs/ai.nu
 if [ -z "${XDG_CONFIG_HOME}" ]; then
