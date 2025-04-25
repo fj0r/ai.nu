@@ -15,7 +15,7 @@ nu.ai uses Nushell's SQLite native integration to persist providers, settings an
 There are many AI clients available on the market, but most of them are web-based UIs or local UIs. While these UIs are relatively user-friendly for beginners, they can be inefficient for advanced users. For example, in `ai.nu`, you can run the following command:
 
 ```bash
-git diff | a-do git-diff-summary zh | git commit -m $in
+git diff | ai-do git-diff-summary zh | git commit -m $in
 ```
 
 This command generates a summary of Git changes and uses it as the commit message. If you use this command frequently, you can further simplify or automate it. Additionally, you can use `Ctrl+r` to quickly search through your history of commands.
