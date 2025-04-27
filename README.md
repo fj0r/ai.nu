@@ -167,7 +167,7 @@ To load a new provider:
     org_id: ''
     project_id: ''
     temp_max: 1.0
-} | ai-config-upsert-provider --batch
+} | ai-config-upsert-provider
 ```
 
 Where `--batch` tells ai.nu to accept these values without prompting the user with an editor.
