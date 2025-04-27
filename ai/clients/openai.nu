@@ -1,5 +1,6 @@
 def image-loader [uri: string] {
     let is_url = $uri | str starts-with http
+    let uri = $uri | path expand
     let is_file = $uri | path exists
     if $is_url or $is_file {
         let b = if $is_url {
