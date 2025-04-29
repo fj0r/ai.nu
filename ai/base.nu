@@ -22,7 +22,7 @@ export def ai-req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
-    --thinking
+    --thinking:int
 ] {
     let o = $in
     match $session.adapter? {
@@ -37,7 +37,7 @@ export def ai-req [
             --model ($model | default $session.model)
             --temperature ($temperature | default $session.temperature)
             --stream=$stream
-            --thinking=$thinking
+            --thinking $thinking
             $message
         )
     }
@@ -57,7 +57,7 @@ export def ai-call [
     --tag: string = ''
     --quiet(-q)
     --debug
-    --thinking
+    --thinking:int
     --record:int = 1
 ] {
     let req = $in
@@ -86,7 +86,7 @@ export def ai-call [
     }
     let r = $req
             | ai-req $session --functions $f
-            | ai-req $session --stream --thinking=$thinking
+            | ai-req $session --stream --thinking $thinking
             | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
 
@@ -143,6 +143,12 @@ export def ai-send [
     }
     | ai-req $s -r $role -i $image -a $audio --tool-call-id $tool_call_id --tool-calls $tool_calls $message
 
+    let has_thinking = ($session.has_thinking? | default 1) > 0
+    let thinking = if $has_thinking {
+        if $thinking { 2 } else { 1 }
+    } else {
+        0
+    }
 
     let has_fn = ($session.has_fn? | default 1) > 0
     let fns = if $has_fn and ($function | is-not-empty) {
@@ -150,7 +156,7 @@ export def ai-send [
     }
     $req = $req | ai-req $s -f $fns
 
-    let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug --thinking=$thinking
+    let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug --thinking $thinking
     if ($fns | is-not-empty) {
         mut r = $r
         mut rst = []
@@ -171,7 +177,7 @@ export def ai-send [
             }
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?
-            $r = $req | ai-call $s --quiet=$quiet --tag $tag --thinking=$thinking --record (($rt | length) + 0)
+            $r = $req | ai-call $s --quiet=$quiet --tag $tag --thinking $thinking --record (($rt | length) + 0)
             $rst ++= [$r.content]
         }
         return {result: $r, req: $req, messages: $rst}

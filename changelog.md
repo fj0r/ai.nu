@@ -1,3 +1,10 @@
+has_thinking
+```
+open $env.AI_STATE | query db "
+    alter table model add column has_thinking boolean default 0;
+"
+```
+has_search
 ```
 open $env.AI_STATE | query db "
     alter table model add column has_search boolean default 0;
