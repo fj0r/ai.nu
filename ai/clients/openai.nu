@@ -30,6 +30,7 @@ export def req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
+    --thinking
     message?: string
 ] {
     mut o = $in | default { messages: [] }
@@ -47,6 +48,7 @@ export def req [
         $o.tool_choice = 'auto'
     }
     $o.stream = $stream
+    $o.enable_thinking = $thinking
     let content = if not (($image | is-empty) and ($audio | is-empty)) {
         mut content = []
         if ($message | is-not-empty) {

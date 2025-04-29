@@ -22,6 +22,7 @@ export def ai-req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
+    --thinking
 ] {
     let o = $in
     match $session.adapter? {
@@ -36,6 +37,7 @@ export def ai-req [
             --model ($model | default $session.model)
             --temperature ($temperature | default $session.temperature)
             --stream=$stream
+            --thinking=$thinking
             $message
         )
     }
@@ -55,6 +57,7 @@ export def ai-call [
     --tag: string = ''
     --quiet(-q)
     --debug
+    --thinking
     --record:int = 1
 ] {
     let req = $in
@@ -63,38 +66,29 @@ export def ai-call [
         let tc = if ($x.tool_call_id? | is-not-empty) { $x.tool_call_id }
         data record $session -r $x.role $x.content --tag $tag --tools $tc
     }
-    let r = match $session.adapter? {
+    mut f = $req.tools? | default []
+    match $session.adapter? {
         gemini => {
-            let f = $req.tools? | default []
-            let f = [...$f, {google_search: {}}]
-            $req
-            | ai-req $session --functions $f
-            | ai-req $session --stream
-            | debug-req --debug=$debug
-            | openai call $session --quiet=$quiet
+            $f ++= [{google_search: {}}]
         }
-        _ => {
-            let f = if ($session.has_search? | default 0) > 0 {
-                let f = $req.tools? | default []
-                [
-                    {
-                        type: web_search
-                        web_search: {
-                            enable: true
-                        }
-                    }
-                    ...$f
-                ]
-            } else {
-                $req.tools?
-            }
-            $req
-            | ai-req $session --functions $f
-            | ai-req $session --stream
-            | debug-req --debug=$debug
-            | openai call $session --quiet=$quiet
-        }
+        _ => {}
     }
+    if ($session.has_search? | default 0) > 0 {
+        $f = [
+            {
+                type: web_search
+                web_search: {
+                    enable: true
+                }
+            }
+            ...$f
+        ]
+    }
+    let r = $req
+            | ai-req $session --functions $f
+            | ai-req $session --stream --thinking=$thinking
+            | debug-req --debug=$debug
+            | openai call $session --quiet=$quiet
 
     let tc = if ($r.tools? | is-not-empty) { $r.tools | to yaml }
     data record $session -r 'assistant' $r.content --token $r.token --tag $tag --tools $tc
@@ -127,6 +121,7 @@ export def ai-send [
     --quiet(-q)
     --tag: string = ''
     --req: record
+    --thinking
     --debug
 ] {
     let message = $in
@@ -155,7 +150,7 @@ export def ai-send [
     }
     $req = $req | ai-req $s -f $fns
 
-    let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug
+    let r = $req | ai-call $s --quiet=$quiet --tag $tag --debug=$debug --thinking=$thinking
     if ($fns | is-not-empty) {
         mut r = $r
         mut rst = []
@@ -176,7 +171,7 @@ export def ai-send [
             }
             if $debug { print $"(ansi blue)($req | to yaml)(ansi reset)" }
             # TODO: 0 or 1?
-            $r = $req | ai-call $s --quiet=$quiet --tag $tag --record (($rt | length) + 0)
+            $r = $req | ai-call $s --quiet=$quiet --tag $tag --thinking=$thinking --record (($rt | length) + 0)
             $rst ++= [$r.content]
         }
         return {result: $r, req: $req, messages: $rst}
