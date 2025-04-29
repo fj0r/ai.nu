@@ -39,7 +39,7 @@ export def --env --wrapped ai-assistant [
     --out(-o)
     --quiet(-q)
     --ensure-prompt
-    --thinking
+    --think
     --debug
     --refresh
     ...message: string
@@ -91,7 +91,7 @@ export def --env --wrapped ai-assistant [
         --debug=$debug
         --limit $env.AI_CONFIG.message_limit
         --function $f
-        --thinking=$thinking
+        --think=$think
         --prevent-func $filter_assistant
         --tool-fallback $env.AI_CONFIG.assistant.function.name
     )
@@ -111,7 +111,7 @@ export def --env --wrapped ai-assistant [
                 --req $req
                 --role tool
                 --tool-call-id $x.function.0.id
-                --thinking=$thinking
+                --think=$think
                 --debug=$debug
                 --limit $env.AI_CONFIG.message_limit
                 --function $f
@@ -203,7 +203,7 @@ export def ai-do [
     --prevent-func: closure
     --image(-i): string
     --previous(-p): int@cmpl-previous
-    --thinking
+    --think
     --debug
 ] {
     let input = $in
@@ -246,7 +246,7 @@ export def ai-do [
         --image $image
         --tag $"($args.0)|($args | slice 1.. | str join ',')"
         --oneshot
-        --thinking=$thinking
+        --think=$think
         --debug=$debug
     )
     if $out { $r.result }

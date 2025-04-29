@@ -121,7 +121,7 @@ export def ai-send [
     --quiet(-q)
     --tag: string = ''
     --req: record
-    --thinking
+    --think
     --debug
 ] {
     let message = $in
@@ -145,7 +145,7 @@ export def ai-send [
 
     let has_thinking = ($session.has_thinking? | default 1) > 0
     let thinking = if $has_thinking {
-        if $thinking { 2 } else { 1 }
+        if $think { 2 } else { 1 }
     } else {
         0
     }
