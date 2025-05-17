@@ -81,13 +81,13 @@ export def --wrapped run-llm-with [
     if $cuda {
         $dargs ++= [--gpus all]
     }
-    if $name in (^$env.CONTCTL ps -a | from ssv -a | get NAMES) {
-        ^$env.CONTCTL rm -f $name
+    if $name in (^$env.CNTRCTL ps -a | from ssv -a | get NAMES) {
+        ^$env.CNTRCTL rm -f $name
     }
 
     if $dry_run {
         print ([docker run ...$dargs $ctx.image ...$ctx.args ...$args] | str join ' ')
     } else {
-        ^$env.CONTCTL run ...$dargs $ctx.image ...$ctx.args ...$args
+        ^$env.CNTRCTL run ...$dargs $ctx.image ...$ctx.args ...$args
     }
 }
