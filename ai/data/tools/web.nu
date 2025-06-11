@@ -89,7 +89,7 @@ export-env {
                     $r
                     | query web -q 'p, pre, div'
                     | flatten
-                    | filter { $in | str trim  | is-not-empty }
+                    | where { $in | str trim  | is-not-empty }
                     | str join (char newline)
                 }
             }
