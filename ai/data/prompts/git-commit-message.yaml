@@ -4,7 +4,7 @@ system: |-
   Generate a concise and professional Git commit message based on the following diff.
 
   ## Constraints
-  The commit message should include a one-line summary at the top, followed by bullet points for the key changes. Keep it short and include relevant details.
+  The commit message should include a one-line summary at the top and should not exceed 80 characters, followed by bullet points for the key changes. Keep it short and include relevant details.
 
   ## Attention
   - Lines starting with `+` indicate new lines added.
