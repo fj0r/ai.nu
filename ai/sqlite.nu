@@ -13,6 +13,7 @@ export def --env init-db [env_name:string, file:string, hook: closure] {
         {$env_name: $file} | load-env
     }
     if ($file | path exists) { return }
+    mkdir ($file | path parse | get parent)
     {_: '.'} | into sqlite -t _ $file
     open $file | query db "DROP TABLE _;"
     do $hook {|s| open $file | query db $s } {|...t| Q ...$t }
