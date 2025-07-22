@@ -59,7 +59,7 @@ export def json-to-func [o tools] {
     $o
     | each {|x|
         let f = $x.function
-        let c = $tools | where function.name == $f.name | get -i 0.flags
+        let c = $tools | where function.name == $f.name | get -o 0.flags
         mut cmd = [$f.name]
         for i in ($f.arguments | from json | transpose k v) {
             let flag = if $i.k in $c { $"--($i.k)" } else { '' }

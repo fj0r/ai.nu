@@ -77,7 +77,7 @@ export def --env --wrapped ai-assistant [
         {|x| true }
     } else {
         {|x|
-            let c = $x | get -i 0.function.name | default ''
+            let c = $x | get -o 0.function.name | default ''
             $c == $env.AI_CONFIG.assistant.function.name
         }
     }

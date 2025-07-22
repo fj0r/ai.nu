@@ -60,7 +60,7 @@ export def ai-config-upsert-provider [
     if ($name | is-empty) {
         $input | default {}
     } else {
-        sqlx $"select * from provider where name = (Q $name)" | get -i 0
+        sqlx $"select * from provider where name = (Q $name)" | get -o 0
     }
     | upsert-provider --delete=$delete --action {|config|
         let o = $in
@@ -84,7 +84,7 @@ export def ai-config-upsert-prompt [
     if ($name | is-empty) {
         {}
     } else {
-        sqlx $"select * from prompt where name = (Q $name)" | get -i 0
+        sqlx $"select * from prompt where name = (Q $name)" | get -o 0
     }
     | upsert-prompt --delete=$delete --action {|config|
         let o = $in
@@ -108,7 +108,7 @@ export def ai-config-upsert-model [
     if ($name | is-empty) {
         {}
     } else {
-        sqlx $"select * from model where name = (Q $name)" | get -i 0 | default {}
+        sqlx $"select * from model where name = (Q $name)" | get -o 0 | default {}
     }
     | upsert-model --delete=$delete --action {|config|
         let o = $in

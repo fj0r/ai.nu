@@ -8,7 +8,7 @@ export def closure-list [list] {
     $list
     | reduce -f [] {|i,a|
         let p = if ($i | describe) == string {
-            $env.AI_TOOLS | get -i $i
+            $env.AI_TOOLS | get -o $i
         } else {
             {schema: $i}
         }
@@ -19,7 +19,7 @@ export def closure-list [list] {
         }
     }
     | each {|x|
-        let c = $x | get -i context
+        let c = $x | get -o context
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         let a = $x
         | get schema
@@ -30,7 +30,7 @@ export def closure-list [list] {
             | reduce -f {} {|i,a|
                 mut v = $i.v
                 for j in [enum description] {
-                    if ($i.v | get -i $j | describe -d).type == 'closure' {
+                    if ($i.v | get -o $j | describe -d).type == 'closure' {
                         let r = (do ($i.v | get $j) $c)
                         $v = $v | upsert $j $r
                     }
@@ -64,7 +64,7 @@ export def closure-run [list --fallback: string] {
     $list
     | par-each {|x|
         let name = $x.function.name
-        let f = $env.AI_TOOLS | get -i $name
+        let f = $env.AI_TOOLS | get -o $name
         let c = $f.context?
         let c = if ($c | describe -d).type == 'closure' { do $c } else { $c } | default {}
         if ($f | is-empty) {
@@ -98,7 +98,7 @@ export def extract [o, fields] {
     }
     $fields
     | reduce -f {err: [], data: {} } {|i, a|
-        let v = $o | get -i $i
+        let v = $o | get -o $i
         if ($v | is-empty) {
             $a | update err {|x| $x.err | append $i }
         } else {
@@ -108,7 +108,7 @@ export def extract [o, fields] {
 }
 
 export def prompts-call [rep c] {
-    let f = $rep | get -i result.tools.0.function
+    let f = $rep | get -o result.tools.0.function
     let aj = $f.arguments | default {}
     let a = $aj | from json
     let tc_id = $rep.result.tools.0.id
@@ -136,10 +136,10 @@ export def prompts-call [rep c] {
             function: [$func]
         }
     }
-    let snv = $d.data | get -i $s.prompt
-    let inv = $d.data | get -i $s.message
-    let onv = $d.data | get -i $s.placeholder
-    let tlv = $a | get -i $s.tools
+    let snv = $d.data | get -o $s.prompt
+    let inv = $d.data | get -o $s.message
+    let onv = $d.data | get -o $s.placeholder
+    let tlv = $a | get -o $s.tools
     let tc_color = ansi $env.AI_CONFIG.template_calls
     let rs_color = ansi reset
     if $snv not-in $c.prompt.name {
@@ -153,7 +153,7 @@ export def prompts-call [rep c] {
     let o = if ($o | describe) == 'string' { $o | from json } else { $o }
     let pls = $c.prompt | where name == $snv | get 0.placeholder
     let pls = $pls | each {|x|
-        let y = $o | get -i $x
+        let y = $o | get -o $x
         if ($y | is-empty) {
             let e = $c.placeholder | where name == $x | get 0.enum
             $e | columns | input list $"($tc_color)Choose a value for (ansi xterm_yellow)($x)($rs_color)"

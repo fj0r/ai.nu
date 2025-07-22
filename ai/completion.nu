@@ -4,7 +4,7 @@ use data.nu
 
 export def cmpl-sessoin-offset [ctx] {
     let session = if NU_ARGX_EXISTS in $env {
-        $ctx | argx parse | get -i opt.fork
+        $ctx | argx parse | get -o opt.fork
     }
     let session = if ($session | is-empty) { $env.AI_SESSION } else { $session }
     let w = ((term size).columns / 2 | math floor) - 8
@@ -22,7 +22,7 @@ export def cmpl-sessoin-offset [ctx] {
 def cmpl-models-temp [path ctx] {
     let provider = if NU_ARGX_EXISTS in $env {
         let ctx = $ctx | argx parse
-        $ctx | get -i $path
+        $ctx | get -o $path
     }
     let s = data session -p $provider
     base ai-models $s

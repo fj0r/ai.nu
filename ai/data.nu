@@ -231,8 +231,8 @@ export def messages [
     while $c < ($o | length) {
         let i = $o | get $c
         if ($i.tool_calls | is-not-empty) {
-            # `get -i` for tail unpaired `tool_calls`
-            let n = $o | get -i ($c + 1)
+            # `get -o` for tail unpaired `tool_calls`
+            let n = $o | get -o ($c + 1)
             if ($n.tool_calls? | is-not-empty) {
                 $r ++= [$i $n]
             }
@@ -283,8 +283,8 @@ export def role [...args] {
     let val = $pls
     | enumerate
     | reduce -f {} {|i,a|
-        let k = $args | get -i ($i.index + 1)
-        let v = $plm | get $i.item | get -i ($k | default '')
+        let k = $args | get -o ($i.index + 1)
+        let v = $plm | get $i.item | get -o ($k | default '')
         let v = if ($v | is-empty) {
             let v = $plm | get $i.item | values | str join '|'
             $"<choose:($v)>"
