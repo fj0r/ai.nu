@@ -11,12 +11,7 @@ export def cmpl-sessoin-offset [ctx] {
     let c = sqlx $"select substr\(content, 0, ($w)\) as description from messages where session_id = ($session)"
     | enumerate
     | each {|x| {value: ($x.index + 1), description: $x.item.description} }
-    # FXXK:
-    if $env.config.completions.partial {
-        $c
-    } else {
-        { completions: $c, options: { sort: false, partial: false } }
-    }
+    { completions: $c, options: { sort: false, partial: false } }
 }
 
 def cmpl-models-temp [path ctx] {
