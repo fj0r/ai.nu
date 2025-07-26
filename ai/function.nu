@@ -1,3 +1,5 @@
+use common.nu *
+
 export-env {
     if ($env.AI_TOOLS? | is-empty) {
         $env.AI_TOOLS = {}
@@ -77,7 +79,7 @@ export def closure-run [list --fallback: string] {
             return $r
         }
         let f = $f.handler
-        let a = $x.function.arguments | from json
+        let a = $x.function.arguments | try_json
 
         if ($env.AI_CONFIG.tool_calls | is-not-empty) {
             print -e $"(ansi $env.AI_CONFIG.tool_calls)[(date now | format date '%F %H:%M:%S')] ($name) ($a | to nuon)(ansi reset)"
@@ -110,7 +112,7 @@ export def extract [o, fields] {
 export def prompts-call [rep c] {
     let f = $rep | get -o result.tools.0.function
     let aj = $f.arguments | default {}
-    let a = $aj | from json
+    let a = $aj | try_json
     let tc_id = $rep.result.tools.0.id
     let s = $c.selector
     let d = extract $a [$s.prompt $s.message $s.placeholder]
@@ -149,8 +151,7 @@ export def prompts-call [rep c] {
         }
     }
     print -e $"($tc_color)[(date now | format date '%F %H:%M:%S')] ($snv) ($a | reject $s.prompt | to nuon)($rs_color)"
-    let o = $onv | default {}
-    let o = if ($o | describe) == 'string' { $o | from json } else { $o }
+    let o = $onv | default {} | try_json
     let pls = $c.prompt | where name == $snv | get 0.placeholder
     let pls = $pls | each {|x|
         let y = $o | get -o $x

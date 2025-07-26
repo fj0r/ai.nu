@@ -34,3 +34,12 @@ export def render [vars: record] {
         $a | str replace --all $"{{($i)}}" ($vars | get $k | to text)
     }
 }
+
+export def try_json [] {
+    let i = $in
+    if ($i | describe) == 'string' {
+        $i | from nuon
+    } else {
+        $i
+    }
+}
