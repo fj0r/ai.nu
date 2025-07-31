@@ -90,7 +90,7 @@ export def closure-run [list --fallback: string] {
             }
             ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }
         }
-        $x | insert result (do $f $a $c)
+        $x | insert result (do -i $f $a $c)
     }
 }
 
