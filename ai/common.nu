@@ -38,7 +38,14 @@ export def render [vars: record] {
 export def try_json [] {
     let i = $in
     if ($i | describe) == 'string' {
-        $i | from nuon
+        mut x = ''
+        $x = do -i { $i | from yaml }
+        if ($x | is-not-empty) { return $x }
+        $x = do -i { $i | from json }
+        if ($x | is-not-empty) { return $x }
+        $x = do -i { $i | from nuon }
+        if ($x | is-not-empty) { return $x }
+        return 'Deserialization failed'
     } else {
         $i
     }
