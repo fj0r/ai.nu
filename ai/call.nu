@@ -180,12 +180,12 @@ export def ai-editor-run [
     }
     if $ctx.action == 'ai-do' {
         if $watch {
-            watch . -g $ctx.file -q {|op, path, new_path|
-                if $op in ['Write'] {
-                    if $clear { ansi cls }
-                    do $act
-                    if not $clear { print $"(char newline)(ansi grey)------(ansi reset)(char newline)" }
-                }
+            watch . -g $ctx.file -q
+            | where operation in ['Write']
+            | each {
+                if $clear { ansi cls }
+                do $act
+                if not $clear { print $"(char newline)(ansi grey)------(ansi reset)(char newline)" }
             }
         } else {
             do $act
@@ -199,7 +199,7 @@ export def ai-do [
     --quiet(-q)
     --provider: string@cmpl-provider
     --model: string@cmpl-models
-    --function(-f): list<string@cmpl-tools>
+    --function(-f): list<string>@cmpl-tools
     --prevent-func: closure
     --image(-i): string
     --previous(-p): int@cmpl-previous

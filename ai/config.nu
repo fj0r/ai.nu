@@ -126,7 +126,7 @@ export def ai-config-upsert-model [
 
 export def ai-config-alloc-tools [
     name: string@cmpl-prompt
-    --tools(-t): list<string@cmpl-tools>
+    --tools(-t): list<string>@cmpl-tools
     --purge(-p)
 ] {
     if $purge {

@@ -109,7 +109,7 @@ export def ai-send [
     --session(-s): record
     --role: string = 'user'
     --system: string
-    --function(-f): list<any@cmpl-tools>
+    --function(-f): list<any>@cmpl-tools
     --prevent-func: closure
     --image(-i): string
     --audio(-a): string
