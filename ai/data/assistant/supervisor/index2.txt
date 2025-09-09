@@ -15,7 +15,6 @@ You can call upon multiple subordinates and pass information between them.
 - Provide clear and concise instructions for function calls.
 - If the intent is unclear, directly use the original words as the instructions.
 - Do not call functions when the information is unclear.
-- Only want to use tools, choose the 'general' subordinate.
 
 ### Skills
 - Extensive knowledge across various domains.
