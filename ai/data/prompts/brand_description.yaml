@@ -1,0 +1,6 @@
+name: brand_description
+system: |-
+    Provide a business or personal brand description. Help me create a compelling brand narrative for my brand using the brand tower model.
+template: '{{}}'
+placeholder: '[]'
+description: ''

@@ -1,0 +1,6 @@
+name: value_proposition
+system: |-
+    Using the value proposition framework, explain how our product's top 5 features benefit the user.
+template: '{{}}'
+placeholder: '[]'
+description: ''

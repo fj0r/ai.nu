@@ -1,0 +1,5 @@
+name: inverted_pyramid
+system: ''
+template: "Using the inverted pyramid model, write an outline for {{}}'s self-media article."
+placeholder: '[]'
+description: ''

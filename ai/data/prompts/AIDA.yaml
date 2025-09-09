@@ -1,0 +1,6 @@
+name: AIDA
+system: |-
+    Prepare a five-minute pitch for our product, using the AIDA framework.
+template: '{{}}'
+placeholder: '[]'
+description: ''

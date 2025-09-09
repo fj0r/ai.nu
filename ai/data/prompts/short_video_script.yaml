@@ -1,0 +1,5 @@
+name: short_video_script
+system: ''
+template: 'Write a short video script for my {{}} using the ABT framework.'
+placeholder: '[]'
+description: ''

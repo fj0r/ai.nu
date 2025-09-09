@@ -1,0 +1,5 @@
+name: pain_points
+system: ''
+template: 'For the following {{}}, output the top 10 pain points, each with 5 solutions, and each solution with 3 unique business ideas for each solution.'
+placeholder: '[]'
+description: ''
