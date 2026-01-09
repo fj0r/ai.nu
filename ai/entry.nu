@@ -3,18 +3,18 @@
 # export alias a = ai-assistant #[entry]
 export def a [...message: string, --provider(-p): string, --model(-m): string, --system: string, --response-indicator: string, --image(-i): string, --audio(-a): string, --out(-o), --quiet(-q), --ensure-prompt, --think, --debug, --refresh] {
     let n = $in
-    use llm *
+    use llm *; use llm/shortcut.nu *
     $n | ai-assistant  ...$message --provider $provider --model $model --system $system --response-indicator $response_indicator --image $image --audio $audio --out=$out --quiet=$quiet --ensure-prompt=$ensure_prompt --think=$think --debug=$debug --refresh=$refresh
 }
 # export alias ad = ai-do #[entry]
 export def ad [...args: string, --out(-o), --quiet(-q), --provider: string, --model: string, --function(-f): list<string>, --prevent-func: closure, --image(-i): string, --previous(-p): int, --think, --debug] {
     let n = $in
-    use llm *
+    use llm *; use llm/shortcut.nu *
     $n | ai-do  ...$args --out=$out --quiet=$quiet --provider $provider --model $model --function $function --prevent-func $prevent_func --image $image --previous $previous --think=$think --debug=$debug
 }
 # export alias asn = ai-session #[entry]
 export def asn [--all(-a)] {
     let n = $in
-    use llm *
+    use llm *; use llm/shortcut.nu *
     $n | ai-session --all=$all
 }
