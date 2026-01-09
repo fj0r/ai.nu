@@ -1,5 +1,5 @@
 export alias an = ai-new-session
-export alias a = ai-assistant
+export alias a = ai-assistant #[entry]
 export alias A = ai-assistant --ensure-prompt
 export alias Q: = ai-assistant --response-indicator 'A: '
 export alias Q： = ai-assistant --response-indicator 'A： '
@@ -7,7 +7,7 @@ export alias ad = ai-do
 export alias ac = ai-chat
 export alias asm = ai-switch-model
 export alias asp = ai-switch-provider
-export alias asn = ai-session
+export alias asn = ai-session #[entry]
 export alias ai-history-chat = ai-history-assistant
 export alias aha = ai-history-assistant
 export alias ahd = ai-history-do
