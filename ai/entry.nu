@@ -2,13 +2,13 @@
 
 # export alias a = ai-assistant #[entry]
 export def --env a [...message: string, --provider(-p): string, --model(-m): string, --system: string, --response-indicator: string, --image(-i): string, --audio(-a): string, --out(-o), --quiet(-q), --ensure-prompt, --think, --debug, --refresh] {
-    $env.config.hooks.pre_execution = [ { code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = ($env.config.hooks.pre_execution | slice ..-2)' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
+    $env.config.hooks.pre_execution ++= [ { self-destruct: llm code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = $env.config.hooks.pre_execution | where {|x| ($x | describe -d).type != record or $x.self-destruct? != llm }' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
 }
 # export alias ad = ai-do #[entry]
 export def --env ad [...args: string, --out(-o), --quiet(-q), --provider: string, --model: string, --function(-f): list<string>, --prevent-func: closure, --image(-i): string, --previous(-p): int, --think, --debug] {
-    $env.config.hooks.pre_execution = [ { code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = ($env.config.hooks.pre_execution | slice ..-2)' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
+    $env.config.hooks.pre_execution ++= [ { self-destruct: llm code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = $env.config.hooks.pre_execution | where {|x| ($x | describe -d).type != record or $x.self-destruct? != llm }' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
 }
 # export alias asn = ai-session #[entry]
 export def --env asn [--all(-a)] {
-    $env.config.hooks.pre_execution = [ { code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = ($env.config.hooks.pre_execution | slice ..-2)' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
+    $env.config.hooks.pre_execution ++= [ { self-destruct: llm code: 'print $"(ansi grey)load (ansi xterm_grey58)llm(ansi grey)...(ansi reset)";use llm *; $env.config.hooks.pre_execution = $env.config.hooks.pre_execution | where {|x| ($x | describe -d).type != record or $x.self-destruct? != llm }' } ]; print $'(ansi grey)the next command will load the `(ansi xterm_grey58)llm(ansi grey)` module.(ansi grey)'
 }
