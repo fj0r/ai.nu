@@ -22,6 +22,19 @@ export-env {
         permitted-write: ~/Downloads
     }
     use data/assistant/supervisor
+
+    $env.config.hooks.pre_execution ++= [
+        { || $env.CURRENT_INPUT = (commandline) }
+    ]
+
+    if ($env.config.hooks.command_not_found | is-empty) {
+        $env.config.hooks.command_not_found = []
+    }
+
+    $env.config.hooks.command_not_found ++= [{ |cmd|
+        ai-assistant $env.CURRENT_INPUT
+        ""
+    }]
 }
 
 export use call.nu *
