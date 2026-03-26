@@ -22,7 +22,9 @@ export-env {
         permitted-write: ~/Downloads
     }
     use data/assistant/supervisor
+}
 
+export def --env hook-ai-assistant [] {
     $env.config.hooks.pre_execution ++= [
         { || $env.CURRENT_INPUT = (commandline) }
     ]
