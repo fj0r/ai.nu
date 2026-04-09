@@ -76,8 +76,11 @@ export-env {
         }
         handler: {|x, ctx|
             if ($ctx.proxy? | is-not-empty) {
-                $env.http_proxy = $ctx.proxy
-                $env.https_proxy = $ctx.proxy
+                {
+                    http_proxy: $ctx.proxy
+                    https_proxy: $ctx.proxy
+                }
+                | load-env
             }
             let r = http get -r -e $x.url
             match $x.format? {

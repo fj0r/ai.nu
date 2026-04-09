@@ -1,7 +1,10 @@
 export-env {
-    $env.OLLAMA_BASEURL = "http://localhost:11434"
-    $env.OLLAMA_CHAT = {}
-    $env.OLLAMA_HOME = [$env.HOME .ollama] | path join
+    {
+        OLLAMA_BASEURL: "http://localhost:11434"
+        OLLAMA_CHAT: {}
+        OLLAMA_HOME: ([$env.HOME .ollama] | path join)
+    }
+    | load-env
 }
 
 def cmpl-models [] {
