@@ -180,7 +180,7 @@ export def ollama-export [
                 | save -a $tg.model
             }
             _ => {
-                $'(char newline)($type | str upcase) """(cat $blob)"""' | save -a $tg.model
+                $'(char newline)($type | str uppercase) """(cat $blob)"""' | save -a $tg.model
             }
         }
     }

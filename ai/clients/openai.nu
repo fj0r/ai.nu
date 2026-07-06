@@ -9,7 +9,7 @@ def image-loader [uri: string] {
             open $uri
         }
         | encode base64
-        let t = $uri | path parse | get extension | str downcase
+        let t = $uri | path parse | get extension | str lowercase
         let t = match $t {
             'jpg' | 'jpeg' => 'jpeg'
             _ => $t
