@@ -85,7 +85,7 @@ Since [unpm](https://github.com/nushell/nupm) might not be mature enough yet. Le
 Nushell:
 
 ```nushell
-git clone --depth=1 https://github.com/orbit-shift/ai.nu.git ~/nu_libs/ai.nu
+git clone --depth=1 https://github.com/orbsh/ai.nu.git ~/nu_libs/ai.nu
 $"(char newline)$env.NU_LIB_DIRS ++= glob ~/nu_libs/*" | save -a $nu.env-path
 $"(char newline)use ai *" | save -a $nu.config-path
 exec nu
@@ -93,7 +93,7 @@ exec nu
 
 Bash:
 ```bash
-git clone --depth=1 https://github.com/orbit-shift/ai.nu.git ~/nu_libs/ai.nu
+git clone --depth=1 https://github.com/orbsh/ai.nu.git ~/nu_libs/ai.nu
 if [ -z "${XDG_CONFIG_HOME}" ]; then
     # If not set, set it to the default value (~/.config)
     export XDG_CONFIG_HOME="${HOME}/.config"
@@ -260,4 +260,4 @@ Results:
 ```
 
 ---
-[Others](https://github.com/orbit-shift/nushell/blob/main/README.md)
+[Others](https://github.com/orbsh/nushell/blob/main/README.md)
