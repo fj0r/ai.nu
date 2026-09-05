@@ -10,6 +10,13 @@ open $env.AI_STATE | query db "
     alter table model add column has_search boolean default 0;
 "
 ```
+can_disable / reasoning_effort (2026-09)
+```
+open $env.AI_STATE | query db "alter table model add column can_disable boolean default 1;"
+open $env.AI_STATE | query db "alter table model add column reasoning_effort text default '';"
+-- always-thinking models (e.g. ZHIPU/GLM-5.3-Flash) set 0: enable_thinking=false unsupported
+open $env.AI_STATE | query db "update model set can_disable = 0 where name = 'ZHIPU/GLM-5.3-Flash';"
+```
 
 
 sqlite3 $env.AI_STATE

@@ -43,6 +43,8 @@ export def upsert-model [--delete --action: closure] {
             has_fn: 0
             has_search: 0
             has_thinking: 0
+            can_disable: 1
+            reasoning_effort: ''
         }
     }
 }
@@ -97,6 +99,8 @@ export def --env init [] {
                 has_fn BOOLEAN DEFAULT 1,
                 has_search BOOLEAN DEFAULT 0,
                 has_thinking BOOLEAN DEFAULT 0,
+                can_disable BOOLEAN DEFAULT 1,
+                reasoning_effort TEXT DEFAULT '',
                 PRIMARY KEY (name)
             );"
             "CREATE TABLE IF NOT EXISTS sessions (

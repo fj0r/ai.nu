@@ -22,7 +22,9 @@ export def ai-req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
-    --thinking:int
+    --thinking:int = 0
+    --can-disable:int = 0
+    --effort: string = ''
 ] {
     let o = $in
     match $session.adapter? {
@@ -38,6 +40,8 @@ export def ai-req [
             --temperature ($temperature | default $session.temperature)
             --stream=$stream
             --thinking $thinking
+            --can-disable ($session.can_disable? | into int | default 0)
+            --effort ($session.reasoning_effort? | default '')
             $message
         )
     }
@@ -57,8 +61,10 @@ export def ai-call [
     --tag: string = ''
     --quiet(-q)
     --debug
-    --thinking:int
+    --thinking:int = 0
     --record:int = 1
+    --can-disable:int = 0
+    --effort: string = ''
 ] {
     let req = $in
     let msg = $req | get messages | slice (-1 * $record)..-1
@@ -86,7 +92,7 @@ export def ai-call [
     }
     let r = $req
             | ai-req $session --functions $f
-            | ai-req $session --stream --thinking $thinking
+            | ai-req $session --stream --thinking $thinking --can-disable ($session.can_disable? | into int | default 0) --effort ($session.reasoning_effort? | default '')
             | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
 

@@ -30,7 +30,11 @@ export def req [
     --model(-m): string
     --temperature(-t): number = 0.5
     --stream
-    --thinking: int
+    --thinking: int = 0
+    # whether the model can disable thinking (qwen3=1, always-thinking GLM=0)
+    --can-disable: int = 0
+    # reasoning_effort dialect: OpenAI-style reasoning_effort / Zhipu thinking.level
+    --effort: string = ''
     message?: string
 ] {
     mut o = $in | default { messages: [] }
@@ -49,10 +53,19 @@ export def req [
     }
     $o.stream = $stream
 
-    match $thinking {
-        2 => { $o.enable_thinking = true }
-        1 => { $o.enable_thinking = false }
-        0 => {}
+    # two-dim switch: has_thinking × can_disable (thinking: 0=off 1=default 2=--think)
+    #   [1,1] switchable model: default → false, explicitly disable (qwen3)
+    #   [2,_] --think: true
+    #   [1,0] always-thinking: omit field, server default is thinking (e.g. GLM)
+    #   [0,_] non-thinking model: send nothing
+    match [$thinking, ($can_disable | default 0)] {
+        [1, 1] => { $o.enable_thinking = false }
+        [2, _] => { $o.enable_thinking = true }
+        _ => {}
+    }
+    # reasoning_effort: only sent for thinking models
+    if $thinking > 0 and (($effort | default '') | is-not-empty) {
+        $o.reasoning_effort = $effort
     }
 
     let content = if not (($image | is-empty) and ($audio | is-empty)) {
