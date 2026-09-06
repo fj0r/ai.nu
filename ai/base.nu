@@ -40,7 +40,7 @@ export def ai-req [
             --temperature ($temperature | default $session.temperature)
             --stream=$stream
             --thinking $thinking
-            --can-disable ($session.can_disable? | into int | default 0)
+            --can-disable ($session.can_disable? | default 0 | into int)
             --effort ($session.reasoning_effort? | default '')
             $message
         )
@@ -92,7 +92,7 @@ export def ai-call [
     }
     let r = $req
             | ai-req $session --functions $f
-            | ai-req $session --stream --thinking $thinking --can-disable ($session.can_disable? | into int | default 0) --effort ($session.reasoning_effort? | default '')
+            | ai-req $session --stream --thinking $thinking --can-disable ($session.can_disable? | default 0 | into int) --effort ($session.reasoning_effort? | default '')
             | debug-req --debug=$debug
             | openai call $session --quiet=$quiet
 

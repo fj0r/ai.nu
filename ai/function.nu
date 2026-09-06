@@ -90,7 +90,13 @@ export def closure-run [list --fallback: string] {
             }
             ConfirmExec: {|m d a| ConfirmExec $m $d $in $a }
         }
-        $x | insert result (do -i $f $a $c)
+        # capture handler errors so base.nu's retry loop feeds them back to the LLM
+        let r = try {
+            {result: (do $f $a $c)}
+        } catch {|e|
+            {err: $e.msg}
+        }
+        $x | merge $r
     }
 }
 

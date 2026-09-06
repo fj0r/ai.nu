@@ -9,12 +9,8 @@ export-env {
                 type: object,
                 properties: {
                     args: {
-                        type: array,
-                        description: "A list of Git command arguments",
-                        items: {
-                            type: string,
-                            description: "An individual Git command argument"
-                        }
+                        type: string,
+                        description: "Complete git command arguments as a single string, e.g. \"commit -am 'fix: something'\", \"diff HEAD~1\", \"log --oneline -5\""
                     }
                 },
                 required: [
@@ -23,16 +19,27 @@ export-env {
             },
         }
         handler: {|x, ctx|
-            let x = if ($x | describe -d).type == 'list' {
+            # normalize to a single shell command string
+            let s = if ($x | describe) == 'string' {
                 $x
             } else {
-                if ($x.args | describe -d).type == 'list' {
-                    $x.args
+                let a = if ($x | describe -d).type == 'list' { $x } else { $x.args? | default [$x] }
+                let a = if ($a | describe) == 'string' {
+                    $a
+                } else if (($a | length) == 1) and (($a | first) =~ ' ') {
+                    # model packed the whole command into one element
+                    $a | first
                 } else {
-                    [$x.args]
+                    # legacy: individual args, shell-quote each
+                    $a | each {|i|
+                        $"'($i | str replace --all "'" "'\\''")'"
+                    } | str join ' '
                 }
+                $a
             }
-            git ...$x
+            # strict: model must provide a single complete command string;
+            # errors are fed back to the LLM via the tool-message retry loop
+            bash -c $"git ($s)"
         }
     }
 }
