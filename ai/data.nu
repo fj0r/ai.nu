@@ -276,7 +276,8 @@ export def role [...args] {
     } else {
         sqlx $"select * from prompt where name = '($args.0)'" | first
     }
-    let pls = $role.placeholder | from yaml
+    let raw = $role.placeholder?
+    let pls = if ($raw | describe) == 'string' { $raw | from yaml } else { $raw | default [] }
     let plm = $pls | each { Q $in } | str join ', '
     let plm = sqlx $"select name, yaml from placeholder where name in \(($plm)\)"
     | reduce -f {} {|i,a|
@@ -300,7 +301,7 @@ export def role [...args] {
         | insert $"($i.item)" $v
     }
 
-    let system = if ($role.system | is-not-empty) {
+    let system = if ($role.system? | default '' | is-not-empty) {
         $role.system | render $val
     }
     {system: $system, vals: $val, template: $role.template}
