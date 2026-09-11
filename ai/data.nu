@@ -303,6 +303,6 @@ export def role [...args] {
 
     let system = if ($role.system? | default '' | is-not-empty) {
         $role.system | render $val
-    }
-    {system: $system, vals: $val, template: $role.template}
+    } else { '' }
+    {system: $system, vals: $val, template: ($role.template? | default '')}
 }
